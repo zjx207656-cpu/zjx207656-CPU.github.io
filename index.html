@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>流光存根 | Digital Garden</title>
-    <!-- 基础库 -->
+    <!-- 引入核心库 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;600&family=JetBrains+Mono:wght@200;400&family=Dancing+Script:wght@500&display=swap" rel="stylesheet">
     <style>
@@ -16,54 +16,82 @@
             --ambient-glow: rgba(227, 179, 65, 0.08); 
         }
 
-        body { background-color: var(--bg-color); color: #d1d5db; font-family: 'Noto Serif SC', serif; margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; }
-        
-        /* 动态背景 */
-        .page-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(13, 16, 23, 0.9), rgba(13, 16, 23, 0.96)), url('https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2000&auto=format&fit=crop'); background-size: cover; background-position: center; z-index: -1; filter: brightness(0.6); }
-        .ambient-layer { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, var(--ambient-glow) 0%, transparent 70%); pointer-events: none; z-index: 0; transition: background 3s ease; }
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.04; pointer-events: none; z-index: 50; }
+        body {
+            background-color: var(--bg-color);
+            color: #d1d5db;
+            font-family: 'Noto Serif SC', serif;
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
 
-        /* 弹窗遮罩 */
-        #loginModal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.96); backdrop-filter: blur(60px); z-index: 20000; display: none; align-items: center; justify-content: center; }
-        #imageLightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); backdrop-filter: blur(30px); z-index: 15000; display: none; align-items: center; justify-content: center; cursor: zoom-out; }
+        /* 动态背景 */
+        .page-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(13, 16, 23, 0.9), rgba(13, 16, 23, 0.96)), 
+                              url('https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover; background-position: center; z-index: -1; filter: brightness(0.6);
+        }
+
+        .ambient-layer {
+            position: fixed; inset: 0;
+            background: radial-gradient(circle at 50% 50%, var(--ambient-glow) 0%, transparent 70%);
+            pointer-events: none; z-index: 0; transition: background 3s ease;
+        }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.04; pointer-events: none; z-index: 50;
+        }
+
+        /* 灯箱效果 */
+        #imageLightbox {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(30px);
+            z-index: 15000;
+            display: none;
+            align-items: center; justify-content: center;
+            cursor: zoom-out;
+        }
         #imageLightbox img { max-width: 85%; max-height: 85%; border-radius: 12px; box-shadow: 0 0 80px rgba(0,0,0,1); transform: scale(0.95); transition: 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
         #imageLightbox.active { display: flex; }
         #imageLightbox.active img { transform: scale(1); }
 
+        /* 弹窗样式 */
+        #loginModal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.96); backdrop-filter: blur(60px); z-index: 20000; display: none; align-items: center; justify-content: center; }
         #contactPanel { position: fixed; top: 110px; right: 40px; width: 320px; background: rgba(30, 34, 42, 0.98); backdrop-filter: blur(45px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 32px; padding: 2.5rem; z-index: 9000; box-shadow: 0 30px 60px rgba(0,0,0,0.7); display: none; transform: translateY(-20px); opacity: 0; transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
         #contactPanel.active { display: block; transform: translateY(0); opacity: 1; }
 
-        /* 布局 */
         .content-wrapper { position: relative; z-index: 10; perspective: 1200px; }
         .bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(160px, auto); gap: 1.5rem; padding: 2rem; max-width: 1400px; margin: 0 auto; }
         .bento-card { background: var(--card-bg); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 32px; padding: 2.25rem; transition: transform 0.2s ease-out, box-shadow 0.5s ease; transform-style: preserve-3d; }
         .bento-card:hover { border-color: rgba(227, 179, 65, 0.4); box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
 
-        /* 状态灯 */
+        /* 2x2 网格渲染 */
+        .sensory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .sensory-item { width: 100%; aspect-ratio: 1; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); cursor: zoom-in; position: relative; }
+        .sensory-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.6s ease; }
+        .sensory-item:hover img { transform: scale(1.15); }
+
+        /* 指示灯动效 */
         .status-dot { width: 10px; height: 10px; border-radius: 50%; transition: 0.4s; margin-right: 6px; display: inline-block; border: 2px solid rgba(255,255,255,0.1); }
         .status-online { background: #85a583; box-shadow: 0 0 12px #85a583; }
         .status-pending { background: #e3b341; box-shadow: 0 0 12px #e3b341; animation: blink 1.2s infinite; }
         .status-offline { background: #ef4444; box-shadow: 0 0 12px #ef4444; cursor: pointer; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* M5 网格 */
-        .sensory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-        .sensory-item { width: 100%; aspect-ratio: 1; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); cursor: zoom-in; position: relative; }
-        .sensory-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.6s ease; }
-        .sensory-item:hover img { transform: scale(1.15); }
-
         .mono { font-family: 'JetBrains Mono', monospace; }
         .module-time { font-family: 'JetBrains Mono', monospace; font-size: 9px; opacity: 0.3; }
         .record-image { width: 100%; height: auto; max-height: 250px; object-fit: cover; border-radius: 18px; margin-top: 1.5rem; border: 6px solid rgba(255,255,255,0.03); cursor: zoom-in; }
 
-        /* 侧边栏 */
         #historyDrawer { position: fixed; right: -550px; top: 0; width: 500px; height: 100vh; background: rgba(13, 16, 23, 0.98); backdrop-filter: blur(40px); z-index: 8000; transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1); border-left: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
 
         #adminPostArea { transition: all 0.6s ease; max-height: 0; overflow: hidden; opacity: 0; }
         #adminPostArea.active { max-height: 1500px; opacity: 1; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
 
-        /* 音乐动效 */
         .sound-wave { display: flex; gap: 3px; height: 16px; align-items: flex-end; }
         .wave-bar { width: 2px; background: var(--amber-gold); animation: wave 1s infinite ease-in-out; }
         @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 16px; } }
@@ -78,13 +106,13 @@
     <!-- 灯箱 -->
     <div id="imageLightbox" onclick="this.classList.remove('active')"><img id="lightboxImg" src=""></div>
 
-    <!-- 登录弹窗 -->
+    <!-- 登录 -->
     <div id="loginModal">
-        <div class="bg-[#1a1d23] p-12 rounded-[56px] border border-white/10 w-full max-w-sm text-center shadow-3xl">
-            <h3 class="mono text-[11px] uppercase tracking-[0.4em] opacity-40 mb-10 font-bold text-white text-center">Security Identity</h3>
+        <div class="bg-[#1a1d23] p-12 rounded-[56px] border border-white/10 w-full max-w-sm text-center shadow-3xl relative">
+            <h3 class="mono text-[11px] uppercase tracking-[0.4em] opacity-40 mb-10 font-bold text-white text-center">Identity Terminal</h3>
             <input type="password" id="secretKeyInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-center mono tracking-widest focus:outline-none focus:border-amber-500/50 transition-colors mb-10 text-white" placeholder="••••••••">
             <div class="flex gap-4">
-                <button onclick="document.getElementById('loginModal').style.display='none'" class="flex-1 py-4 text-[11px] mono opacity-30 text-white hover:opacity-100 transition-opacity uppercase font-bold">Cancel</button>
+                <button onclick="document.getElementById('loginModal').style.display='none'" class="flex-1 py-4 text-[11px] mono opacity-30 text-white hover:opacity-100 transition-opacity uppercase">Cancel</button>
                 <button id="confirmLogin" class="flex-1 py-4 bg-white/5 hover:bg-white hover:text-black rounded-xl text-[11px] mono transition-all font-bold text-white uppercase tracking-widest">Verify</button>
             </div>
         </div>
@@ -97,6 +125,7 @@
             <div class="group"><div class="text-[10px] opacity-20 mono mb-3 uppercase tracking-tighter">Secure Mail</div><div class="flex justify-between items-center bg-white/[0.03] p-4 rounded-2xl border border-white/5"><span class="text-sm mono text-white/90">zjx207656@gmail.com</span><button onclick="copyToClipboard('zjx207656@gmail.com')" class="px-3 py-1.5 bg-white/5 rounded-lg text-[10px] mono text-amber-500">COPY</button></div></div>
             <div class="group"><div class="text-[10px] opacity-20 mono mb-3 uppercase tracking-tighter">WeChat ID</div><div class="flex justify-between items-center bg-white/[0.03] p-4 rounded-2xl border border-white/5"><span class="text-sm mono text-white/90">Zj_6174</span><button onclick="copyToClipboard('Zj_6174')" class="px-3 py-1.5 bg-white/5 rounded-lg text-[10px] mono text-amber-500">COPY</button></div></div>
         </div>
+        <p class="text-[9px] opacity-20 mt-14 mono text-center uppercase tracking-widest italic">Signal established 2025</p>
     </div>
 
     <div class="content-wrapper">
@@ -110,14 +139,11 @@
                 <div class="flex flex-col items-end gap-10">
                     <div class="flex items-center gap-10 flex-wrap justify-end">
                         <div class="visitor-stat">
-                            <div id="syncIndicator" class="status-dot status-offline" onclick="window.emergencySync()"></div>
+                            <div id="syncIndicator" class="status-dot status-offline" onclick="window.emergencySync()" title="Click to Retry Cloud Connection"></div>
                             <span id="visitorCount" class="font-bold tracking-widest text-white/60">----</span>
                         </div>
-                        <!-- 音乐按钮修复 -->
                         <button id="soundToggle" class="flex items-center gap-3 group sound-off">
-                            <div id="waveContainer" class="sound-wave">
-                                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-                            </div>
+                            <div class="sound-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
                             <span class="mono text-[10px] opacity-20 group-hover:opacity-60 transition-opacity uppercase tracking-widest">Atmosphere</span>
                         </button>
                         <div class="flex items-center gap-6 border-l border-white/5 pl-10">
@@ -127,13 +153,13 @@
                     </div>
                     <div class="flex items-center gap-6">
                         <button id="searchTrigger" class="text-gray-500 hover:text-white transition-all p-3 rounded-full hover:bg-white/5"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
-                        <button id="adminLockTrigger" class="text-gray-500 hover:text-amber-500 transition-colors p-3 rounded-full hover:bg-white/5"><svg id="lockIcon" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M12 15v2m-6 4h12a2 2(0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></button>
+                        <button id="adminLockTrigger" class="text-gray-500 hover:text-amber-500 transition-colors p-3 rounded-full hover:bg-white/5"><svg id="lockIcon" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></button>
                     </div>
                 </div>
             </header>
 
             <div class="bento-grid">
-                <!-- M1: 概览 -->
+                <!-- M1 -->
                 <div class="bento-card col-span-2 row-span-2 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-3 mb-12"><div class="w-2.5 h-2.5 rounded-full bg-[#85a583] shadow-[0_0_20px_#85a583]"></div><span class="mono text-[11px] uppercase tracking-[0.25em] opacity-40">System Pulse: <span id="lastUpdatedGlobal">Syncing</span></span></div>
@@ -159,7 +185,7 @@
                 <div id="musingModule" class="bento-card col-span-2 row-span-2 flex flex-col">
                     <div class="flex justify-between items-start mb-10"><span class="mono text-[10px] opacity-30 uppercase tracking-[0.4em]">零散回响 / Echoes</span><div id="masterPrivacyContainer" class="flex items-center gap-3 hidden"><span class="mono text-[8px] opacity-20">VISIBILITY</span><div id="masterToggle" class="toggle-switch"></div></div></div>
                     <div id="musingContent" class="flex-grow flex flex-col justify-center">
-                        <div id="visitorPlaceholder" class="text-center py-24 hidden"><span class="text-gray-600 italic font-light text-lg tracking-widest text-white/40 block">Archive Locked.<br>Awaiting Sync...</span></div>
+                        <div id="visitorPlaceholder" class="text-center py-24 hidden"><span class="text-gray-600 italic font-light text-lg tracking-widest text-white/40 block text-center">Archive Locked.<br>Awaiting Sync...</span></div>
                         <div id="latestEcho" class="relative p-12 bg-white/[0.01] border-l-2 border-amber-500/30 rounded-r-[40px] hidden"><p id="echoText" class="text-2xl leading-relaxed text-gray-300 font-light italic"></p><div id="latestEchoImgContainer"></div></div>
                     </div>
                     <div id="adminPostArea">
@@ -167,28 +193,26 @@
                             <select id="postType" class="bg-white/5 border border-white/10 rounded-2xl p-4 text-[11px] mono text-gray-400 focus:outline-none focus:border-amber-500/30"><option value="echo">CATEGORY: ECHO</option><option value="learning">CATEGORY: LEARNING</option><option value="entertainment">CATEGORY: ENTERTAIN</option><option value="investment">CATEGORY: INVESTMENT</option><option value="article">CATEGORY: ARTICLE</option><option value="metrics">CATEGORY: METRICS</option><option value="sys_keys">CATEGORY: SETTINGS</option></select>
                             <input type="text" id="postTitle" class="bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:outline-none focus:border-amber-500/30 text-white font-light" placeholder="Title">
                         </div>
-                        <input type="text" id="postImageUrl" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-[11px] mono mb-5 text-white" placeholder="Media URL (Optional)">
+                        <input type="text" id="postImageUrl" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-[11px] mono mb-5 text-white" placeholder="Media Reference URL (Optional)">
                         <textarea id="newEchoInput" class="w-full bg-white/5 border border-white/10 rounded-[32px] p-6 text-base font-light text-white outline-none focus:border-amber-500/30" placeholder="捕捉瞬间的想法..." rows="2"></textarea>
-                        <div class="flex justify-between items-center mt-6">
-                            <label class="flex items-center gap-3 cursor-pointer opacity-30 hover:opacity-100 transition-opacity"><input type="checkbox" id="isPrivateEntry"><span class="text-[11px] mono uppercase text-white tracking-widest">Private</span></label>
-                            <button id="postEchoBtn" class="px-14 py-4 bg-white/5 hover:bg-white hover:text-black rounded-2xl text-[11px] mono transition-all font-bold text-white uppercase tracking-[0.4em]">STAMP</button>
-                        </div>
+                        <div class="flex justify-between items-center mt-6"><label class="flex items-center gap-3 cursor-pointer opacity-30 hover:opacity-100 transition-opacity"><input type="checkbox" id="isPrivateEntry"><span class="text-[11px] mono uppercase text-white tracking-widest">Private</span></label><button id="postEchoBtn" class="px-14 py-4 bg-white/5 hover:bg-white hover:text-black rounded-2xl text-[11px] mono transition-all font-bold text-white uppercase tracking-[0.4em]">STAMP</button></div>
                     </div>
                 </div>
 
                 <div id="narrativeCard" class="bento-card col-span-2 cursor-pointer group">
                     <div class="default-content"><div class="flex justify-between items-center mb-10"><span class="mono text-[10px] opacity-30 uppercase tracking-[0.4em]">书写档案 / Narrative</span><span id="m2Time" class="module-time">--:--:--</span></div><p class="text-3xl leading-relaxed text-gray-400 font-light italic group-hover:text-amber-500/80 transition-colors">“思想在时间中留下的痕迹。”</p></div>
-                    <div id="articleListView" class="article-list hidden pt-4"><div id="dynamicArticleList" class="grid grid-cols-1 gap-6"></div><button id="closeArchive" class="text-[10px] mono opacity-20 hover:opacity-100 uppercase mt-10 tracking-[0.4em]">[ Return ]</button></div>
+                    <div id="articleListView" class="article-list hidden pt-4"><div id="dynamicArticleList" class="grid grid-cols-1 gap-6"></div><button id="closeArchive" class="text-[10px] mono opacity-20 hover:opacity-100 uppercase mt-10 tracking-[0.4em] font-bold">[ Return ]</button></div>
                 </div>
 
-                <!-- M5: 感官实验室 -->
+                <!-- M5: 感官实验室 (2x2 网格) -->
                 <div class="bento-card col-span-2">
                     <div class="flex justify-between items-center mb-10"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.5em]">// Sensory_Memory</h3><span id="m5Time" class="module-time uppercase">Gallery</span></div>
                     <div id="entertainmentList" class="sensory-grid flex-grow"></div>
                 </div>
 
+                <!-- M6: 资产 -->
                 <div id="investCard" class="bento-card col-span-4 min-h-[400px]">
-                    <div class="flex justify-between items-start mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.5em]">Wealth Pulse Monitor</h3><span id="m6Time" class="module-time uppercase font-bold text-amber-500/60 tracking-widest">DeepSeek Sync</span></div>
+                    <div class="flex justify-between items-start mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.5em]">Wealth Pulse Monitor</h3><span id="m6Time" class="module-time uppercase font-bold text-amber-500/60 tracking-widest">DeepSeek Analytics</span></div>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 flex-grow items-center">
                         <div class="lg:col-span-1 space-y-8"><div class="flex flex-col gap-5"><div class="invest-tab active" data-type="fund">基金 (Fund)</div><div class="invest-tab" data-type="stock">股票 (Stock)</div><div class="invest-tab" data-type="crypto">数字币 (Crypto)</div><div class="invest-tab" data-type="metal">贵金属 (Metal)</div></div><div id="investText" class="text-base font-light text-gray-400 leading-relaxed italic border-l-2 border-white/5 pl-8 pt-4"></div></div>
                         <div class="lg:col-span-1 flex flex-col justify-center"><svg class="mini-chart" viewBox="0 0 400 100"><defs><linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--amber-gold)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--amber-gold)" stop-opacity="0"/></linearGradient></defs><path id="trendArea" d="" fill="url(#chartGradient)"></path><path id="trendPath" d="M 0 100 L 400 100" fill="none" stroke="var(--amber-gold)" stroke-width="4" stroke-linecap="round"></path></svg></div>
@@ -196,7 +220,7 @@
                     </div>
                 </div>
 
-                <div class="bento-card col-span-4 bg-white/[0.01] flex flex-col justify-center items-center opacity-10 py-16"><span class="mono text-3xl font-light tracking-[2.5em] text-white uppercase ml-[2em]">Archive_Core_Online</span></div>
+                <div class="bento-card col-span-4 bg-white/[0.01] flex flex-col justify-center items-center opacity-10 py-16"><span class="mono text-3xl font-light tracking-[2.5em] text-white uppercase ml-[2em]">Archives_Core_Online</span></div>
             </div>
         </div>
     </div>
@@ -210,7 +234,7 @@
             <input type="text" id="aiChatInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm outline-none focus:border-amber-500/30 text-white" placeholder="向深海守望者提问...">
             <button id="askGuardianBtn" class="w-full mt-6 text-[11px] mono text-amber-500/70 hover:text-amber-500 transition-all font-bold uppercase py-3 border border-amber-500/20 rounded-2xl hover:bg-amber-500/10">[ Dispatch Query ]</button>
         </div>
-        <input type="text" id="globalSearch" class="w-full bg-white/5 border border-white/10 rounded-2xl p-7 text-sm mb-12 text-white focus:outline-none" placeholder="搜索关键词或日期...">
+        <input type="text" id="globalSearch" class="w-full bg-white/5 border border-white/10 rounded-2xl p-7 text-sm mb-12 text-white focus:outline-none" placeholder="关键词检索或日期...">
         <div id="historyTimeline" class="space-y-16"></div>
     </aside>
 
@@ -223,13 +247,14 @@
         const ADMIN_SECRET = "Zjx207661"; 
         setInterval(() => { const el = document.getElementById('liveClock'); if(el) el.innerText = new Date().toLocaleTimeString(); }, 1000);
 
-        // 软登录系统
+        // 软登录系统 (修复变白问题)
         document.getElementById('adminLockTrigger').onclick = (e) => {
             e.preventDefault();
             if (localStorage.getItem('is_garden_admin') === 'true') {
                 localStorage.removeItem('is_garden_admin'); window.isAdmin = false;
                 document.getElementById('lockIcon').classList.remove('text-amber-500');
                 document.getElementById('adminPostArea').classList.remove('active');
+                document.getElementById('masterPrivacyContainer').classList.add('hidden');
                 alert("已退出管理员模式。");
             } else { document.getElementById('loginModal').style.display = 'flex'; document.getElementById('secretKeyInput').focus(); }
         };
@@ -240,6 +265,7 @@
                 document.getElementById('loginModal').style.display = 'none';
                 if(window.updateAdminUI) window.updateAdminUI();
                 if(window.refreshDisplay) window.refreshDisplay();
+                alert("验证成功。");
             } else { alert("验证失败。"); }
         };
 
@@ -253,20 +279,13 @@
             alert("已复制: " + t);
         };
         
-        // 音乐控制逻辑修复
+        // 氛围音乐控制修复
         const audio = document.getElementById('ambientAudio');
         const sBtn = document.getElementById('soundToggle');
         if(sBtn) sBtn.onclick = () => {
             if (audio.paused) {
-                audio.play().then(() => {
-                    sBtn.classList.remove('sound-off');
-                }).catch(e => {
-                    alert("请先点击页面任意位置，再开启背景音乐。");
-                });
-            } else {
-                audio.pause();
-                sBtn.classList.add('sound-off');
-            }
+                audio.play().then(() => { sBtn.classList.remove('sound-off'); }).catch(() => { alert("由于浏览器安全策略，请先点击页面任意处再开启音乐。"); });
+            } else { audio.pause(); sBtn.classList.add('sound-off'); }
         };
 
         window.emergencySync = () => { window.location.reload(); };
@@ -274,7 +293,7 @@
         document.getElementById('closeHistory').onclick = () => document.getElementById('historyDrawer').classList.remove('open');
     </script>
 
-    <!-- 2. Firebase & AI 逻辑 -->
+    <!-- 2. Firebase & DeepSeek 逻辑 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -354,7 +373,7 @@
             const sEl = document.getElementById('entertainmentList');
             if(sEl) {
                 const items = all.filter(l => l.type === 'entertainment').slice(0, 4);
-                sEl.innerHTML = items.map(i => `<div class="sensory-item" onclick="window.openLightbox('${i.imageUrl}')">${i.imageUrl ? `<img src="${i.imageUrl}">` : '<div class="w-full h-full bg-white/5 flex items-center justify-center mono text-[8px] opacity-20 uppercase tracking-widest">Gallery_Null</div>'}</div>`).join('');
+                sEl.innerHTML = items.map(i => `<div class="sensory-item" onclick="window.openLightbox('${i.imageUrl}')">${i.imageUrl ? `<img src="${i.imageUrl}">` : '<div class="w-full h-full bg-white/5 flex items-center justify-center mono text-[8px] opacity-20">No_Media</div>'}</div>`).join('');
             }
             updateInvest();
             const arts = all.filter(l => l.type === 'article');
@@ -390,10 +409,10 @@
                 const pts = recs.map(r => parseFloat(r.text.split('|')[0]) || 0);
                 const path = document.getElementById('trendPath');
                 if(path && pts.length>0) {
-                    const min = Math.min(...pts, 0); const max = Math.max(...pts, 100); const r = max - min || 1; const step = 400 / (Math.max(pts.length, 2) - 1);
-                    let d = `M 0 ${95 - ((pts[0] - min) / r * 90)}`;
-                    pts.forEach((p, i) => { if(i > 0) d += ` L ${i * step} ${95 - ((p - min) / r * 90)}`; });
-                    path.setAttribute('d', d);
+                    const min = Math.min(...pts, 0); const max = Math.max(...pts, 100); const range = max - min || 1; const step = 400 / (Math.max(pts.length, 2) - 1);
+                    let dL = `M 0 ${95 - ((pts[0] - min) / range * 90)}`;
+                    pts.forEach((p, i) => { if(i > 0) dL += ` L ${i * step} ${95 - ((p - min) / range * 90)}`; });
+                    path.setAttribute('d', dL);
                 }
             }
         }
@@ -403,7 +422,7 @@
             document.querySelectorAll('.bento-card').forEach(card => {
                 card.onmousemove = (e) => {
                     const rect = card.getBoundingClientRect(); const x = (e.clientX - rect.left) / rect.width - 0.5; const y = (e.clientY - rect.top) / rect.height - 0.5;
-                    card.style.transform = `perspective(1200px) rotateX(${y * -10}deg) rotateY(${x * 10}deg) translateZ(10px)`;
+                    card.style.transform = `perspective(1200px) rotateX(${y * -10}deg) rotateY(${x * 10}deg) translateZ(15px)`;
                 };
                 card.onmouseleave = () => card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg)`;
             });
@@ -412,9 +431,8 @@
             const container = document.getElementById('historyTimeline'); if(!container) return;
             const q = document.getElementById('globalSearch').value.toLowerCase();
             const filtered = data.filter(l => (window.isAdmin || !l.isPrivate) && (l.text?.toLowerCase().includes(q) || l.title?.toLowerCase().includes(q)));
-            container.innerHTML = filtered.map(l => `<div class="pl-14 relative group mb-14"><div class="absolute left-0 top-3 w-8 h-8 rounded-full border-4 border-[#0d1017] ${l.isPrivate ? 'bg-amber-600' : 'bg-[#85a583]'} shadow-xl"></div><div class="flex justify-between items-center mb-2"><span class="mono text-[10px] opacity-30 font-bold">${l.createdAt ? new Date(l.createdAt.seconds * 1000).toLocaleString() : ''}</span>${window.isAdmin ? `<button onclick="window.deleteLog('${l.id}', ${l.isPrivate})" class="text-[9px] opacity-0 group-hover:opacity-40 hover:text-red-500 transition-all font-bold tracking-widest">[ Purge ]</button>` : ''}</div><h4 class="text-white font-bold text-sm mb-2 uppercase tracking-wide">${l.title || l.type}</h4><p class="text-sm text-gray-400 font-light leading-relaxed mb-4">${l.text.split('|')[0]}</p>${l.imageUrl ? `<img src="${l.imageUrl}" class="record-image" style="max-height:160px; margin-top:0" onclick="window.openLightbox('${l.imageUrl}')">` : ''}</div>`).join('');
+            container.innerHTML = filtered.map(l => `<div class="pl-14 relative group mb-14"><div class="absolute left-0 top-3 w-8 h-8 rounded-full border-4 border-[#0d1017] ${l.isPrivate ? 'bg-amber-600' : 'bg-[#85a583]'} shadow-xl"></div><div class="flex justify-between items-center mb-2"><span class="mono text-[10px] opacity-30 font-bold">${l.createdAt ? new Date(l.createdAt.seconds * 1000).toLocaleString() : ''}</span>${isAdmin ? `<button onclick="window.deleteLog('${l.id}', ${l.isPrivate})" class="text-[9px] opacity-0 group-hover:opacity-40 hover:text-red-500 transition-all font-bold tracking-widest uppercase">[ Purge ]</button>` : ''}</div><h4 class="text-white font-bold text-sm mb-2 uppercase tracking-wide">${l.title || l.type}</h4><p class="text-sm text-gray-400 font-light leading-relaxed mb-4">${l.text.split('|')[0]}</p>${l.imageUrl ? `<img src="${l.imageUrl}" class="record-image" style="max-height:160px; margin-top:0" onclick="window.openLightbox('${l.imageUrl}')">` : ''}</div>`).join('');
         }
-        window.deleteLog = async (id, isPriv) => { if(!confirm("确定抹除？")) return; await deleteDoc(doc(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? window.currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs', id)); };
         
         document.getElementById('postEchoBtn').onclick = async () => {
             if(!window.currentUser) return alert("鉴权未就绪。请确认开启 VPN 并在右上角指示灯变绿后再试。");
@@ -458,13 +476,9 @@
                 });
                 const data = await res.json();
                 box.innerText = data.choices[0].message.content;
-            } catch(e) { box.innerText = "回响断裂，请确认 API Key 是否有效。"; }
+            } catch(e) { box.innerText = "回响断裂，请检查 API Key 或网络。"; }
             input.value = "";
         };
-
-        const nc = document.getElementById('narrativeCard'); 
-        if(nc) nc.onclick = (e) => { if(!e.target.closest('a') && e.target.id !== 'closeArchive') { nc.querySelector('.default-content').classList.add('hidden'); document.getElementById('articleListView').classList.remove('hidden'); } };
-        document.getElementById('closeArchive').onclick = (e) => { e.stopPropagation(); nc.querySelector('.default-content').classList.remove('hidden'); document.getElementById('articleListView').classList.add('hidden'); };
 
         startSystem();
     </script>
