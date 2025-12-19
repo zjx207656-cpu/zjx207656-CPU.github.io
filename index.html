@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>流光存根 | Digital Garden</title>
-    <!-- 引入 Tailwind CSS 和 Google Fonts -->
+    <!-- 引入基础库 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;600&family=JetBrains+Mono:wght@200;400&family=Dancing+Script:wght@500&display=swap" rel="stylesheet">
     <style>
@@ -23,33 +23,36 @@
             position: relative;
             overflow-x: hidden;
             min-height: 100vh;
+            margin: 0;
         }
 
-        /* 背景与光效层 */
         .page-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: linear-gradient(rgba(13, 16, 23, 0.85), rgba(13, 16, 23, 0.95)), 
                               url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2000&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            z-index: -1;
-            filter: brightness(0.6);
+            background-size: cover; background-position: center; z-index: -1; filter: brightness(0.6);
         }
 
         .ambient-layer {
-            position: fixed;
-            inset: 0;
+            position: fixed; inset: 0;
             background: radial-gradient(circle at 50% 50%, var(--ambient-glow) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-            transition: background 2s ease;
+            pointer-events: none; z-index: 0; transition: background 2s ease;
         }
 
         body::before {
             content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('https://grainy-gradients.vercel.app/noise.svg');
             opacity: 0.04; pointer-events: none; z-index: 50;
+        }
+
+        /* 独立层级登录框 */
+        #loginModal {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(30px);
+            z-index: 9999;
+            display: none;
+            align-items: center; justify-content: center;
         }
 
         .content-wrapper {
@@ -59,57 +62,30 @@
         }
 
         .bento-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-auto-rows: minmax(160px, auto);
-            gap: 1.5rem;
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: minmax(160px, auto); gap: 1.5rem;
+            padding: 2rem; max-width: 1400px; margin: 0 auto;
         }
 
         .bento-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 32px;
-            padding: 2rem;
-            transition: transform 0.1s ease-out, box-shadow 0.5s ease, border 0.5s ease;
+            background: var(--card-bg); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 32px;
+            padding: 2rem; transition: transform 0.1s ease-out, box-shadow 0.5s ease;
             transform-style: preserve-3d;
         }
 
-        .bento-card:hover {
-            border-color: rgba(227, 179, 65, 0.3);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        }
-
-        /* 盈亏热力感应样式 */
-        #investCard.growth-heat { box-shadow: 0 0 30px rgba(227, 179, 65, 0.15); border-color: rgba(227, 179, 65, 0.4); }
-        #investCard.stable-heat { box-shadow: 0 0 30px rgba(133, 165, 131, 0.1); border-color: rgba(133, 165, 131, 0.3); }
-
-        #loginModal { z-index: 999; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(20px); }
+        .bento-card:hover { border-color: rgba(227, 179, 65, 0.3); box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
 
         #historyDrawer {
-            position: fixed;
-            right: -500px; top: 0;
-            width: 500px; height: 100vh;
-            background: rgba(13, 16, 23, 0.98);
-            backdrop-filter: blur(40px);
-            z-index: 400;
-            transition: 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-            border-left: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 2.5rem;
-            overflow-y: auto;
+            position: fixed; right: -500px; top: 0; width: 500px; height: 100vh;
+            background: rgba(13, 16, 23, 0.98); backdrop-filter: blur(40px);
+            z-index: 5000; transition: 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+            border-left: 1px solid rgba(255, 255, 255, 0.05); padding: 2.5rem; overflow-y: auto;
         }
         #historyDrawer.open { right: 0; }
 
-        #adminPostArea {
-            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-            max-height: 0; overflow: hidden; opacity: 0;
-        }
-        #adminPostArea.active {
-            max-height: 1500px; opacity: 1; margin-top: 2.5rem; padding-top: 2.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
+        #adminPostArea { transition: all 0.6s ease; max-height: 0; overflow: hidden; opacity: 0; }
+        #adminPostArea.active { max-height: 1500px; opacity: 1; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
 
         .invest-tab {
             font-size: 10px; padding: 6px 14px; border-radius: 12px;
@@ -119,22 +95,22 @@
         .invest-tab.active { background: rgba(227, 179, 65, 0.1); border-color: var(--amber-gold); color: var(--amber-gold); }
 
         .mini-chart { width: 100%; height: 80px; filter: drop-shadow(0 0 10px var(--amber-gold)); }
-        
-        .donut-chart { width: 100px; height: 100px; transform: rotate(-90deg); }
+        .donut-chart { width: 80px; height: 80px; transform: rotate(-90deg); }
         .donut-ring { fill: none; stroke-width: 8; transition: stroke-dasharray 1s ease; }
 
-        .contact-icon {
-            opacity: 0.3; transition: 0.3s; color: white; background: none; border: none; cursor: pointer;
-        }
+        .contact-icon { opacity: 0.3; transition: 0.3s; color: white; background: none; border: none; cursor: pointer; outline: none; }
         .contact-icon:hover { opacity: 0.9; color: var(--amber-gold); transform: translateY(-2px); }
 
         .sound-wave { display: flex; gap: 2px; height: 12px; align-items: flex-end; }
         .wave-bar { width: 2px; background: var(--amber-gold); animation: wave 1s infinite ease-in-out; }
-        .wave-bar:nth-child(2) { animation-delay: 0.2s; }
-        .wave-bar:nth-child(3) { animation-delay: 0.4s; }
         @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 12px; } }
         .sound-off .wave-bar { animation: none; height: 2px; opacity: 0.2; }
 
+        .record-image { width: 100%; height: auto; max-height: 250px; object-fit: cover; border-radius: 12px; margin-top: 1rem; border: 4px solid rgba(255,255,255,0.03); }
+        .list-thumbnail { width: 48px; height: 48px; object-fit: cover; border-radius: 10px; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .module-time { font-family: 'JetBrains Mono', monospace; font-size: 9px; opacity: 0.3; }
+        
         .ai-chat-input {
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px; padding: 1rem; width: 100%; font-size: 13px; color: white; outline: none;
@@ -144,27 +120,6 @@
             padding: 1.25rem; border-radius: 0 16px 16px 0; font-size: 13px; color: rgba(255,255,255,0.8);
             margin-bottom: 2rem; display: none; line-height: 1.6;
         }
-
-        .record-image { width: 100%; height: auto; max-height: 250px; object-fit: cover; border-radius: 12px; margin-top: 1rem; border: 8px solid rgba(255,255,255,0.03); }
-        .list-thumbnail { width: 48px; height: 48px; object-fit: cover; border-radius: 10px; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .module-time { font-family: 'JetBrains Mono', monospace; font-size: 9px; opacity: 0.3; letter-spacing: 1px; }
-
-        .toggle-switch {
-            width: 32px; height: 18px; background: rgba(255,255,255,0.05);
-            border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s;
-        }
-        .toggle-switch::after {
-            content: ""; position: absolute; top: 2px; left: 2px;
-            width: 12px; height: 12px; background: #444; border-radius: 50%; transition: 0.3s;
-        }
-        .toggle-active { background: var(--moss-green); }
-        .toggle-active::after { left: 16px; background: white; }
-        
-        .ai-glow-btn {
-            background: linear-gradient(135deg, rgba(227, 179, 65, 0.15), rgba(139, 134, 163, 0.25));
-            border: 1px solid rgba(227, 179, 65, 0.2); transition: all 0.4s ease;
-        }
     </style>
 </head>
 <body>
@@ -172,14 +127,14 @@
     <div class="page-bg"></div>
     <div class="ambient-layer"></div>
 
-    <!-- 登录 -->
-    <div id="loginModal" class="fixed inset-0 hidden items-center justify-center">
-        <div class="bg-[#1a1d23] p-10 rounded-[40px] border border-white/10 w-full max-w-sm text-center shadow-2xl relative z-[1000]">
+    <!-- 登录窗口 -->
+    <div id="loginModal">
+        <div class="bg-[#1a1d23] p-10 rounded-[40px] border border-white/10 w-full max-w-sm text-center shadow-2xl relative">
             <h3 class="mono text-[10px] uppercase tracking-[0.4em] opacity-40 mb-8 font-bold text-white">Archive Verification</h3>
             <input type="password" id="secretKeyInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-center mono tracking-widest focus:outline-none focus:border-amber-500/50 transition-colors mb-6 text-white" placeholder="••••••••">
             <div class="flex gap-4">
-                <button id="cancelLogin" class="flex-1 py-3 text-[10px] mono opacity-30 hover:opacity-100 transition-opacity text-white">CANCEL</button>
-                <button id="confirmLogin" class="flex-1 py-3 bg-white/5 hover:bg-white hover:text-black rounded-xl text-[10px] mono transition-all font-bold">VERIFY</button>
+                <button id="cancelLogin" class="flex-1 py-3 text-[10px] mono opacity-30 text-white hover:opacity-100 transition-opacity">CANCEL</button>
+                <button id="confirmLogin" class="flex-1 py-3 bg-white/5 hover:bg-white hover:text-black rounded-xl text-[10px] mono transition-all font-bold text-white">VERIFY</button>
             </div>
         </div>
     </div>
@@ -195,7 +150,7 @@
                 <div class="flex flex-col items-end gap-6">
                     <div class="flex items-center gap-8">
                         <button id="soundToggle" class="flex items-center gap-3 group sound-off">
-                            <div class="sound-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
+                            <div class="sound-wave"><div class="wave-bar" style="animation-delay: 0s"></div><div class="wave-bar" style="animation-delay: 0.2s"></div><div class="wave-bar" style="animation-delay: 0.4s"></div></div>
                             <span class="mono text-[9px] opacity-20 group-hover:opacity-60 transition-opacity uppercase tracking-widest">Atmosphere</span>
                         </button>
                         
@@ -226,14 +181,14 @@
                 <div class="bento-card col-span-2 row-span-2 overflow-hidden">
                     <div class="flex items-center gap-3 mb-8">
                         <div class="w-2.5 h-2.5 rounded-full bg-[#85a583] shadow-[0_0_15px_#85a583]"></div>
-                        <span class="mono text-[10px] uppercase tracking-[0.25em] opacity-40 font-light">Archive Heartbeat: <span id="lastUpdatedGlobal">Syncing</span></span>
+                        <span class="mono text-[10px] uppercase tracking-[0.25em] opacity-40">Archive Heartbeat: <span id="lastUpdatedGlobal">Syncing</span></span>
                     </div>
                     <h2 class="text-3xl font-bold text-white mb-12">存根概览</h2>
                     <div class="space-y-12">
                         <div>
                             <div class="flex justify-between items-baseline mb-4">
                                 <span class="text-gray-400 text-sm tracking-wider uppercase font-light">Growth Progress</span>
-                                <span id="versionLabel" class="module-time font-bold">v0.3.5</span>
+                                <span id="versionLabel" class="module-time font-bold">--</span>
                             </div>
                             <div class="h-[1px] w-full bg-white/10 rounded-full overflow-hidden">
                                 <div id="progressFill" class="h-full bg-white/60" style="width: 25%"></div>
@@ -256,13 +211,10 @@
                     <div id="ingestList" class="space-y-6 flex-grow"></div>
                 </div>
 
-                <!-- M7: 零散回响 (控制台) -->
+                <!-- M7: 控制台 -->
                 <div id="musingModule" class="bento-card col-span-2 row-span-2">
                     <div class="flex justify-between items-start mb-8">
-                        <div>
-                            <span class="mono text-[10px] opacity-30 uppercase tracking-[0.3em]">零散回响 / Echoes</span>
-                            <div id="m7Time" class="module-time mt-2">--:--:--</div>
-                        </div>
+                        <span class="mono text-[10px] opacity-30 uppercase tracking-[0.3em]">零散回响 / Echoes</span>
                         <div id="masterPrivacyContainer" class="flex items-center gap-3 hidden">
                             <span class="mono text-[8px] opacity-20">VISIBILITY</span>
                             <div id="masterToggle" class="toggle-switch"></div>
@@ -281,32 +233,29 @@
                     <div id="adminPostArea">
                         <div class="grid grid-cols-2 gap-4 mb-4">
                             <select id="postType" class="bg-white/5 border border-white/10 rounded-xl p-3 text-[10px] mono text-gray-400 focus:outline-none">
-                                <option value="echo">CATEGORY: ECHO (碎碎念)</option>
-                                <option value="learning">CATEGORY: LEARNING (学习记录)</option>
-                                <option value="entertainment">CATEGORY: ENTERTAIN (娱乐感悟)</option>
-                                <option value="investment">CATEGORY: INVESTMENT (资产存证)</option>
-                                <option value="article">CATEGORY: ARTICLE (文章链接)</option>
-                                <option value="metrics">CATEGORY: METRICS (身体指标)</option>
-                                <option value="sys_keys">CATEGORY: SETTINGS (系统密钥)</option>
+                                <option value="echo">CATEGORY: ECHO</option>
+                                <option value="learning">CATEGORY: LEARNING</option>
+                                <option value="entertainment">CATEGORY: ENTERTAIN</option>
+                                <option value="investment">CATEGORY: INVESTMENT</option>
+                                <option value="article">CATEGORY: ARTICLE</option>
+                                <option value="metrics">CATEGORY: METRICS</option>
+                                <option value="sys_keys">CATEGORY: SETTINGS</option>
                             </select>
-                            <input type="text" id="postTitle" class="bg-white/5 border border-white/10 rounded-xl p-3 text-sm focus:outline-none text-white" placeholder="Title / 投资子类别">
+                            <input type="text" id="postTitle" class="bg-white/5 border border-white/10 rounded-xl p-3 text-sm focus:outline-none text-white" placeholder="Title">
                         </div>
-                        <input type="text" id="postImageUrl" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-[10px] mono mb-4 focus:border-amber-500/30 transition-all text-white" placeholder="Artifact Image URL (Optional)">
-                        <textarea id="newEchoInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm focus:border-amber-500/30 transition-all font-light text-white" placeholder="捕捉此刻的想法..." rows="2"></textarea>
+                        <input type="text" id="postImageUrl" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-[10px] mono mb-4 text-white" placeholder="Image URL">
+                        <textarea id="newEchoInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm font-light text-white outline-none" placeholder="内容详情..." rows="2"></textarea>
                         <div class="flex justify-between items-center mt-5">
-                            <div class="flex gap-4">
-                                <label class="flex items-center gap-3 cursor-pointer opacity-30 hover:opacity-100">
-                                    <input type="checkbox" id="isPrivateEntry">
-                                    <span class="text-[10px] mono uppercase">Private</span>
-                                </label>
-                                <button id="aiPolishBtn" class="ai-glow-btn px-4 py-2 rounded-xl text-[10px] mono">✨ AI 升华</button>
-                            </div>
-                            <button id="postEchoBtn" class="px-10 py-3 bg-white/5 hover:bg-white hover:text-black rounded-2xl text-[10px] mono transition-all font-bold tracking-[0.2em]">STAMP_LOG</button>
+                            <label class="flex items-center gap-3 cursor-pointer opacity-30 hover:opacity-100">
+                                <input type="checkbox" id="isPrivateEntry">
+                                <span class="text-[10px] mono uppercase text-white">Private</span>
+                            </label>
+                            <button id="postEchoBtn" class="px-10 py-3 bg-white/5 hover:bg-white hover:text-black rounded-2xl text-[10px] mono transition-all font-bold text-white">STAMP_LOG</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- M2: 书写 -->
+                <!-- M2 -->
                 <div id="narrativeCard" class="bento-card col-span-2 cursor-pointer group">
                     <div class="default-content">
                         <div class="flex justify-between items-center mb-8">
@@ -321,7 +270,7 @@
                     </div>
                 </div>
 
-                <!-- M5: 娱乐 -->
+                <!-- M5 -->
                 <div class="bento-card col-span-2">
                     <div class="flex justify-between items-center mb-10">
                         <h3 class="mono text-[10px] opacity-40 uppercase tracking-[0.3em]">// Entertainment</h3>
@@ -330,13 +279,12 @@
                     <div id="entertainmentList" class="space-y-6 flex-grow"></div>
                 </div>
 
-                <!-- M6: 资产存证 -->
+                <!-- M6: 资产 -->
                 <div id="investCard" class="bento-card col-span-3 min-h-[350px]">
                     <div class="flex justify-between items-start mb-8">
-                        <h3 class="mono text-[10px] opacity-40 uppercase tracking-[0.3em]">Asset Analytics</h3>
+                        <h3 class="mono text-[10px] opacity-40 uppercase tracking-[0.3em]">Asset Archive</h3>
                         <span id="m6Time" class="module-time">Weekly</span>
                     </div>
-                    
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 flex-grow">
                         <div class="lg:col-span-1 space-y-6">
                             <div class="flex flex-col gap-3">
@@ -345,30 +293,23 @@
                                 <div class="invest-tab" data-type="crypto">币 (Crypto)</div>
                                 <div class="invest-tab" data-type="metal">贵金属 (Metal)</div>
                             </div>
-                            <div id="investText" class="text-sm font-light text-gray-400 leading-relaxed italic border-l border-white/5 pl-4 pt-2"></div>
+                            <div id="investText" class="text-sm font-light text-gray-400 leading-relaxed italic border-l border-white/5 pl-4"></div>
                         </div>
-
                         <div class="lg:col-span-1 flex flex-col justify-center">
                             <svg class="mini-chart" viewBox="0 0 400 80">
                                 <defs><linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--amber-gold)" stop-opacity="0.2"/><stop offset="100%" stop-color="var(--amber-gold)" stop-opacity="0"/></linearGradient></defs>
                                 <path id="trendArea" d="" fill="url(#chartGradient)"></path>
-                                <path id="trendPath" d="M 0 80 L 400 80" fill="none" stroke="var(--amber-gold)" stroke-width="2.5" stroke-linecap="round"></path>
+                                <path id="trendPath" d="M 0 80 L 400 80" fill="none" stroke="var(--amber-gold)" stroke-width="2.5"></path>
                             </svg>
-                            <div class="flex justify-between mono text-[8px] opacity-20 mt-3 uppercase tracking-widest">
-                                <span>Timeline Snapshot</span>
-                                <span id="trendStatus">Stable</span>
-                            </div>
                         </div>
-
                         <div class="lg:col-span-1 flex flex-col items-center justify-center border-l border-white/5">
                             <div class="relative">
                                 <svg class="donut-chart" viewBox="0 0 40 40">
                                     <circle class="donut-ring" cx="20" cy="20" r="15.9" stroke="rgba(255,255,255,0.05)"></circle>
-                                    <circle id="donutSegment" class="donut-ring" cx="20" cy="20" r="15.9" stroke="var(--amber-gold)" stroke-dasharray="0 100" stroke-linecap="round"></circle>
+                                    <circle id="donutSegment" class="donut-ring" cx="20" cy="20" r="15.9" stroke="var(--amber-gold)" stroke-dasharray="0 100"></circle>
                                 </svg>
                                 <div class="absolute inset-0 flex flex-col items-center justify-center">
                                     <span id="donutPercent" class="mono text-lg font-bold text-white">0%</span>
-                                    <span class="mono text-[7px] opacity-20 uppercase">Share</span>
                                 </div>
                             </div>
                         </div>
@@ -376,28 +317,26 @@
                 </div>
 
                 <div class="bento-card col-span-1 bg-white/[0.01] flex flex-col justify-center items-center opacity-10">
-                    <span class="mono text-xl font-light tracking-[0.5em] vertical-text">NEXUS</span>
+                    <span class="mono text-xl font-light tracking-[0.8em] vertical-text">NEXUS</span>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 侧边栏 -->
     <aside id="historyDrawer">
         <div class="flex justify-between items-center mb-10">
             <h2 class="text-2xl font-bold text-white tracking-tight">时间轴检索</h2>
-            <button id="closeHistory" class="text-gray-600 hover:text-white font-bold text-2xl transition-colors">✕</button>
+            <button id="closeHistory" class="text-gray-600 hover:text-white font-bold text-2xl">✕</button>
         </div>
         <div class="mb-10 p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
             <h3 class="mono text-[9px] uppercase tracking-[0.3em] opacity-40 mb-4 font-bold">Chronicle Guardian</h3>
             <div id="guardianMsg" class="guardian-msg"></div>
-            <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="向守望者提问我的历史记录...">
-            <div class="flex justify-between items-center mt-3">
-                <span class="mono text-[8px] opacity-20 uppercase tracking-widest">Gemini 2.5 Intelligence</span>
-                <button id="askGuardianBtn" class="text-[10px] mono text-amber-500/60 hover:text-amber-500 transition-colors uppercase font-bold tracking-widest">[ Query ]</button>
-            </div>
+            <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="向守望者提问...">
+            <button id="askGuardianBtn" class="w-full mt-3 text-[10px] mono text-amber-500/60 hover:text-amber-500 transition-colors font-bold uppercase">[ QUERY ]</button>
         </div>
         <input type="text" id="globalSearch" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm mb-10 text-white focus:outline-none" placeholder="搜索关键词...">
-        <div id="historyTimeline" class="space-y-12 relative before:absolute before:left-[11px] before:top-4 before:bottom-0 before:w-[1px] before:bg-white/5"></div>
+        <div id="historyTimeline" class="space-y-12"></div>
     </aside>
 
     <audio id="ambientAudio" loop src="https://www.soundjay.com/nature/sounds/fireplace-1.mp3"></audio>
@@ -407,65 +346,94 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        
-        // 动态 Key 管理逻辑 (DevOps 核心)
-        let GEMINI_API_KEY = ""; 
+        // --- 全局变量 ---
+        let db, auth, appId, GEMINI_API_KEY = "";
+        window.isAdmin = localStorage.getItem('is_garden_admin') === 'true';
 
-        const ADMIN_SECRET = "Zjx207661"; 
-        let currentUser = null;
-        let isAdmin = localStorage.getItem('is_garden_admin') === 'true';
+        // --- 1. 基础 UI 初始化 (关键：立即执行) ---
+        function initBasicUI() {
+            // 时钟立即运行
+            const clock = document.getElementById('liveClock');
+            setInterval(() => { if(clock) clock.innerText = new Date().toLocaleTimeString(); }, 1000);
 
-        async function startApp() {
+            // 侧边栏
+            const searchBtn = document.getElementById('searchTrigger');
+            const closeBtn = document.getElementById('closeHistory');
+            const drawer = document.getElementById('historyDrawer');
+            if(searchBtn) searchBtn.onclick = () => drawer.classList.add('open');
+            if(closeBtn) closeBtn.onclick = () => drawer.classList.remove('open');
+
+            // 登录弹窗
+            const lockBtn = document.getElementById('adminLock');
+            const loginModal = document.getElementById('loginModal');
+            const cancelBtn = document.getElementById('cancelLogin');
+            if(lockBtn) lockBtn.onclick = () => {
+                if (window.isAdmin) {
+                    window.isAdmin = false; localStorage.removeItem('is_garden_admin'); 
+                    window.location.reload(); 
+                } else {
+                    loginModal.style.display = 'flex';
+                }
+            };
+            if(cancelBtn) cancelBtn.onclick = () => loginModal.style.display = 'none';
+
+            // 联系方式与音频
+            document.getElementById('emailBtn').onclick = () => window.open('mailto:zjx207656@gmail.com');
+            document.getElementById('wechatBtn').onclick = () => copyToClipboard('Zj_6174');
+            const soundBtn = document.getElementById('soundToggle');
+            const audio = document.getElementById('ambientAudio');
+            if(soundBtn) soundBtn.onclick = () => {
+                if (audio.paused) { audio.play(); soundBtn.classList.remove('sound-off'); }
+                else { audio.pause(); soundBtn.classList.add('sound-off'); }
+            };
+        }
+
+        // --- 2. 数据库逻辑 ---
+        async function startDatabase() {
             try {
+                const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+                if(!configStr) return;
+                
+                const app = initializeApp(JSON.parse(configStr));
+                auth = getAuth(app);
+                db = getFirestore(app);
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else { await signInAnonymously(auth); }
-                
+
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
-                        currentUser = user;
-                        await loadSecureConfig(); // 先加载密钥
+                        window.currentUser = user;
+                        await loadSecureConfig(); 
                         updateAdminUI();
                         loadData();
                         initImmersiveUX();
                         initInvestLogic();
                     }
                 });
-            } catch (err) { console.error("Start Error", err); }
+            } catch (e) { console.warn("DB offline or config missing."); }
         }
 
-        // 从私有路径加载密钥
         async function loadSecureConfig() {
-            if(!currentUser) return;
-            const keyDoc = await getDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'settings', 'keys'));
-            if(keyDoc.exists()) {
-                GEMINI_API_KEY = keyDoc.data().gemini_key || "";
-            }
+            if(!window.currentUser) return;
+            const keyDoc = await getDoc(doc(db, 'artifacts', appId, 'users', window.currentUser.uid, 'settings', 'keys'));
+            if(keyDoc.exists()) GEMINI_API_KEY = keyDoc.data().gemini_key || "";
         }
 
         function loadData() {
-            if (!currentUser) return;
             onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), s => {
-                const set = s.data() || { weight: "55.4", speed: "135", version: "v0.3.5", diaryVisible: true };
-                window._diaryVisible = set.diaryVisible;
-                updateMasterToggleUI(set.diaryVisible);
-                const weightEl = document.getElementById('weightVal'); if(weightEl) weightEl.innerText = set.weight;
-                const speedEl = document.getElementById('speedVal'); if(speedEl) speedEl.innerText = set.speed;
-                const verEl = document.getElementById('versionLabel'); if(verEl) verEl.innerText = set.version;
-                refreshDisplay();
+                const set = s.data() || {};
+                if(document.getElementById('weightVal')) document.getElementById('weightVal').innerText = set.weight || '--';
+                if(document.getElementById('speedVal')) document.getElementById('speedVal').innerText = set.speed || '--';
+                if(document.getElementById('versionLabel')) document.getElementById('versionLabel').innerText = set.version || '--';
             });
-
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'logs'), s => {
                 window._publicLogs = s.docs.map(d => ({ id: d.id, ...d.data(), isPrivate: false }));
                 processData();
             });
-
-            onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'private_logs'), s => {
+            onSnapshot(collection(db, 'artifacts', appId, 'users', window.currentUser.uid, 'private_logs'), s => {
                 window._privateLogs = s.docs.map(d => ({ id: d.id, ...d.data(), isPrivate: true }));
                 processData();
             });
@@ -476,10 +444,6 @@
             window._allLogs = all;
             refreshDisplay();
             renderTimeline(all);
-            const tl = document.getElementById('totalLogs'); if(tl) tl.innerText = all.length;
-            const h = document.getElementById('lastUpdatedGlobal'); 
-            if(h && all[0] && all[0].createdAt) h.innerText = new Date(all[0].createdAt.seconds * 1000).toLocaleTimeString();
-            const fill = document.getElementById('progressFill'); if(fill) fill.style.width = Math.min(all.length * 10, 100) + '%';
         }
 
         function refreshDisplay() {
@@ -487,35 +451,26 @@
             if(all.length === 0) return;
 
             const echoes = all.filter(l => l.type === 'echo');
-            const latestEcho = isAdmin ? echoes[0] : echoes.find(e => !e.isPrivate);
-            const echoEl = document.getElementById('latestEcho');
-            const placeholder = document.getElementById('visitorPlaceholder');
-            const imgContainer = document.getElementById('latestEchoImgContainer');
-
-            if (!isAdmin && !window._diaryVisible) {
-                if(echoEl) echoEl.classList.add('hidden');
-                if(placeholder) placeholder.classList.remove('hidden');
-            } else if (latestEcho) {
-                if(placeholder) placeholder.classList.add('hidden');
-                if(echoEl) echoEl.classList.remove('hidden');
-                const etEl = document.getElementById('echoText'); if(etEl) etEl.innerText = latestEcho.text;
-                const m7El = document.getElementById('m7Time'); if(m7El) m7El.innerText = latestEcho.createdAt ? new Date(latestEcho.createdAt.seconds * 1000).toLocaleString() : 'Saving...';
-                if(imgContainer) imgContainer.innerHTML = latestEcho.imageUrl ? `<img src="${latestEcho.imageUrl}" class="record-image">` : '';
+            const latest = window.isAdmin ? echoes[0] : echoes.find(e => !e.isPrivate);
+            if (latest) {
+                document.getElementById('latestEcho').classList.remove('hidden');
+                document.getElementById('echoText').innerText = latest.text;
+                document.getElementById('latestEchoImgContainer').innerHTML = latest.imageUrl ? `<img src="${latest.imageUrl}" class="record-image">` : '';
             }
 
-            const renderList = (type, listId) => {
+            const renderList = (type, elId) => {
                 const items = all.filter(l => l.type === type);
-                const el = document.getElementById(listId);
+                const el = document.getElementById(elId);
                 if(el && items.length > 0) {
                     el.innerHTML = items.slice(0, 3).map(i => `
                         <div class="list-item flex gap-4 items-start">
-                            ${i.imageUrl ? `<img src="${i.imageUrl}" class="list-thumbnail">` : '<div class="w-1 h-1 bg-white/20 rounded-full mt-2"></div>'}
+                            ${i.imageUrl ? `<img src="${i.imageUrl}" class="list-thumbnail">` : '<div class="w-1 mt-2 h-1 bg-white/20 rounded-full"></div>'}
                             <div class="flex-grow">
                                 <div class="flex justify-between items-start mb-1">
                                     <span class="text-sm font-medium ${type==='entertainment'?'text-amber-500/80':'text-gray-300'}">${i.title || 'Entry'}</span>
                                     <span class="module-time">${i.createdAt ? new Date(i.createdAt.seconds * 1000).toLocaleDateString() : ''}</span>
                                 </div>
-                                <p class="${type==='entertainment'?'text-[12px] text-gray-400 font-light':'text-[11px] text-gray-600 italic'} line-clamp-1">${i.text.split('|')[0]}</p>
+                                <p class="text-[11px] text-gray-500 line-clamp-1">${i.text.split('|')[0]}</p>
                             </div>
                         </div>
                     `).join('');
@@ -523,58 +478,41 @@
             };
             renderList('learning', 'ingestList');
             renderList('entertainment', 'entertainmentList');
-
             updateInvestView();
-            const arts = all.filter(l => l.type === 'article');
-            const alist = document.getElementById('dynamicArticleList');
-            if(alist && arts.length > 0) {
-                alist.innerHTML = arts.map(a => `<div class="flex justify-between items-center border-b border-white/5 pb-2"><a href="${a.text.includes('http') ? a.text : '#'}" target="_blank" class="text-gray-400 hover:text-white transition-colors text-sm">${a.title}</a><span class="module-time">${a.createdAt ? new Date(a.createdAt.seconds * 1000).toLocaleDateString() : ''}</span></div>`).join('');
+        }
+
+        // --- 3. 核心交互 ---
+        function updateAdminUI() {
+            if (window.isAdmin) {
+                document.getElementById('adminPostArea').classList.add('active');
+                document.getElementById('lockIcon').classList.add('text-amber-500');
+                document.getElementById('masterPrivacyContainer').classList.remove('hidden');
+                const typeSelect = document.getElementById('postType');
+                const input = document.getElementById('newEchoInput');
+                if(typeSelect) typeSelect.onchange = () => {
+                    if(typeSelect.value === 'sys_keys') input.placeholder = "粘贴 Gemini Key";
+                    else if(typeSelect.value === 'investment') input.placeholder = "资产总量 | 感悟";
+                    else input.placeholder = "内容详情...";
+                };
             }
         }
 
-        function initImmersiveUX() {
-            const cards = document.querySelectorAll('.bento-card');
-            cards.forEach(card => {
-                card.onmousemove = (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = (e.clientX - rect.left) / rect.width - 0.5;
-                    const y = (e.clientY - rect.top) / rect.height - 0.5;
-                    card.style.transform = `perspective(1200px) rotateX(${y * -8}deg) rotateY(${x * 8}deg) translateZ(10px)`;
-                };
-                card.onmouseleave = () => card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) translateZ(0px)`;
-            });
-
-            document.getElementById('emailBtn').onclick = () => window.open('mailto:zjx207656@gmail.com');
-            document.getElementById('wechatBtn').onclick = () => copyToClipboard('Zj_6174');
-
-            const soundBtn = document.getElementById('soundToggle');
-            const audio = document.getElementById('ambientAudio');
-            soundBtn.onclick = () => {
-                if (audio.paused) { audio.play(); soundBtn.classList.remove('sound-off'); }
-                else { audio.pause(); soundBtn.classList.add('sound-off'); }
-            };
-        }
-
-        // --- 投资深度看板逻辑 ---
-        let currentInvestTab = 'fund';
-        function initInvestLogic() {
-            const tabs = document.querySelectorAll('.invest-tab');
-            tabs.forEach(tab => {
-                tab.onclick = () => {
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    currentInvestTab = tab.dataset.type;
-                    updateInvestView();
-                };
-            });
-        }
+        document.getElementById('confirmLogin').onclick = () => {
+            const input = document.getElementById('secretKeyInput');
+            if (input.value === ADMIN_SECRET) {
+                window.isAdmin = true; localStorage.setItem('is_garden_admin', 'true');
+                document.getElementById('loginModal').style.display = 'none';
+                updateAdminUI(); refreshDisplay();
+            } else {
+                input.style.borderColor = 'red'; setTimeout(() => input.style.borderColor = '', 1000);
+            }
+        };
 
         function updateInvestView() {
             const all = window._allLogs || [];
             const subtypeMap = { fund: '基金', stock: '股票', crypto: '币', metal: '金属' };
-            const currentSub = subtypeMap[currentInvestTab];
+            const currentInvestTab = document.querySelector('.invest-tab.active')?.dataset.type || 'fund';
             
-            // 资产汇总
             const summary = { fund: 0, stock: 0, crypto: 0, metal: 0 };
             Object.keys(subtypeMap).forEach(key => {
                 const recs = all.filter(l => l.type === 'investment' && (l.title?.includes(subtypeMap[key]) || l.title?.toLowerCase().includes(key)))
@@ -582,34 +520,18 @@
                 if(recs.length > 0) summary[key] = parseFloat(recs[recs.length-1].text.split('|')[0]) || 0;
             });
 
-            const totalAsset = Object.values(summary).reduce((a, b) => a + b, 0);
-            const currentVal = summary[currentInvestTab];
-            const percent = totalAsset > 0 ? (currentVal / totalAsset * 100).toFixed(1) : 0;
+            const total = Object.values(summary).reduce((a, b) => a + b, 0);
+            const percent = total > 0 ? (summary[currentInvestTab] / total * 100).toFixed(1) : 0;
 
-            const donutSegment = document.getElementById('donutSegment');
-            const donutPercent = document.getElementById('donutPercent');
-            if(donutSegment) donutSegment.style.strokeDasharray = `${percent} 100`;
-            if(donutPercent) donutPercent.innerText = percent + '%';
+            if(document.getElementById('donutSegment')) document.getElementById('donutSegment').style.strokeDasharray = `${percent} 100`;
+            if(document.getElementById('donutPercent')) document.getElementById('donutPercent').innerText = percent + '%';
 
-            const records = all.filter(l => l.type === 'investment' && (l.title?.includes(currentSub) || l.title?.toLowerCase().includes(currentInvestTab)))
+            const records = all.filter(l => l.type === 'investment' && (l.title?.includes(subtypeMap[currentInvestTab]) || l.title?.toLowerCase().includes(currentInvestTab)))
                                .sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
-            
-            const textEl = document.getElementById('investText');
-            const cardEl = document.getElementById('investCard');
             if (records.length > 0) {
                 const latest = records[records.length - 1];
-                const historicalAmounts = records.map(r => parseFloat(r.text.split('|')[0]) || 0);
-                textEl.innerHTML = `<div class="mb-3 text-[10px] opacity-40 font-mono tracking-tighter">${latest.createdAt ? new Date(latest.createdAt.seconds * 1000).toLocaleString() : 'Syncing...'}</div>${latest.text.split('|')[1] || latest.text}`;
-                drawTrend(historicalAmounts);
-
-                if(historicalAmounts.length >= 2) {
-                    const diff = historicalAmounts[historicalAmounts.length - 1] - historicalAmounts[historicalAmounts.length - 2];
-                    cardEl.classList.remove('growth-heat', 'stable-heat');
-                    cardEl.classList.add(diff > 0 ? 'growth-heat' : 'stable-heat');
-                }
-            } else {
-                textEl.innerText = `尚未录入 [${currentSub}] 相关的资产存证。`;
-                drawTrend([0, 0, 0, 0]);
+                document.getElementById('investText').innerHTML = `<div class="mb-2 text-[10px] opacity-40 font-mono">${latest.createdAt ? new Date(latest.createdAt.seconds * 1000).toLocaleString() : ''}</div>${latest.text.split('|')[1] || latest.text}`;
+                drawTrend(records.map(r => parseFloat(r.text.split('|')[0]) || 0));
             }
         }
 
@@ -617,79 +539,76 @@
             const path = document.getElementById('trendPath');
             const area = document.getElementById('trendArea');
             if(!path || !area) return;
-            const min = Math.min(...points, 0);
-            const max = Math.max(...points, 100);
-            const range = max - min || 1;
-            const step = 400 / (Math.max(points.length, 2) - 1);
+            const min = Math.min(...points, 0); const max = Math.max(...points, 100);
+            const range = max - min || 1; const step = 400 / (Math.max(points.length, 2) - 1);
             let dLine = `M 0 ${75 - ((points[0] - min) / range * 70)}`;
             points.forEach((p, i) => { if(i > 0) dLine += ` L ${i * step} ${75 - ((p - min) / range * 70)}`; });
-            path.setAttribute('d', dLine);
-            area.setAttribute('d', dLine + ` L 400 80 L 0 80 Z`);
+            path.setAttribute('d', dLine); area.setAttribute('d', dLine + ` L 400 80 L 0 80 Z`);
         }
 
-        // --- AI & Key 逻辑 ---
-        async function callGemini(prompt) {
-            if(!GEMINI_API_KEY) return "守望者正处于静默状态，请在后台配置系统密钥。";
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
-            try {
-                const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
-                const data = await res.json(); return data.candidates?.[0]?.content?.parts?.[0]?.text;
-            } catch(e) { return null; }
+        function initInvestLogic() {
+            document.querySelectorAll('.invest-tab').forEach(tab => {
+                tab.onclick = () => {
+                    document.querySelectorAll('.invest-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    updateInvestView();
+                };
+            });
         }
 
-        async function askGuardian() {
-            const input = document.getElementById('aiChatInput');
+        document.getElementById('askGuardianBtn').onclick = async () => {
             const box = document.getElementById('guardianMsg');
-            const btn = document.getElementById('askGuardianBtn');
-            if(!input.value.trim() || !window._allLogs) return;
-            btn.innerText = "[ MEMORIZING... ]";
-            box.style.display = 'block'; box.innerText = "正在拨动时间指针...";
-            const memories = window._allLogs.slice(0, 15).map(l => `[${l.type}] ${l.text}`).join('\n');
-            const reply = await callGemini(`你是档案守望者。分析历史碎片：\n${memories}\n回答旅行者：${input.value}`);
-            if(reply) box.innerText = reply.trim();
-            btn.innerText = "[ QUERY ]"; input.value = "";
-        }
-        document.getElementById('askGuardianBtn').onclick = askGuardian;
-
-        // --- 管理与交互 ---
-        function updateAdminUI() {
-            if (isAdmin) {
-                const area = document.getElementById('adminPostArea'); if(area) area.classList.add('active');
-                const lock = document.getElementById('lockIcon'); if(lock) lock.classList.add('text-amber-500');
-                const priv = document.getElementById('masterPrivacyContainer'); if(priv) priv.classList.remove('hidden');
-                
-                // 监听分类切换
-                const typeSelect = document.getElementById('postType');
-                const input = document.getElementById('newEchoInput');
-                if(typeSelect && input) {
-                    typeSelect.onchange = () => {
-                        if(typeSelect.value === 'sys_keys') input.placeholder = "输入你的 Gemini API Key";
-                        else if(typeSelect.value === 'investment') input.placeholder = "资产总量 | 复盘感悟";
-                        else input.placeholder = "内容详情...";
-                    };
-                }
-            }
-        }
-        function updateMasterToggleUI(v) {
-            const t = document.getElementById('masterToggle'); if (t) v ? t.classList.add('toggle-active') : t.classList.remove('toggle-active');
-        }
-
-        document.getElementById('adminLock').onclick = () => {
-            if (isAdmin) { isAdmin = false; localStorage.removeItem('is_garden_admin'); location.reload(); }
-            else { document.getElementById('loginModal').style.display = 'flex'; }
+            const input = document.getElementById('aiChatInput');
+            if(!GEMINI_API_KEY) return box.innerText = "请先配置密钥。";
+            box.style.display = 'block'; box.innerText = "守望者正在聆听...";
+            const memories = (window._allLogs || []).slice(0, 15).map(l => `[${l.type}] ${l.text}`).join('\n');
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: `分析这些碎片回答用户：\n${memories}\n提问：${input.value}` }] }] })
+                });
+                const data = await res.json();
+                box.innerText = data.candidates[0].content.parts[0].text;
+            } catch(e) { box.innerText = "回响断裂。"; }
+            input.value = "";
         };
 
-        document.getElementById('confirmLogin').onclick = () => {
-            if (document.getElementById('secretKeyInput').value === ADMIN_SECRET) {
-                isAdmin = true; localStorage.setItem('is_garden_admin', 'true'); 
-                document.getElementById('loginModal').style.display = 'none';
-                updateAdminUI(); refreshDisplay();
-            }
+        function initImmersiveUX() {
+            document.querySelectorAll('.bento-card').forEach(card => {
+                card.onmousemove = (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width - 0.5;
+                    const y = (e.clientY - rect.top) / rect.height - 0.5;
+                    card.style.transform = `perspective(1200px) rotateX(${y * -8}deg) rotateY(${x * 8}deg) translateZ(10px)`;
+                };
+                card.onmouseleave = () => card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg)`;
+            });
+        }
+
+        function renderTimeline(data) {
+            const container = document.getElementById('historyTimeline');
+            if(!container) return;
+            const q = document.getElementById('globalSearch').value.toLowerCase();
+            const filtered = data.filter(l => (window.isAdmin || !l.isPrivate) && (l.text?.toLowerCase().includes(q) || l.title?.toLowerCase().includes(q)));
+            container.innerHTML = filtered.map(l => `
+                <div class="pl-10 relative group mb-8">
+                    <div class="absolute left-0 top-3 w-6 h-6 rounded-full border-4 border-[#0d1017] ${l.isPrivate ? 'bg-amber-600' : 'bg-[#85a583]'}"></div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="mono text-[10px] opacity-30">${l.createdAt ? new Date(l.createdAt.seconds * 1000).toLocaleString() : ''}</span>
+                        ${window.isAdmin ? `<button onclick="window.deleteLog('${l.id}', ${l.isPrivate})" class="text-[9px] opacity-0 group-hover:opacity-40 hover:text-red-500">[ DEL ]</button>` : ''}
+                    </div>
+                    <p class="text-sm text-gray-400 font-light leading-relaxed">${l.text.split('|')[0]}</p>
+                    ${l.imageUrl ? `<img src="${l.imageUrl}" class="record-image" style="height: 120px">` : ''}
+                </div>
+            `).join('');
+        }
+
+        window.deleteLog = async (id, isPriv) => {
+            if(!confirm("抹除存根？")) return;
+            await deleteDoc(doc(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? window.currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs', id));
         };
-        document.getElementById('cancelLogin').onclick = () => document.getElementById('loginModal').style.display = 'none';
 
         document.getElementById('postEchoBtn').onclick = async () => {
-            if(!isAdmin) return;
+            if(!window.isAdmin) return;
             const text = document.getElementById('newEchoInput').value.trim();
             const title = document.getElementById('postTitle').value.trim();
             const imageUrl = document.getElementById('postImageUrl').value.trim();
@@ -698,59 +617,27 @@
             if(!text) return;
             try {
                 if(type === 'sys_keys') {
-                    await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'settings', 'keys'), { gemini_key: text });
-                    alert("System Key Updated!");
+                    await setDoc(doc(db, 'artifacts', appId, 'users', window.currentUser.uid, 'settings', 'keys'), { gemini_key: text });
+                    alert("Key Updated.");
                 } else if(type === 'metrics') {
                     const p = text.split(',');
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { weight: p[0].trim(), speed: p[1].trim(), version: title || "v0.3.5" }, { merge: true });
                 } else {
-                    await addDoc(collection(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs'), { text, title, type, imageUrl, createdAt: serverTimestamp(), isPrivate: isPriv });
+                    await addDoc(collection(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? window.currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs'), { text, title, type, imageUrl, createdAt: serverTimestamp(), isPrivate: isPriv });
                 }
-                document.getElementById('newEchoInput').value = ''; document.getElementById('postTitle').value = ''; document.getElementById('postImageUrl').value = '';
+                document.getElementById('newEchoInput').value = '';
             } catch(e) { alert(e.message); }
         };
-
-        window.deleteLog = async (id, isPriv) => {
-            if(!confirm("抹除存根？")) return;
-            await deleteDoc(doc(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs', id));
-        };
-
-        setInterval(() => { const el = document.getElementById('liveClock'); if(el) el.innerText = new Date().toLocaleTimeString(); }, 1000);
-        document.getElementById('searchTrigger').onclick = () => document.getElementById('historyDrawer').classList.add('open');
-        document.getElementById('closeHistory').onclick = () => document.getElementById('historyDrawer').classList.remove('open');
-        document.getElementById('globalSearch').oninput = () => renderTimeline(window._allLogs);
-        
-        function renderTimeline(data) {
-            const container = document.getElementById('historyTimeline');
-            if(!container) return;
-            const q = document.getElementById('globalSearch').value.toLowerCase();
-            const filtered = data.filter(l => (isAdmin || !l.isPrivate) && (l.text?.toLowerCase().includes(q) || l.title?.toLowerCase().includes(q) || (l.createdAt && new Date(l.createdAt.seconds * 1000).toLocaleString().includes(q))));
-            container.innerHTML = filtered.map(l => `
-                <div class="pl-10 relative group/item">
-                    <div class="absolute left-0 top-3 w-6 h-6 rounded-full border-4 border-[#0d1017] ${l.isPrivate ? 'bg-amber-600' : 'bg-[#85a583]'} shadow-xl"></div>
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="mono text-[10px] opacity-30">${l.createdAt ? new Date(l.createdAt.seconds * 1000).toLocaleString() : 'Syncing'}</span>
-                        <div class="flex gap-2"><span class="type-tag">${l.type}</span>${isAdmin ? `<button onclick="window.deleteLog('${l.id}', ${l.isPrivate})" class="text-[9px] opacity-0 group-hover/item:opacity-40 hover:text-red-500 transition-all">[ DEL ]</button>` : ''}</div>
-                    </div>
-                    <h4 class="text-white font-semibold text-sm mb-1">${l.title || ''}</h4>
-                    <p class="text-sm text-gray-400 font-light leading-relaxed">${l.text.split('|')[0]}</p>
-                    ${l.imageUrl ? `<img src="${l.imageUrl}" class="record-image" style="height: 120px">` : ''}
-                </div>
-            `).join('');
-        }
-
-        const nc = document.getElementById('narrativeCard'); 
-        if(nc) nc.onclick = (e) => { if(!e.target.closest('a') && e.target.id !== 'closeArchive') nc.classList.add('card-active'); };
-        document.getElementById('closeArchive').onclick = (e) => { e.stopPropagation(); document.getElementById('narrativeCard').classList.remove('card-active'); };
 
         window.copyToClipboard = (t) => {
             const el = document.createElement('textarea'); el.value = t; document.body.appendChild(el); el.select();
             document.execCommand('copy'); document.body.removeChild(el);
-            const msg = document.createElement('div'); msg.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-2 rounded-full z-[300] mono text-xs shadow-2xl";
+            const msg = document.createElement('div'); msg.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-2 rounded-full z-[9999] mono text-xs";
             msg.innerText = "COPIED: " + t; document.body.appendChild(msg); setTimeout(() => msg.remove(), 2000);
         };
 
-        startApp();
+        initBasicUI();
+        startDatabase();
     </script>
 </body>
 </html>
