@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>流光存根 | Digital Garden</title>
-    <!-- 引入外部库 -->
+    <!-- 引入外部库：Tailwind CSS & Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;600&family=JetBrains+Mono:wght@200;400&family=Dancing+Script:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #0d1017;
-            --card-bg: rgba(22, 27, 34, 0.85);
+            --card-bg: rgba(22, 27, 34, 0.88);
             --amber-gold: #e3b341;
             --moss-green: #85a583;
             --ambient-glow: rgba(227, 179, 65, 0.08); 
@@ -25,7 +25,7 @@
             min-height: 100vh;
         }
 
-        /* 动态背景 */
+        /* 动态氛围背景 */
         .page-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: linear-gradient(rgba(13, 16, 23, 0.88), rgba(13, 16, 23, 0.96)), 
@@ -45,15 +45,29 @@
             opacity: 0.04; pointer-events: none; z-index: 50;
         }
 
-        /* 登录窗口 - 最高层级 */
+        /* 登录验证弹窗 (最高层) */
         #loginModal {
             position: fixed; inset: 0;
-            background: rgba(0, 0, 0, 0.96);
+            background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(50px);
-            z-index: 10000; 
+            z-index: 20000; 
             display: none; 
             align-items: center; justify-content: center;
         }
+
+        /* 图片灯箱 (Lightbox) */
+        #imageLightbox {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px);
+            z-index: 15000;
+            display: none;
+            align-items: center; justify-content: center;
+            cursor: zoom-out;
+        }
+        #imageLightbox img { max-width: 90%; max-height: 90%; border-radius: 12px; box-shadow: 0 0 50px rgba(0,0,0,1); transform: scale(0.9); transition: 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+        #imageLightbox.active { display: flex; }
+        #imageLightbox.active img { transform: scale(1); }
 
         /* 联系名片面板 */
         #contactPanel {
@@ -61,7 +75,7 @@
             width: 320px; background: rgba(28, 32, 40, 0.98);
             backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 28px; padding: 2rem; z-index: 9000;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
             display: none; transform: translateY(-20px); opacity: 0;
             transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -83,19 +97,27 @@
         }
         .bento-card:hover { border-color: rgba(227, 179, 65, 0.4); box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
 
+        /* 侧边栏检索 */
         #historyDrawer {
             position: fixed; right: -550px; top: 0; width: 500px; height: 100vh;
             background: rgba(13, 16, 23, 0.98); backdrop-filter: blur(40px);
-            z-index: 5000; transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 8000; transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
             border-left: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem; overflow-y: auto;
         }
         #historyDrawer.open { right: 0; }
 
+        /* 管理端发布区 */
         #adminPostArea { transition: all 0.6s ease; max-height: 0; overflow: hidden; opacity: 0; }
         #adminPostArea.active { max-height: 1500px; opacity: 1; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
 
+        /* 2x2 视觉网格 (M5) */
+        .sensory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .sensory-item { width: 100%; aspect-ratio: 1; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); cursor: zoom-in; }
+        .sensory-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s ease; }
+        .sensory-item:hover img { transform: scale(1.1); }
+
         .invest-tab {
-            font-size: 10px; padding: 10px 20px; border-radius: 12px;
+            font-size: 10px; padding: 10px 18px; border-radius: 12px;
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
             color: rgba(255,255,255,0.4); transition: 0.3s; cursor: pointer; text-transform: uppercase;
         }
@@ -103,12 +125,13 @@
 
         .mini-chart { width: 100%; height: 90px; filter: drop-shadow(0 0 15px var(--amber-gold)); }
         .donut-chart { width: 100px; height: 100px; transform: rotate(-90deg); }
-        .donut-ring { fill: none; stroke-width: 7; transition: stroke-dasharray 1.2s ease; }
+        .donut-ring { fill: none; stroke-width: 6; transition: stroke-dasharray 1.2s ease; }
 
         .visitor-stat { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); border-left: 1px solid rgba(255,255,255,0.06); padding-left: 1.5rem; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .module-time { font-family: 'JetBrains Mono', monospace; font-size: 9px; opacity: 0.3; }
         
+        .record-image { width: 100%; height: auto; max-height: 280px; object-fit: cover; border-radius: 20px; margin-top: 1.5rem; border: 6px solid rgba(255,255,255,0.03); cursor: zoom-in; }
         .copy-trigger { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 6px 12px; font-size: 10px; color: var(--amber-gold); transition: 0.3s; }
         .copy-trigger:hover { background: var(--amber-gold); color: black; }
 
@@ -116,10 +139,6 @@
         .wave-bar { width: 2px; background: var(--amber-gold); animation: wave 1s infinite ease-in-out; }
         @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 14px; } }
         .sound-off .wave-bar { animation: none; height: 2px; opacity: 0.2; }
-        
-        .record-image { width: 100%; height: auto; max-height: 250px; object-fit: cover; border-radius: 16px; margin-top: 1.5rem; border: 4px solid rgba(255,255,255,0.03); }
-        .ai-chat-input { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1rem; width: 100%; font-size: 13px; color: white; outline: none; }
-        .guardian-msg { background: rgba(227, 179, 65, 0.05); border-left: 2px solid var(--amber-gold); padding: 1.5rem; border-radius: 0 16px 16px 0; font-size: 13px; color: rgba(255,255,255,0.8); margin-bottom: 2rem; display: none; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -127,22 +146,27 @@
     <div class="page-bg"></div>
     <div class="ambient-layer"></div>
 
-    <!-- 1. 登录验证弹窗 -->
+    <!-- 图片查看器 (Lightbox) -->
+    <div id="imageLightbox" onclick="closeLightbox()">
+        <img id="lightboxImg" src="" alt="Artifact Detail">
+    </div>
+
+    <!-- 登录验证 -->
     <div id="loginModal">
         <div class="bg-[#1a1d23] p-12 rounded-[48px] border border-white/10 w-full max-w-sm text-center shadow-2xl relative">
-            <h3 class="mono text-[10px] uppercase tracking-[0.4em] opacity-40 mb-10 font-bold text-white text-center">Security Access</h3>
+            <h3 class="mono text-[10px] uppercase tracking-[0.4em] opacity-40 mb-10 font-bold text-white text-center">Archive Identification</h3>
             <input type="password" id="secretKeyInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-center mono tracking-widest focus:outline-none focus:border-amber-500/50 transition-colors mb-8 text-white" placeholder="••••••••">
             <div class="flex gap-4">
-                <button id="cancelLogin" class="flex-1 py-4 text-[10px] mono opacity-30 text-white hover:opacity-100 transition-opacity uppercase font-bold">Cancel</button>
+                <button id="cancelLogin" class="flex-1 py-4 text-[10px] mono opacity-30 text-white hover:opacity-100 transition-opacity uppercase">Cancel</button>
                 <button id="confirmLogin" class="flex-1 py-4 bg-white/5 hover:bg-white hover:text-black rounded-xl text-[10px] mono transition-all font-bold text-white uppercase tracking-widest">Verify</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. 数字名片面板 (零跳转) -->
+    <!-- 数字名片 -->
     <div id="contactPanel">
         <div class="flex justify-between items-center mb-8">
-            <span class="mono text-[10px] opacity-30 tracking-[0.3em] uppercase font-bold">Archive Identity</span>
+            <span class="mono text-[10px] opacity-30 tracking-[0.3em] uppercase font-bold">Connectivity</span>
             <button id="closeContact" class="text-white/20 hover:text-white transition-colors p-2 text-xl">✕</button>
         </div>
         <div class="space-y-8">
@@ -150,14 +174,14 @@
                 <div class="text-[10px] opacity-20 mono mb-3 uppercase tracking-tighter">Mail Address</div>
                 <div class="flex justify-between items-center bg-white/[0.03] p-4 rounded-2xl border border-white/5">
                     <span class="text-sm mono text-white/90">zjx207656@gmail.com</span>
-                    <button id="copyMail" class="copy-trigger mono">COPY</button>
+                    <button onclick="copyToClipboard('zjx207656@gmail.com')" class="copy-trigger mono">COPY</button>
                 </div>
             </div>
             <div class="group">
                 <div class="text-[10px] opacity-20 mono mb-3 uppercase tracking-tighter">WeChat Handle</div>
                 <div class="flex justify-between items-center bg-white/[0.03] p-4 rounded-2xl border border-white/5">
                     <span class="text-sm mono text-white/90">Zj_6174</span>
-                    <button id="copyWechat" class="copy-trigger mono">COPY</button>
+                    <button onclick="copyToClipboard('Zj_6174')" class="copy-trigger mono">COPY</button>
                 </div>
             </div>
         </div>
@@ -168,23 +192,22 @@
         <div class="container mx-auto max-w-7xl px-6 py-12 lg:py-24">
             
             <header class="mb-24 lg:pl-4 flex flex-col lg:flex-row justify-between items-start gap-10">
-                <div class="space-y-4">
-                    <h1 class="text-7xl font-bold text-white tracking-tighter font-serif">流光存根</h1>
+                <div>
+                    <h1 class="text-7xl font-bold text-white mb-4 tracking-tighter font-serif">流光存根</h1>
                     <p class="text-2xl text-gray-400 font-light italic max-w-xl">具体的生活，是抵御虚无的最后一道防线。</p>
                 </div>
                 <div class="flex flex-col items-end gap-10">
                     <div class="flex items-center gap-10 flex-wrap justify-end">
-                        <!-- 实时访客 -->
-                        <div class="visitor-stat" title="Cloud Managed Visitor Counter">
+                        <div class="visitor-stat">
                             <svg class="w-4 h-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             <span id="visitorCount" class="font-bold tracking-widest text-white/50">----</span>
                         </div>
                         <button id="soundToggle" class="flex items-center gap-3 group sound-off">
-                            <div class="sound-wave"><div class="wave-bar" style="animation-delay: 0s"></div><div class="wave-bar" style="animation-delay: 0.2s"></div><div class="wave-bar" style="animation-delay: 0.4s"></div></div>
+                            <div class="sound-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
                             <span class="mono text-[10px] opacity-20 group-hover:opacity-60 transition-opacity uppercase tracking-widest">Atmosphere</span>
                         </button>
                         <div class="flex items-center gap-6 border-l border-white/5 pl-10">
-                            <button id="triggerContact" class="text-white/30 hover:text-amber-500 transition-all transform hover:-translate-y-1">
+                            <button id="triggerContact" class="contact-icon-btn" title="Contact Panel">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                             </button>
                         </div>
@@ -198,80 +221,87 @@
             </header>
 
             <div class="bento-grid">
-                <!-- 模块 M1 -->
+                <!-- M1: 状态 -->
                 <div class="bento-card col-span-2 row-span-2 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-3 mb-12"><div class="w-2.5 h-2.5 rounded-full bg-[#85a583] shadow-[0_0_20px_#85a583]"></div><span class="mono text-[11px] uppercase tracking-[0.25em] opacity-40">System Pulse: <span id="lastUpdatedGlobal">Syncing</span></span></div>
                         <h2 class="text-4xl font-bold text-white mb-14 tracking-tight">存根概览</h2>
                         <div class="space-y-14">
                             <div>
-                                <div class="flex justify-between items-baseline mb-5"><span class="text-gray-400 text-sm tracking-wider uppercase font-light tracking-widest">Growth Flow</span><span id="versionLabel" class="module-time font-bold">--</span></div>
+                                <div class="flex justify-between items-baseline mb-5"><span class="text-gray-400 text-sm tracking-wider uppercase font-light">Growth Flow</span><span id="versionLabel" class="module-time font-bold">--</span></div>
                                 <div class="h-[2px] w-full bg-white/10 rounded-full overflow-hidden"><div id="progressFill" class="h-full bg-white/60 shadow-[0_0_15px_white]" style="width: 10%"></div></div>
                                 <p class="text-2xl mt-10 italic text-gray-300 font-serif leading-relaxed">“让一切无序的，终将在时间中归位。”</p>
                             </div>
                         </div>
                     </div>
                     <div class="pt-12 border-t border-white/5 flex gap-20">
-                        <div><div class="text-4xl font-light text-white mono"><span id="weightVal">--</span><span class="text-sm opacity-20 ml-2">KG</span></div><div class="text-[10px] mono opacity-30 mt-3 uppercase tracking-[0.2em]">Quantified</div></div>
-                        <div><div class="text-4xl font-light text-white mono"><span id="speedVal">--</span><span class="text-sm opacity-20 ml-2">WPM</span></div><div class="text-[10px] mono opacity-30 mt-3 uppercase tracking-[0.2em]">Efficiency</div></div>
+                        <div><div class="text-3xl font-light text-white mono"><span id="weightVal">--</span><span class="text-sm opacity-20 ml-2">KG</span></div><div class="text-[10px] mono opacity-30 mt-3 uppercase tracking-[0.2em]">Quantified</div></div>
+                        <div><div class="text-3xl font-light text-white mono"><span id="speedVal">--</span><span class="text-sm opacity-20 ml-2">WPM</span></div><div class="text-[10px] mono opacity-30 mt-3 uppercase tracking-[0.2em]">Efficiency</div></div>
                     </div>
                 </div>
 
+                <!-- M3: 摄入流 -->
                 <div class="bento-card col-span-2">
                     <div class="flex justify-between items-center mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.4em]">// Ingesting_Feed</h3><span id="m3Time" class="module-time uppercase">--:--:--</span></div>
                     <div id="ingestList" class="space-y-8 flex-grow"></div>
                 </div>
 
-                <!-- 模块 M7: 回响与控制台 -->
+                <!-- M7: 零散回响 -->
                 <div id="musingModule" class="bento-card col-span-2 row-span-2 flex flex-col">
                     <div class="flex justify-between items-start mb-10"><span class="mono text-[10px] opacity-30 uppercase tracking-[0.4em]">零散回响 / Echoes</span><div id="masterPrivacyContainer" class="flex items-center gap-3 hidden"><span class="mono text-[8px] opacity-20">VISIBILITY</span><div id="masterToggle" class="toggle-switch"></div></div></div>
                     <div id="musingContent" class="flex-grow flex flex-col justify-center">
-                        <div id="visitorPlaceholder" class="text-center py-24 hidden"><span class="text-gray-600 italic font-light text-lg tracking-widest text-white/40 opacity-50 block">Archive Locked.<br>Admin Access Required.</span></div>
-                        <div id="latestEcho" class="relative p-12 bg-white/[0.02] border-l-2 border-amber-500/30 rounded-r-[40px] hidden"><p id="echoText" class="text-2xl leading-relaxed text-gray-300 font-light italic"></p><div id="latestEchoImgContainer"></div></div>
+                        <div id="visitorPlaceholder" class="text-center py-24 hidden"><span class="text-gray-600 italic font-light text-lg tracking-widest text-white/40 opacity-50 block text-center">Archive Locked.<br>Admin Access Required.</span></div>
+                        <div id="latestEcho" class="relative p-12 bg-white/[0.02] border-l-2 border-amber-500/30 rounded-r-[40px] hidden">
+                            <p id="echoText" class="text-2xl leading-relaxed text-gray-300 font-light italic"></p>
+                            <div id="latestEchoImgContainer"></div>
+                        </div>
                     </div>
                     <div id="adminPostArea">
                         <div class="grid grid-cols-2 gap-5 mb-5">
                             <select id="postType" class="bg-white/5 border border-white/10 rounded-2xl p-4 text-[11px] mono text-gray-400 focus:outline-none focus:border-amber-500/30"><option value="echo">CATEGORY: ECHO</option><option value="learning">CATEGORY: LEARNING</option><option value="entertainment">CATEGORY: ENTERTAIN</option><option value="investment">CATEGORY: INVESTMENT</option><option value="article">CATEGORY: ARTICLE</option><option value="metrics">CATEGORY: METRICS</option><option value="sys_keys">CATEGORY: SETTINGS</option></select>
                             <input type="text" id="postTitle" class="bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:outline-none focus:border-amber-500/30 text-white font-light" placeholder="Artifact Title">
                         </div>
+                        <input type="text" id="postImageUrl" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-[11px] mono mb-5 text-white" placeholder="Media Reference URL (Optional)">
                         <textarea id="newEchoInput" class="w-full bg-white/5 border border-white/10 rounded-[32px] p-6 text-base font-light text-white outline-none focus:border-amber-500/30" placeholder="捕捉瞬间的想法..." rows="2"></textarea>
-                        <div class="flex justify-between items-center mt-6"><label class="flex items-center gap-3 cursor-pointer opacity-30 hover:opacity-100 transition-opacity"><input type="checkbox" id="isPrivateEntry"><span class="text-[11px] mono uppercase text-white tracking-widest">Private</span></label><button id="postEchoBtn" class="px-14 py-4 bg-white/5 hover:bg-white hover:text-black rounded-2xl text-[11px] mono transition-all font-bold text-white uppercase tracking-[0.4em]">STAMP_LOG</button></div>
+                        <div class="flex justify-between items-center mt-6"><label class="flex items-center gap-3 cursor-pointer opacity-30 hover:opacity-100 transition-opacity"><input type="checkbox" id="isPrivateEntry"><span class="text-[11px] mono uppercase text-white tracking-widest">Private</span></label><button id="postEchoBtn" class="px-14 py-4 bg-white/5 hover:bg-white hover:text-black rounded-2xl text-[11px] mono transition-all font-bold text-white uppercase tracking-[0.4em]">STAMP</button></div>
                     </div>
                 </div>
 
                 <div id="narrativeCard" class="bento-card col-span-2 cursor-pointer group">
                     <div class="default-content"><div class="flex justify-between items-center mb-10"><span class="mono text-[10px] opacity-30 uppercase tracking-[0.4em]">书写档案 / Narrative</span><span id="m2Time" class="module-time">--:--:--</span></div><p class="text-3xl leading-relaxed text-gray-400 font-light italic group-hover:text-amber-500/80 transition-colors">“思想在时间中留下的痕迹。”</p></div>
-                    <div id="articleListView" class="article-list hidden pt-4"><div id="dynamicArticleList" class="grid grid-cols-1 gap-6"></div><button id="closeArchive" class="text-[10px] mono opacity-20 hover:opacity-100 uppercase mt-10 tracking-[0.4em]">[ Return to Core ]</button></div>
+                    <div id="articleListView" class="article-list hidden pt-4"><div id="dynamicArticleList" class="grid grid-cols-1 gap-6"></div><button id="closeArchive" class="text-[10px] mono opacity-20 hover:opacity-100 uppercase mt-10 tracking-[0.4em]">[ Return ]</button></div>
                 </div>
 
-                <div class="bento-card col-span-2"><div class="flex justify-between items-center mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.4em]">// Sensory_Memory</h3><span id="m5Time" class="module-time uppercase">--:--:--</span></div><div id="entertainmentList" class="space-y-8 flex-grow"></div></div>
+                <!-- M5: 感官实验室 (回归 2x2 网格) -->
+                <div class="bento-card col-span-2">
+                    <div class="flex justify-between items-center mb-10"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.4em]">// Sensory_Memory</h3><span id="m5Time" class="module-time uppercase">Gallery</span></div>
+                    <div id="entertainmentList" class="sensory-grid flex-grow"></div>
+                </div>
 
+                <!-- 资产模块 -->
                 <div id="investCard" class="bento-card col-span-4 min-h-[400px]">
-                    <div class="flex justify-between items-start mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.5em]">Wealth Pulse Monitor</h3><span id="m6Time" class="module-time uppercase">Real-time Sync</span></div>
+                    <div class="flex justify-between items-start mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.5em]">Wealth Pulse Monitor</h3><span id="m6Time" class="module-time uppercase">Weekly Sync</span></div>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 flex-grow items-center">
-                        <div class="lg:col-span-1 space-y-8"><div class="flex flex-col gap-4"><div class="invest-tab active" data-type="fund">基金 (Fund)</div><div class="invest-tab" data-type="stock">股票 (Stock)</div><div class="invest-tab" data-type="crypto">数字货币 (Crypto)</div><div class="invest-tab" data-type="metal">贵金属 (Metal)</div></div><div id="investText" class="text-base font-light text-gray-400 leading-relaxed italic border-l-2 border-white/5 pl-8 pt-4"></div></div>
+                        <div class="lg:col-span-1 space-y-8"><div class="flex flex-col gap-4"><div class="invest-tab active" data-type="fund">基金 (Fund)</div><div class="invest-tab" data-type="stock">股票 (Stock)</div><div class="invest-tab" data-type="crypto">币 (Crypto)</div><div class="invest-tab" data-type="metal">金属 (Metal)</div></div><div id="investText" class="text-base font-light text-gray-400 leading-relaxed italic border-l-2 border-white/5 pl-8 pt-4"></div></div>
                         <div class="lg:col-span-1 flex flex-col justify-center"><svg class="mini-chart" viewBox="0 0 400 100"><defs><linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--amber-gold)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--amber-gold)" stop-opacity="0"/></linearGradient></defs><path id="trendArea" d="" fill="url(#chartGradient)"></path><path id="trendPath" d="M 0 100 L 400 100" fill="none" stroke="var(--amber-gold)" stroke-width="3"></path></svg></div>
                         <div class="lg:col-span-1 flex flex-col items-center justify-center border-l border-white/5">
-                            <div class="relative"><svg class="donut-chart" viewBox="0 0 40 40"><circle class="donut-ring" cx="20" cy="20" r="15.9" stroke="rgba(255,255,255,0.04)"></circle><circle id="donutSegment" class="donut-ring" cx="20" cy="20" r="15.9" stroke="var(--amber-gold)" stroke-dasharray="0 100"></circle></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span id="donutPercent" class="mono text-2xl font-bold text-white">0%</span><span class="text-[8px] opacity-20 uppercase tracking-tighter">share</span></div></div>
+                            <div class="relative"><svg class="donut-chart" viewBox="0 0 40 40"><circle class="donut-ring" cx="20" cy="20" r="15.9" stroke="rgba(255,255,255,0.04)"></circle><circle id="donutSegment" class="donut-ring" cx="20" cy="20" r="15.9" stroke="var(--amber-gold)" stroke-dasharray="0 100"></circle></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span id="donutPercent" class="mono text-2xl font-bold text-white">0%</span></div></div>
                         </div>
                     </div>
                 </div>
-
-                <div class="bento-card col-span-4 bg-white/[0.01] flex flex-col justify-center items-center opacity-10 py-12"><span class="mono text-3xl font-light tracking-[2em] text-white uppercase">Core_System_Active</span></div>
             </div>
         </div>
     </div>
 
-    <!-- 侧边栏 -->
     <aside id="historyDrawer">
-        <div class="flex justify-between items-center mb-14"><h2 class="text-3xl font-bold text-white tracking-tight font-serif">时间轴检索</h2><button id="closeHistory" class="text-gray-500 hover:text-white font-bold text-3xl transition-colors">✕</button></div>
+        <div class="flex justify-between items-center mb-14"><h2 class="text-3xl font-bold text-white tracking-tight font-serif">时间轴检索</h2><button id="closeHistory" class="text-gray-500 hover:text-white font-bold text-3xl">✕</button></div>
         <div class="mb-14 p-10 bg-white/[0.03] border border-white/10 rounded-[40px]">
             <h3 class="mono text-[10px] uppercase tracking-[0.4em] opacity-40 mb-6 font-bold">Chronicle Guardian</h3>
             <div id="guardianMsg" class="guardian-msg"></div>
-            <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="向守望者提问我的历史记录...">
+            <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="向守望者提问...">
             <button id="askGuardianBtn" class="w-full mt-5 text-[11px] mono text-amber-500/70 hover:text-amber-500 transition-all font-bold uppercase tracking-[0.4em] py-3 border border-amber-500/20 rounded-2xl hover:bg-amber-500/10">[ Send Query ]</button>
         </div>
-        <input type="text" id="globalSearch" class="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-sm mb-12 text-white focus:outline-none focus:border-amber-500/30" placeholder="搜索关键词或日期检索...">
+        <input type="text" id="globalSearch" class="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-sm mb-12 text-white focus:outline-none" placeholder="搜索关键词...">
         <div id="historyTimeline" class="space-y-16"></div>
     </aside>
 
@@ -282,24 +312,32 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 全局核心变量与函数定义
+        // --- 核心全局变量 ---
         const ADMIN_SECRET = "Zjx207661"; 
         let db, auth, appId, GEMINI_API_KEY = "";
         window.isAdmin = localStorage.getItem('is_garden_admin') === 'true';
 
-        // --- 函数定义区 ---
-        
-        function initUI() {
-            // 时钟立即运行
-            const clockEl = document.getElementById('liveClock');
-            setInterval(() => { if(clockEl) clockEl.innerText = new Date().toLocaleTimeString(); }, 1000);
+        // --- 图片全屏查看 (Lightbox Logic) ---
+        window.openLightbox = (url) => {
+            const box = document.getElementById('imageLightbox');
+            const img = document.getElementById('lightboxImg');
+            if(box && img) {
+                img.src = url;
+                box.classList.add('active');
+            }
+        };
+        window.closeLightbox = () => {
+            document.getElementById('imageLightbox').classList.remove('active');
+        };
 
-            // 登录弹窗控制
+        // --- 1. 基础 UI 初始化 ---
+        function initInteractive() {
+            setInterval(() => { const el = document.getElementById('liveClock'); if(el) el.innerText = new Date().toLocaleTimeString(); }, 1000);
+
             const lockBtn = document.getElementById('adminLock');
             const loginModal = document.getElementById('loginModal');
             const confirmBtn = document.getElementById('confirmLogin');
             const pwdInput = document.getElementById('secretKeyInput');
-            const cancelBtn = document.getElementById('cancelLogin');
 
             if(lockBtn) lockBtn.onclick = (e) => {
                 e.preventDefault();
@@ -316,55 +354,42 @@
             };
             if(confirmBtn) confirmBtn.onclick = doLogin;
             if(pwdInput) pwdInput.onkeydown = (e) => { if(e.key === 'Enter') doLogin(); };
-            if(cancelBtn) cancelBtn.onclick = () => loginModal.style.display = 'none';
+            document.getElementById('cancelLogin').onclick = () => loginModal.style.display = 'none';
 
-            // 名片面板控制
+            // 联系面板
             const cPanel = document.getElementById('contactPanel');
-            const triggerBtn = document.getElementById('triggerContact');
-            const closeBtn = document.getElementById('closeContact');
-            if(triggerBtn) triggerBtn.onclick = (e) => {
+            document.getElementById('triggerContact').onclick = (e) => {
                 e.stopPropagation(); cPanel.style.display = 'block';
                 setTimeout(() => cPanel.classList.add('active'), 10);
             };
-            if(closeBtn) closeBtn.onclick = () => {
+            document.getElementById('closeContact').onclick = () => {
                 cPanel.classList.remove('active');
                 setTimeout(() => cPanel.style.display = 'none', 400);
             };
 
-            // 复制逻辑
-            document.getElementById('copyMail').onclick = () => window.copyToClipboard('zjx207656@gmail.com');
-            document.getElementById('copyWechat').onclick = () => window.copyToClipboard('Zj_6174');
-
-            // 侧边栏
             document.getElementById('searchTrigger').onclick = () => document.getElementById('historyDrawer').classList.add('open');
             document.getElementById('closeHistory').onclick = () => document.getElementById('historyDrawer').classList.remove('open');
 
-            // 氛围
             const sBtn = document.getElementById('soundToggle');
             const audio = document.getElementById('ambientAudio');
             if(sBtn) sBtn.onclick = () => audio.paused ? (audio.play(), sBtn.classList.remove('sound-off')) : (audio.pause(), sBtn.classList.add('sound-off'));
         }
 
-        async function initDB() {
+        async function startSystem() {
             try {
                 const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
                 if(!configStr) return;
                 const app = initializeApp(JSON.parse(configStr));
                 auth = getAuth(app); db = getFirestore(app); appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
                 await (typeof __initial_auth_token !== 'undefined' && __initial_auth_token ? signInWithCustomToken(auth, __initial_auth_token) : signInAnonymously(auth));
-
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         window.currentUser = user;
-                        // 访客
                         const vDoc = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'visitors');
                         await setDoc(vDoc, { count: increment(1) }, { merge: true });
                         onSnapshot(vDoc, s => { if(s.exists()) document.getElementById('visitorCount').innerText = s.data().count.toLocaleString(); });
-                        // Key
                         const keyDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'keys'));
                         if(keyDoc.exists()) GEMINI_API_KEY = keyDoc.data().gemini_key || "";
-                        
                         updateAdminUI(); loadData(); initImmersive(); initInvestLogic();
                     }
                 });
@@ -402,17 +427,26 @@
             if (latest && echoBox) {
                 echoBox.classList.remove('hidden'); placeholder.classList.add('hidden');
                 document.getElementById('echoText').innerText = latest.text;
-                document.getElementById('latestEchoImgContainer').innerHTML = latest.imageUrl ? `<img src="${latest.imageUrl}" class="record-image shadow-2xl">` : '';
+                document.getElementById('latestEchoImgContainer').innerHTML = latest.imageUrl ? `<img src="${latest.imageUrl}" class="record-image" onclick="window.openLightbox('${latest.imageUrl}')">` : '';
             } else if(!window.isAdmin) {
                 if(echoBox) echoBox.classList.add('hidden'); 
                 if(placeholder) placeholder.classList.remove('hidden');
             }
-            const renderL = (type, elId) => {
-                const items = all.filter(l => l.type === type).slice(0, 3);
-                const el = document.getElementById(elId);
-                if(el) el.innerHTML = items.map(i => `<div class="flex gap-6 items-start animate-fade-in">${i.imageUrl ? `<img src="${i.imageUrl}" class="w-12 h-12 object-cover rounded-xl shadow-lg border border-white/5">` : '<div class="w-2 mt-2 h-2 bg-white/20 rounded-full"></div>'}<div class="flex-grow"><div class="flex justify-between items-start mb-1"><span class="text-sm font-semibold ${type==='entertainment'?'text-amber-500/80':'text-gray-300'}">${i.title || 'Log Entry'}</span><span class="module-time">${i.createdAt ? new Date(i.createdAt.seconds * 1000).toLocaleDateString() : ''}</span></div><p class="text-[12px] text-gray-500 italic line-clamp-1 opacity-80">${i.text.split('|')[0]}</p></div></div>`).join('');
-            };
-            renderL('learning', 'ingestList'); renderL('entertainment', 'entertainmentList');
+            
+            // 摄入流列表 (M3)
+            const ingestEl = document.getElementById('ingestList');
+            if(ingestEl) {
+                const items = all.filter(l => l.type === 'learning').slice(0, 3);
+                ingestEl.innerHTML = items.map(i => `<div class="flex gap-6 items-start animate-fade-in">${i.imageUrl ? `<img src="${i.imageUrl}" class="w-12 h-12 object-cover rounded-xl border border-white/10 cursor-zoom-in" onclick="window.openLightbox('${i.imageUrl}')">` : '<div class="w-2 mt-2 h-2 bg-white/20 rounded-full"></div>'}<div class="flex-grow"><div class="flex justify-between items-start mb-1"><span class="text-sm font-semibold text-gray-300">${i.title || 'Artifact'}</span><span class="module-time">${i.createdAt ? new Date(i.createdAt.seconds * 1000).toLocaleDateString() : ''}</span></div><p class="text-[12px] text-gray-500 italic line-clamp-1 opacity-80">${i.text.split('|')[0]}</p></div></div>`).join('');
+            }
+
+            // 感官实验室网格 (M5)
+            const sensoryEl = document.getElementById('entertainmentList');
+            if(sensoryEl) {
+                const items = all.filter(l => l.type === 'entertainment').slice(0, 4);
+                sensoryEl.innerHTML = items.map(i => `<div class="sensory-item" onclick="window.openLightbox('${i.imageUrl}')">${i.imageUrl ? `<img src="${i.imageUrl}">` : '<div class="w-full h-full bg-white/5 flex items-center justify-center mono text-[8px] opacity-20 uppercase">No Media</div>'}</div>`).join('');
+            }
+
             updateInvest();
             const arts = all.filter(l => l.type === 'article');
             const alist = document.getElementById('dynamicArticleList');
@@ -448,9 +482,9 @@
                 const pts = recs.map(r => parseFloat(r.text.split('|')[0]) || 0);
                 const path = document.getElementById('trendPath');
                 if(path && pts.length>0) {
-                    const min = Math.min(...pts, 0); const max = Math.max(...pts, 100); const range = max - min || 1; const step = 400 / (Math.max(pts.length, 2) - 1);
-                    let dL = `M 0 ${95 - ((pts[0] - min) / range * 90)}`;
-                    pts.forEach((p, i) => { if(i > 0) dL += ` L ${i * step} ${95 - ((p - min) / range * 90)}`; });
+                    const min = Math.min(...pts, 0); const max = Math.max(...pts, 100); const r = max - min || 1; const step = 400 / (Math.max(pts.length, 2) - 1);
+                    let dL = `M 0 ${95 - ((pts[0] - min) / r * 90)}`;
+                    pts.forEach((p, i) => { if(i > 0) dL += ` L ${i * step} ${95 - ((p - min) / r * 90)}`; });
                     path.setAttribute('d', dL);
                 }
             }
@@ -472,30 +506,34 @@
             const container = document.getElementById('historyTimeline'); if(!container) return;
             const q = document.getElementById('globalSearch').value.toLowerCase();
             const filtered = data.filter(l => (window.isAdmin || !l.isPrivate) && (l.text?.toLowerCase().includes(q) || l.title?.toLowerCase().includes(q)));
-            container.innerHTML = filtered.map(l => `<div class="pl-14 relative group mb-14"><div class="absolute left-0 top-3 w-8 h-8 rounded-full border-4 border-[#0d1017] ${l.isPrivate ? 'bg-amber-600' : 'bg-[#85a583]'} shadow-xl"></div><div class="flex justify-between items-center mb-2"><span class="mono text-[10px] opacity-30 font-bold">${l.createdAt ? new Date(l.createdAt.seconds * 1000).toLocaleString() : ''}</span>${window.isAdmin ? `<button onclick="window.deleteLog('${l.id}', ${l.isPrivate})" class="text-[9px] opacity-0 group-hover:opacity-40 hover:text-red-500 transition-all font-bold">[ DEL ]</button>` : ''}</div><h4 class="text-white font-bold text-sm mb-2 uppercase">${l.title || l.type}</h4><p class="text-sm text-gray-400 font-light leading-relaxed">${l.text.split('|')[0]}</p></div>`).join('');
+            container.innerHTML = filtered.map(l => `<div class="pl-14 relative group mb-14"><div class="absolute left-0 top-3 w-8 h-8 rounded-full border-4 border-[#0d1017] ${l.isPrivate ? 'bg-amber-600' : 'bg-[#85a583]'} shadow-xl"></div><div class="flex justify-between items-center mb-2"><span class="mono text-[10px] opacity-30 font-bold">${l.createdAt ? new Date(l.createdAt.seconds * 1000).toLocaleString() : ''}</span>${window.isAdmin ? `<button onclick="window.deleteLog('${l.id}', ${l.isPrivate})" class="text-[9px] opacity-0 group-hover:opacity-40 hover:text-red-500 transition-all font-bold">[ DEL ]</button>` : ''}</div><h4 class="text-white font-bold text-sm mb-2 uppercase">${l.title || l.type}</h4><p class="text-sm text-gray-400 font-light leading-relaxed mb-4">${l.text.split('|')[0]}</p>${l.imageUrl ? `<img src="${l.imageUrl}" class="record-image" style="max-height:160px; margin-top:0" onclick="window.openLightbox('${l.imageUrl}')">` : ''}</div>`).join('');
         }
 
         window.deleteLog = async (id, isPriv) => { if(!confirm("确定抹除？")) return; await deleteDoc(doc(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? window.currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs', id)); };
         
         document.getElementById('postEchoBtn').onclick = async () => {
             if(!window.isAdmin) return;
-            const text = document.getElementById('newEchoInput').value.trim(); const title = document.getElementById('postTitle').value.trim(); const type = document.getElementById('postType').value; const isPriv = document.getElementById('isPrivateEntry').checked;
+            const text = document.getElementById('newEchoInput').value.trim();
+            const title = document.getElementById('postTitle').value.trim();
+            const imageUrl = document.getElementById('postImageUrl').value.trim();
+            const type = document.getElementById('postType').value;
+            const isPriv = document.getElementById('isPrivateEntry').checked;
             if(!text) return;
             try {
                 if(type === 'sys_keys') { await setDoc(doc(db, 'artifacts', appId, 'users', window.currentUser.uid, 'settings', 'keys'), { gemini_key: text }); alert("Config Saved."); }
                 else if(type === 'metrics') { const p = text.split(','); await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { weight: p[0].trim(), speed: p[1].trim(), version: title || "v0.3.5" }, { merge: true }); }
-                else { await addDoc(collection(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? window.currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs'), { text, title, type, createdAt: serverTimestamp(), isPrivate: isPriv }); }
-                document.getElementById('newEchoInput').value = '';
-            } catch(e) { alert("Error"); }
+                else { await addDoc(collection(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? window.currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs'), { text, title, type, imageUrl, createdAt: serverTimestamp(), isPrivate: isPriv }); }
+                document.getElementById('newEchoInput').value = ''; document.getElementById('postImageUrl').value = ''; document.getElementById('postTitle').value = '';
+            } catch(e) { alert("Persistence Failure"); }
         };
 
         document.getElementById('askGuardianBtn').onclick = async () => {
             const box = document.getElementById('guardianMsg'); const input = document.getElementById('aiChatInput');
             if(!GEMINI_API_KEY) return box.innerText = "请在后台配置设置中的 Gemini Key。";
-            box.style.display = 'block'; box.innerText = "守望者正在拨动时间指针...";
+            box.style.display = 'block'; box.innerText = "正在拨动时间指针...";
             const memories = (window._allLogs || []).slice(0, 15).map(l => `[${l.type}] ${l.text}`).join('\n');
             try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: `你是档案守望者。分析历史碎片回答提问：\n${memories}\n问题：${input.value}` }] }] }) });
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: `你是档案守望者。分析碎片回答提问：\n${memories}\n问题：${input.value}` }] }] }) });
                 const data = await res.json(); box.innerText = data.candidates[0].content.parts[0].text;
             } catch(e) { box.innerText = "回响断裂。"; }
             input.value = "";
@@ -508,14 +546,12 @@
         window.copyToClipboard = (t) => {
             const el = document.createElement('textarea'); el.value = t; document.body.appendChild(el); el.select();
             document.execCommand('copy'); document.body.removeChild(el);
-            const msg = document.createElement('div'); msg.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-3 rounded-full z-[9999] mono text-xs shadow-2xl font-bold";
+            const msg = document.createElement('div'); msg.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-3 rounded-full z-[20000] mono text-xs shadow-2xl font-bold";
             msg.innerText = "COPIED: " + t; document.body.appendChild(msg); setTimeout(() => msg.remove(), 2500);
         };
 
-        // --- 最终统一启动流程 ---
-        initUI();
-        initDB();
-
+        initInteractive();
+        startSystem();
     </script>
 </body>
 </html>
