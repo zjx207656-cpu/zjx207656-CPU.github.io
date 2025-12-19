@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>流光存根 | Digital Garden</title>
-    <!-- 核心库引入 -->
+    <!-- 引入外部库：Tailwind CSS & Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;600&family=JetBrains+Mono:wght@200;400&family=Dancing+Script:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #0d1017;
-            --card-bg: rgba(22, 27, 34, 0.82);
+            --card-bg: rgba(22, 27, 34, 0.85);
             --amber-gold: #e3b341;
             --moss-green: #85a583;
             --ambient-glow: rgba(227, 179, 65, 0.08); 
         }
 
-        /* 基础布局 */
+        /* 基础布局优化 */
         body {
             background-color: var(--bg-color);
             color: #d1d5db;
@@ -26,7 +26,7 @@
             min-height: 100vh;
         }
 
-        /* 动态背景层 */
+        /* 动态氛围背景 */
         .page-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: linear-gradient(rgba(13, 16, 23, 0.88), rgba(13, 16, 23, 0.96)), 
@@ -40,100 +40,105 @@
             pointer-events: none; z-index: 0; transition: background 3s ease;
         }
 
+        /* 噪点质感层 */
         body::before {
             content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('https://grainy-gradients.vercel.app/noise.svg');
             opacity: 0.03; pointer-events: none; z-index: 50;
         }
 
-        /* 强制置顶的登录弹窗 */
+        /* 登录验证弹窗 (绝对隔离层级) */
         #loginModal {
             position: fixed; inset: 0;
-            background: rgba(0, 0, 0, 0.94);
-            backdrop-filter: blur(40px);
+            background: rgba(0, 0, 0, 0.96);
+            backdrop-filter: blur(50px);
             z-index: 10000; 
             display: none; 
             align-items: center; justify-content: center;
         }
 
-        /* 3D 视角容器 */
+        /* 联系方式面板 (取代跳转逻辑) */
+        #contactPanel {
+            position: fixed; top: 100px; right: 40px;
+            width: 320px; background: rgba(28, 32, 40, 0.98);
+            backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px; padding: 1.75rem; z-index: 9000;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            display: none; transform: translateY(-20px); opacity: 0;
+            transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        #contactPanel.active { display: block; transform: translateY(0); opacity: 1; }
+
+        /* 3D 布局容器 */
         .content-wrapper {
-            position: relative;
-            z-index: 10;
-            perspective: 1200px;
+            position: relative; z-index: 10; perspective: 1200px;
         }
 
         .bento-grid {
             display: grid; grid-template-columns: repeat(4, 1fr);
-            grid-auto-rows: minmax(160px, auto); gap: 1.5rem;
+            grid-auto-rows: minmax(180px, auto); gap: 1.5rem;
             padding: 2rem; max-width: 1400px; margin: 0 auto;
         }
 
         .bento-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 32px;
-            padding: 2.25rem;
-            transition: transform 0.15s ease-out, box-shadow 0.5s ease, border 0.5s ease;
+            background: var(--card-bg); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 32px;
+            padding: 2.25rem; transition: transform 0.2s ease-out, box-shadow 0.5s ease;
             transform-style: preserve-3d;
-            overflow: hidden;
         }
+        .bento-card:hover { border-color: rgba(227, 179, 65, 0.4); box-shadow: 0 40px 80px rgba(0,0,0,0.7); }
 
-        .bento-card:hover {
-            border-color: rgba(227, 179, 65, 0.35);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-        }
-
-        /* 侧边栏 */
+        /* 侧边栏检索 */
         #historyDrawer {
             position: fixed; right: -550px; top: 0; width: 500px; height: 100vh;
-            background: rgba(13, 16, 23, 0.98); backdrop-filter: blur(50px);
-            z-index: 5000; transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-            border-left: 1px solid rgba(255, 255, 255, 0.08); padding: 3rem; overflow-y: auto;
+            background: rgba(13, 16, 23, 0.98); backdrop-filter: blur(40px);
+            z-index: 8000; transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            border-left: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem; overflow-y: auto;
         }
         #historyDrawer.open { right: 0; }
 
-        /* 发布面板 */
-        #adminPostArea {
-            transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-            max-height: 0; overflow: hidden; opacity: 0;
-        }
-        #adminPostArea.active {
-            max-height: 1500px; opacity: 1; margin-top: 2.5rem; padding-top: 2.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
+        /* 管理端发布区 */
+        #adminPostArea { transition: all 0.6s ease; max-height: 0; overflow: hidden; opacity: 0; }
+        #adminPostArea.active { max-height: 1500px; opacity: 1; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
 
-        /* 资产模块组件 */
+        /* 资产模块样式 */
         .invest-tab {
-            font-size: 10px; padding: 8px 16px; border-radius: 12px;
+            font-size: 10px; padding: 10px 20px; border-radius: 12px;
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
             color: rgba(255,255,255,0.4); transition: 0.3s; cursor: pointer; text-transform: uppercase;
+            font-weight: 600;
         }
-        .invest-tab.active { background: rgba(227, 179, 65, 0.12); border-color: var(--amber-gold); color: var(--amber-gold); }
+        .invest-tab.active { background: rgba(227, 179, 65, 0.15); border-color: var(--amber-gold); color: var(--amber-gold); }
 
-        .donut-chart { width: 90px; height: 90px; transform: rotate(-90deg); }
-        .donut-ring { fill: none; stroke-width: 6; transition: stroke-dasharray 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .mini-chart { width: 100%; height: 90px; filter: drop-shadow(0 0 15px var(--amber-gold)); }
+        .donut-chart { width: 100px; height: 100px; transform: rotate(-90deg); }
+        .donut-ring { fill: none; stroke-width: 6; transition: stroke-dasharray 1.2s ease; }
 
-        /* 极简按钮 */
-        .contact-icon {
-            opacity: 0.3; transition: 0.4s; color: white; background: none; border: none; cursor: pointer; outline: none;
-        }
-        .contact-icon:hover { opacity: 1; color: var(--amber-gold); transform: translateY(-3px); }
-
-        /* 氛围音效波形 */
-        .sound-wave { display: flex; gap: 3px; height: 14px; align-items: flex-end; }
-        .wave-bar { width: 2px; background: var(--amber-gold); animation: wave 1s infinite ease-in-out; }
-        @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 14px; } }
-        .sound-off .wave-bar { animation: none; height: 2px; opacity: 0.2; }
-
-        /* 通用样式 */
+        /* 状态与统计 */
+        .visitor-stat { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); border-left: 1px solid rgba(255,255,255,0.06); padding-left: 1.5rem; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .module-time { font-family: 'JetBrains Mono', monospace; font-size: 9px; opacity: 0.3; letter-spacing: 1px; }
-        .visitor-stat { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.25); border-left: 1px solid rgba(255,255,255,0.06); padding-left: 1.5rem; }
+
+        /* 按钮与交互 */
+        .contact-icon-btn { opacity: 0.3; transition: 0.4s; color: white; background: none; border: none; cursor: pointer; outline: none; }
+        .contact-icon-btn:hover { opacity: 1; color: var(--amber-gold); transform: translateY(-2px); }
+
+        .copy-trigger { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px 16px; font-size: 10px; color: var(--amber-gold); transition: 0.3s; border: 1px solid transparent; }
+        .copy-trigger:hover { background: var(--amber-gold); color: black; border-color: var(--amber-gold); }
+
+        .sound-wave { display: flex; gap: 3px; height: 16px; align-items: flex-end; }
+        .wave-bar { width: 2px; background: var(--amber-gold); animation: wave 1s infinite ease-in-out; }
+        @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 16px; } }
+        .sound-off .wave-bar { animation: none; height: 2px; opacity: 0.2; }
+
+        .record-image { width: 100%; height: auto; max-height: 280px; object-fit: cover; border-radius: 20px; margin-top: 1.5rem; border: 8px solid rgba(255,255,255,0.02); }
         
-        .record-image { width: 100%; height: auto; max-height: 280px; object-fit: cover; border-radius: 16px; margin-top: 1.5rem; border: 8px solid rgba(255,255,255,0.03); }
-        .ai-chat-input { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.25rem; width: 100%; font-size: 13px; color: white; outline: none; }
-        .guardian-msg { background: rgba(227, 179, 65, 0.05); border-left: 2px solid var(--amber-gold); padding: 1.5rem; border-radius: 0 20px 20px 0; font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 2rem; display: none; line-height: 1.7; }
+        /* 响应式调整 */
+        @media (max-width: 1024px) {
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .col-span-4 { grid-column: span 2; }
+            #historyDrawer { width: 100%; right: -100%; }
+        }
     </style>
 </head>
 <body>
@@ -141,61 +146,79 @@
     <div class="page-bg"></div>
     <div class="ambient-layer"></div>
 
-    <!-- 验证弹窗 (绝对层级隔离) -->
+    <!-- 1. 登录验证 -->
     <div id="loginModal">
-        <div class="bg-[#161a20] p-12 rounded-[48px] border border-white/10 w-full max-w-sm text-center shadow-2xl relative">
-            <h3 class="mono text-[11px] uppercase tracking-[0.4em] opacity-40 mb-10 font-bold text-white">System Identification</h3>
+        <div class="bg-[#1a1d23] p-12 rounded-[48px] border border-white/10 w-full max-w-sm text-center shadow-2xl relative">
+            <h3 class="mono text-[10px] uppercase tracking-[0.4em] opacity-40 mb-10 font-bold text-white text-center">Security Gateway</h3>
             <input type="password" id="secretKeyInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-center mono tracking-widest focus:outline-none focus:border-amber-500/50 transition-colors mb-8 text-white" placeholder="••••••••">
             <div class="flex gap-4">
-                <button id="cancelLogin" class="flex-1 py-4 text-[10px] mono opacity-30 text-white hover:opacity-100 transition-opacity">CANCEL</button>
-                <button id="confirmLogin" class="flex-1 py-4 bg-white/5 hover:bg-white hover:text-black rounded-2xl text-[10px] mono transition-all font-bold text-white uppercase tracking-widest">Verify</button>
+                <button id="cancelLogin" class="flex-1 py-4 text-[10px] mono opacity-30 text-white hover:opacity-100 transition-opacity uppercase font-bold">Cancel</button>
+                <button id="confirmLogin" class="flex-1 py-4 bg-white/5 hover:bg-white hover:text-black rounded-xl text-[10px] mono transition-all font-bold text-white uppercase tracking-widest">Verify</button>
             </div>
         </div>
     </div>
 
-    <div class="content-wrapper">
-        <div class="container mx-auto max-w-6xl px-6 py-12 lg:py-24">
-            
-            <!-- 头部导航 -->
-            <header class="mb-24 lg:pl-4 flex justify-between items-start">
-                <div class="space-y-4">
-                    <h1 class="text-6xl font-bold text-white tracking-tighter font-serif">流光存根</h1>
-                    <p class="text-xl text-gray-400 font-light italic">具体的生活，是抵御虚无的最后一道防线。</p>
+    <!-- 2. 数字联络名片 -->
+    <div id="contactPanel">
+        <div class="flex justify-between items-center mb-8">
+            <span class="mono text-[10px] opacity-30 tracking-[0.3em] uppercase">Connectivity</span>
+            <button id="closeContact" class="text-white/20 hover:text-white transition-colors p-2">✕</button>
+        </div>
+        <div class="space-y-8">
+            <div class="group">
+                <div class="text-[10px] opacity-20 mono mb-3 uppercase tracking-tighter">Mailbox</div>
+                <div class="flex justify-between items-center bg-white/[0.03] p-4 rounded-2xl border border-white/5">
+                    <span class="text-sm mono text-white/90">zjx207656@gmail.com</span>
+                    <button onclick="copyToClipboard('zjx207656@gmail.com')" class="copy-trigger mono">COPY</button>
                 </div>
-                <div class="flex flex-col items-end gap-8">
-                    <div class="flex items-center gap-10">
-                        <!-- 访客统计器 -->
+            </div>
+            <div class="group">
+                <div class="text-[10px] opacity-20 mono mb-3 uppercase tracking-tighter">WeChat ID</div>
+                <div class="flex justify-between items-center bg-white/[0.03] p-4 rounded-2xl border border-white/5">
+                    <span class="text-sm mono text-white/90">Zj_6174</span>
+                    <button onclick="copyToClipboard('Zj_6174')" class="copy-trigger mono">COPY</button>
+                </div>
+            </div>
+        </div>
+        <p class="text-[9px] opacity-20 mt-10 mono text-center uppercase tracking-widest italic">Nexus Digital Footprint v3.7</p>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="container mx-auto max-w-7xl px-6 py-12 lg:py-24">
+            
+            <!-- 头部 -->
+            <header class="mb-24 lg:pl-4 flex flex-col lg:flex-row justify-between items-start gap-10">
+                <div class="space-y-4">
+                    <h1 class="text-7xl font-bold text-white tracking-tighter font-serif">流光存根</h1>
+                    <p class="text-2xl text-gray-400 font-light italic max-w-xl">具体的生活，是抵御虚无的最后一道防线。</p>
+                </div>
+                <div class="flex flex-col items-end gap-10 w-full lg:w-auto">
+                    <div class="flex items-center gap-10 flex-wrap justify-end">
+                        <!-- 访客 -->
                         <div class="visitor-stat" title="Cloud Synced Visitors">
-                            <svg class="w-4 h-4 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            <span id="visitorCount" class="font-bold tracking-widest text-white/50">----</span>
+                            <svg class="w-4 h-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <span id="visitorCount" class="font-bold tracking-widest">----</span>
                         </div>
 
-                        <!-- 声音控制 -->
+                        <!-- 氛围 -->
                         <button id="soundToggle" class="flex items-center gap-3 group sound-off">
-                            <div class="sound-wave">
-                                <div class="wave-bar" style="animation-delay: 0.1s"></div>
-                                <div class="wave-bar" style="animation-delay: 0.3s"></div>
-                                <div class="wave-bar" style="animation-delay: 0.5s"></div>
-                            </div>
+                            <div class="sound-wave"><div class="wave-bar" style="animation-delay: 0s"></div><div class="wave-bar" style="animation-delay: 0.2s"></div><div class="wave-bar" style="animation-delay: 0.4s"></div></div>
                             <span class="mono text-[10px] opacity-20 group-hover:opacity-60 transition-opacity uppercase tracking-widest">Atmosphere</span>
                         </button>
                         
-                        <!-- 极简链接 -->
+                        <!-- 联系 -->
                         <div class="flex items-center gap-6 border-l border-white/5 pl-10">
-                            <button id="emailBtn" class="contact-icon" title="Contact Archive"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></button>
-                            <button id="wechatBtn" class="contact-icon" title="Sync WeChat"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg></button>
+                            <button id="triggerContact" class="contact-icon-btn" title="Contact Panel">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            </button>
                         </div>
 
-                        <!-- 实时秒表 -->
-                        <div id="liveClock" class="mono text-sm text-amber-500/70 tracking-[0.2em] font-medium">00:00:00</div>
+                        <!-- 时钟 -->
+                        <div id="liveClock" class="mono text-sm text-amber-500/70 tracking-[0.3em] font-bold">00:00:00</div>
                     </div>
-                    <div class="flex items-center gap-5">
-                        <button id="searchTrigger" class="text-gray-600 hover:text-white transition-all p-3 rounded-full hover:bg-white/5">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </button>
-                        <button id="adminLock" class="text-gray-600 hover:text-amber-500 transition-colors p-3 rounded-full hover:bg-white/5">
-                            <svg id="lockIcon" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        </button>
+                    <div class="flex items-center gap-6">
+                        <button id="searchTrigger" class="text-gray-500 hover:text-white transition-all p-3 rounded-full hover:bg-white/5"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
+                        <button id="adminLock" class="text-gray-500 hover:text-amber-500 transition-colors p-3 rounded-full hover:bg-white/5"><svg id="lockIcon" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></button>
                     </div>
                 </div>
             </header>
@@ -204,174 +227,81 @@
                 <!-- 模块 M1: 状态概览 -->
                 <div class="bento-card col-span-2 row-span-2 overflow-hidden flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center gap-3 mb-10">
-                            <div class="w-2.5 h-2.5 rounded-full bg-[#85a583] shadow-[0_0_15px_#85a583]"></div>
-                            <span class="mono text-[11px] uppercase tracking-[0.25em] opacity-40">System Pulse: <span id="lastUpdatedGlobal">Syncing</span></span>
-                        </div>
+                        <div class="flex items-center gap-3 mb-12"><div class="w-2.5 h-2.5 rounded-full bg-[#85a583] shadow-[0_0_20px_#85a583]"></div><span class="mono text-[11px] uppercase tracking-[0.25em] opacity-40">System Pulse: <span id="lastUpdatedGlobal">Syncing</span></span></div>
                         <h2 class="text-4xl font-bold text-white mb-14 tracking-tight">存根概览</h2>
                         <div class="space-y-14">
                             <div>
-                                <div class="flex justify-between items-baseline mb-5">
-                                    <span class="text-gray-400 text-sm tracking-wider uppercase font-light">Archive Integrity</span>
-                                    <span id="versionLabel" class="module-time font-bold">--</span>
-                                </div>
-                                <div class="h-[2px] w-full bg-white/10 rounded-full overflow-hidden">
-                                    <div id="progressFill" class="h-full bg-amber-500/60 shadow-[0_0_10px_rgba(227,179,65,0.4)]" style="width: 25%"></div>
-                                </div>
-                                <p class="text-2xl mt-8 italic text-gray-300 font-serif leading-relaxed">“让一切无序的，终将在时间中归位。”</p>
+                                <div class="flex justify-between items-baseline mb-5"><span class="text-gray-400 text-sm tracking-wider uppercase font-light tracking-widest">Growth Integrity</span><span id="versionLabel" class="module-time font-bold">--</span></div>
+                                <div class="h-[2px] w-full bg-white/10 rounded-full overflow-hidden"><div id="progressFill" class="h-full bg-white/60 shadow-[0_0_15px_white]" style="width: 10%"></div></div>
+                                <p class="text-2xl mt-10 italic text-gray-300 font-serif leading-relaxed">“让一切无序的，终将在时间中归位。”</p>
                             </div>
                         </div>
                     </div>
-                    <div class="pt-12 border-t border-white/5 flex gap-16">
-                        <div><div class="text-4xl font-light text-white mono"><span id="weightVal">--</span><span class="text-sm opacity-20 ml-2">KG</span></div><div class="text-[10px] mono opacity-30 mt-3 uppercase tracking-widest">Quantified Body</div></div>
-                        <div><div class="text-4xl font-light text-white mono"><span id="speedVal">--</span><span class="text-sm opacity-20 ml-2">WPM</span></div><div class="text-[10px] mono opacity-30 mt-3 uppercase tracking-widest">Reading Flow</div></div>
+                    <div class="pt-12 border-t border-white/5 flex gap-20">
+                        <div><div class="text-4xl font-light text-white mono"><span id="weightVal">--</span><span class="text-sm opacity-20 ml-2">KG</span></div><div class="text-[10px] mono opacity-30 mt-3 uppercase tracking-[0.2em]">Quantified</div></div>
+                        <div><div class="text-4xl font-light text-white mono"><span id="speedVal">--</span><span class="text-sm opacity-20 ml-2">WPM</span></div><div class="text-[10px] mono opacity-30 mt-3 uppercase tracking-[0.2em]">Efficiency</div></div>
                     </div>
                 </div>
 
-                <!-- 模块 M3: 摄入流 -->
+                <!-- 模块 M3: 摄入 -->
                 <div class="bento-card col-span-2">
-                    <div class="flex justify-between items-center mb-12">
-                        <h3 class="mono text-[10px] opacity-40 uppercase tracking-[0.4em]">// Ingesting_Stream</h3>
-                        <span id="m3Time" class="module-time uppercase">--:--:--</span>
-                    </div>
+                    <div class="flex justify-between items-center mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.4em]">// Ingesting_Stream</h3><span id="m3Time" class="module-time uppercase">--:--:--</span></div>
                     <div id="ingestList" class="space-y-8 flex-grow"></div>
                 </div>
 
                 <!-- 模块 M7: 控制台 -->
                 <div id="musingModule" class="bento-card col-span-2 row-span-2 flex flex-col">
-                    <div class="flex justify-between items-start mb-10">
-                        <span class="mono text-[10px] opacity-30 uppercase tracking-[0.35em]">零散回响 / Echoes</span>
-                        <div id="masterPrivacyContainer" class="flex items-center gap-3 hidden">
-                            <span class="mono text-[8px] opacity-20">VISIBILITY</span>
-                            <div id="masterToggle" class="toggle-switch"></div>
-                        </div>
-                    </div>
+                    <div class="flex justify-between items-start mb-10"><span class="mono text-[10px] opacity-30 uppercase tracking-[0.4em]">零散回响 / Echoes</span><div id="masterPrivacyContainer" class="flex items-center gap-3 hidden"><span class="mono text-[8px] opacity-20">VISIBILITY</span><div id="masterToggle" class="toggle-switch"></div></div></div>
                     <div id="musingContent" class="flex-grow flex flex-col justify-center">
-                        <div id="visitorPlaceholder" class="text-center py-20 hidden">
-                            <span class="text-gray-600 italic font-light text-lg tracking-widest opacity-40 text-white">此区域已加密，仅供管理员访问。</span>
-                        </div>
-                        <div id="latestEcho" class="relative p-10 bg-white/[0.02] border-l-2 border-amber-500/40 rounded-r-[40px] hidden">
-                            <p id="echoText" class="text-2xl leading-relaxed text-gray-200 font-light italic"></p>
-                            <div id="latestEchoImgContainer"></div>
-                        </div>
+                        <div id="visitorPlaceholder" class="text-center py-24 hidden"><span class="text-gray-600 italic font-light text-lg tracking-widest text-white/40 opacity-50">Archive Locked. Admin Access Required.</span></div>
+                        <div id="latestEcho" class="relative p-12 bg-white/[0.02] border-l-2 border-amber-500/30 rounded-r-[40px] hidden"><p id="echoText" class="text-2xl leading-relaxed text-gray-300 font-light"></p><div id="latestEchoImgContainer"></div></div>
                     </div>
                     
-                    <!-- 管理界面 -->
                     <div id="adminPostArea">
                         <div class="grid grid-cols-2 gap-5 mb-5">
-                            <select id="postType" class="bg-white/5 border border-white/10 rounded-2xl p-4 text-[11px] mono text-gray-400 focus:outline-none focus:border-amber-500/30">
-                                <option value="echo">CATEGORY: ECHO</option>
-                                <option value="learning">CATEGORY: LEARNING</option>
-                                <option value="entertainment">CATEGORY: ENTERTAIN</option>
-                                <option value="investment">CATEGORY: INVESTMENT</option>
-                                <option value="article">CATEGORY: ARTICLE</option>
-                                <option value="metrics">CATEGORY: METRICS</option>
-                                <option value="sys_keys">CATEGORY: SETTINGS</option>
-                            </select>
-                            <input type="text" id="postTitle" class="bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:outline-none focus:border-amber-500/30 text-white" placeholder="Title / Subtype">
+                            <select id="postType" class="bg-white/5 border border-white/10 rounded-2xl p-4 text-[11px] mono text-gray-400 focus:outline-none focus:border-amber-500/30"><option value="echo">CATEGORY: ECHO</option><option value="learning">CATEGORY: LEARNING</option><option value="entertainment">CATEGORY: ENTERTAIN</option><option value="investment">CATEGORY: INVESTMENT</option><option value="article">CATEGORY: ARTICLE</option><option value="metrics">CATEGORY: METRICS</option><option value="sys_keys">CATEGORY: SETTINGS</option></select>
+                            <input type="text" id="postTitle" class="bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:outline-none focus:border-amber-500/30 text-white font-light" placeholder="Artifact Title">
                         </div>
-                        <input type="text" id="postImageUrl" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-[11px] mono mb-5 text-white" placeholder="Artifact Image URL (Optional)">
-                        <textarea id="newEchoInput" class="w-full bg-white/5 border border-white/10 rounded-[32px] p-6 text-base font-light text-white outline-none focus:border-amber-500/40" placeholder="捕捉瞬间的想法..." rows="2"></textarea>
-                        <div class="flex justify-between items-center mt-6">
-                            <label class="flex items-center gap-3 cursor-pointer opacity-30 hover:opacity-100 transition-opacity">
-                                <input type="checkbox" id="isPrivateEntry">
-                                <span class="text-[11px] mono uppercase text-white tracking-widest">Private</span>
-                            </label>
-                            <button id="postEchoBtn" class="px-12 py-4 bg-white/5 hover:bg-white hover:text-black rounded-2xl text-[11px] mono transition-all font-bold uppercase tracking-[0.3em] text-white">Stamp_Log</button>
-                        </div>
+                        <input type="text" id="postImageUrl" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-[11px] mono mb-5 text-white" placeholder="Media Reference URL (Optional)">
+                        <textarea id="newEchoInput" class="w-full bg-white/5 border border-white/10 rounded-[32px] p-6 text-base font-light text-white outline-none focus:border-amber-500/30" placeholder="捕捉瞬间的想法..." rows="2"></textarea>
+                        <div class="flex justify-between items-center mt-6"><label class="flex items-center gap-3 cursor-pointer opacity-30 hover:opacity-100 transition-opacity"><input type="checkbox" id="isPrivateEntry"><span class="text-[11px] mono uppercase text-white tracking-widest">Private</span></label><button id="postEchoBtn" class="px-14 py-4 bg-white/5 hover:bg-white hover:text-black rounded-2xl text-[11px] mono transition-all font-bold text-white uppercase tracking-[0.4em]">STAMP</button></div>
                     </div>
                 </div>
 
-                <!-- 模块 M2: 书写 -->
                 <div id="narrativeCard" class="bento-card col-span-2 cursor-pointer group">
-                    <div class="default-content">
-                        <div class="flex justify-between items-center mb-10">
-                            <span class="mono text-[10px] opacity-30 uppercase tracking-[0.4em]">书写档案 / Narrative</span>
-                            <span id="m2Time" class="module-time">--:--:--</span>
-                        </div>
-                        <p class="text-2xl leading-relaxed text-gray-400 font-light italic group-hover:text-amber-500/80 transition-colors">“文字是思想在时间中留下的脚印。”</p>
-                    </div>
-                    <div id="articleListView" class="article-list hidden pt-4">
-                        <div id="dynamicArticleList" class="grid grid-cols-1 gap-6"></div>
-                        <button id="closeArchive" class="text-[10px] mono opacity-20 hover:opacity-100 uppercase mt-10 tracking-[0.3em]">[ Return ]</button>
-                    </div>
+                    <div class="default-content"><div class="flex justify-between items-center mb-10"><span class="mono text-[10px] opacity-30 uppercase tracking-[0.4em]">书写档案 / Narrative</span><span id="m2Time" class="module-time">--:--:--</span></div><p class="text-3xl leading-relaxed text-gray-400 font-light italic group-hover:text-amber-500/80 transition-colors">“思想在时间中留下的痕迹。”</p></div>
+                    <div id="articleListView" class="article-list hidden pt-4"><div id="dynamicArticleList" class="grid grid-cols-1 gap-6"></div><button id="closeArchive" class="text-[10px] mono opacity-20 hover:opacity-100 uppercase mt-10 tracking-[0.4em]">[ Return to Core ]</button></div>
                 </div>
 
-                <!-- 模块 M5: 娱乐 -->
-                <div class="bento-card col-span-2">
-                    <div class="flex justify-between items-center mb-12">
-                        <h3 class="mono text-[10px] opacity-40 uppercase tracking-[0.4em]">// Sensory_Library</h3>
-                        <span id="m5Time" class="module-time uppercase">--:--:--</span>
-                    </div>
-                    <div id="entertainmentList" class="space-y-8 flex-grow"></div>
-                </div>
+                <div class="bento-card col-span-2"><div class="flex justify-between items-center mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.4em]">// Sensory_Memory</h3><span id="m5Time" class="module-time uppercase">--:--:--</span></div><div id="entertainmentList" class="space-y-8 flex-grow"></div></div>
 
-                <!-- 模块 M6: 资产终端 (增强版) -->
+                <!-- 模块 M6: 资产 -->
                 <div id="investCard" class="bento-card col-span-4 min-h-[400px]">
-                    <div class="flex justify-between items-start mb-10">
-                        <h3 class="mono text-[10px] opacity-40 uppercase tracking-[0.4em]">Wealth Pulse Monitor</h3>
-                        <span id="m6Time" class="module-time">Weekly Sync</span>
-                    </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 flex-grow items-center">
-                        <div class="lg:col-span-1 space-y-8">
-                            <div class="flex flex-col gap-4">
-                                <div class="invest-tab active" data-type="fund">基金 (Fund)</div>
-                                <div class="invest-tab" data-type="stock">股票 (Stock)</div>
-                                <div class="invest-tab" data-type="crypto">数字货币 (Crypto)</div>
-                                <div class="invest-tab" data-type="metal">贵金属 (Metal)</div>
-                            </div>
-                            <div id="investText" class="text-base font-light text-gray-400 leading-relaxed italic border-l-2 border-white/10 pl-6 pt-4"></div>
-                        </div>
-                        <div class="lg:col-span-1 flex flex-col justify-center">
-                            <svg class="mini-chart" viewBox="0 0 400 100">
-                                <defs><linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--amber-gold)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--amber-gold)" stop-opacity="0"/></linearGradient></defs>
-                                <path id="trendArea" d="" fill="url(#chartGradient)"></path>
-                                <path id="trendPath" d="M 0 100 L 400 100" fill="none" stroke="var(--amber-gold)" stroke-width="3" stroke-linecap="round"></path>
-                            </svg>
-                            <div class="flex justify-between mono text-[9px] opacity-20 mt-6 uppercase tracking-widest">
-                                <span>Timeline Pulse</span>
-                                <span id="trendStatus">Analyzing</span>
-                            </div>
-                        </div>
+                    <div class="flex justify-between items-start mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.5em]">Wealth Pulse Monitor</h3><span id="m6Time" class="module-time uppercase">Real-time Sync</span></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 flex-grow items-center">
+                        <div class="lg:col-span-1 space-y-8"><div class="flex flex-col gap-4"><div class="invest-tab active" data-type="fund">基金 (Fund)</div><div class="invest-tab" data-type="stock">股票 (Stock)</div><div class="invest-tab" data-type="crypto">数字货币 (Crypto)</div><div class="invest-tab" data-type="metal">贵金属 (Metal)</div></div><div id="investText" class="text-base font-light text-gray-400 leading-relaxed italic border-l-2 border-white/5 pl-8 pt-4"></div></div>
+                        <div class="lg:col-span-1 flex flex-col justify-center"><svg class="mini-chart" viewBox="0 0 400 100"><defs><linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--amber-gold)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--amber-gold)" stop-opacity="0"/></linearGradient></defs><path id="trendArea" d="" fill="url(#chartGradient)"></path><path id="trendPath" d="M 0 100 L 400 100" fill="none" stroke="var(--amber-gold)" stroke-width="3"></path></svg></div>
                         <div class="lg:col-span-1 flex flex-col items-center justify-center border-l border-white/5">
-                            <div class="relative">
-                                <svg class="donut-chart" viewBox="0 0 40 40">
-                                    <circle class="donut-ring" cx="20" cy="20" r="15.9" stroke="rgba(255,255,255,0.04)"></circle>
-                                    <circle id="donutSegment" class="donut-ring" cx="20" cy="20" r="15.9" stroke="var(--amber-gold)" stroke-dasharray="0 100"></circle>
-                                </svg>
-                                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span id="donutPercent" class="mono text-2xl font-bold text-white">0%</span>
-                                    <span class="mono text-[8px] opacity-20 uppercase tracking-tighter">Share</span>
-                                </div>
-                            </div>
-                            <p class="mono text-[10px] opacity-30 mt-8 uppercase tracking-[0.4em]">Portfolio Dist.</p>
+                            <div class="relative"><svg class="donut-chart" viewBox="0 0 40 40"><circle class="donut-ring" cx="20" cy="20" r="15.9" stroke="rgba(255,255,255,0.04)"></circle><circle id="donutSegment" class="donut-ring" cx="20" cy="20" r="15.9" stroke="var(--amber-gold)" stroke-dasharray="0 100"></circle></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span id="donutPercent" class="mono text-2xl font-bold text-white">0%</span><span class="text-[8px] opacity-20 uppercase tracking-tighter">share</span></div></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 装饰性核心模块 -->
-                <div class="bento-card col-span-4 bg-white/[0.01] flex flex-col justify-center items-center opacity-10">
-                    <span class="mono text-2xl font-light tracking-[1.5em] text-white">CORE_SYSTEM_INITIATED</span>
-                </div>
+                <div class="bento-card col-span-4 bg-white/[0.01] flex flex-col justify-center items-center opacity-10 py-12"><span class="mono text-3xl font-light tracking-[2em] text-white">CORE_SYSTEM_ACTIVE</span></div>
             </div>
         </div>
     </div>
 
-    <!-- 侧边栏 (Chronicle AI 集成) -->
+    <!-- 检索侧边栏 -->
     <aside id="historyDrawer">
-        <div class="flex justify-between items-center mb-12">
-            <h2 class="text-3xl font-bold text-white tracking-tight font-serif">时间轴检索</h2>
-            <button id="closeHistory" class="text-gray-600 hover:text-white font-bold text-3xl transition-colors">✕</button>
-        </div>
-        
-        <div class="mb-14 p-8 bg-white/[0.03] border border-white/10 rounded-[32px]">
+        <div class="flex justify-between items-center mb-14"><h2 class="text-3xl font-bold text-white tracking-tight font-serif">时间轴检索</h2><button id="closeHistory" class="text-gray-500 hover:text-white font-bold text-3xl transition-colors">✕</button></div>
+        <div class="mb-14 p-10 bg-white/[0.03] border border-white/10 rounded-[40px]">
             <h3 class="mono text-[10px] uppercase tracking-[0.4em] opacity-40 mb-6 font-bold">Chronicle Guardian</h3>
             <div id="guardianMsg" class="guardian-msg"></div>
-            <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="向守望者提问我的历史...">
-            <button id="askGuardianBtn" class="w-full mt-4 text-[11px] mono text-amber-500/70 hover:text-amber-500 transition-all font-bold uppercase tracking-widest py-2 border border-amber-500/20 rounded-xl hover:bg-amber-500/10">[ Query Feedback ]</button>
+            <input type="text" id="aiChatInput" class="ai-chat-input" placeholder="向守望者提问我的历史记录...">
+            <button id="askGuardianBtn" class="w-full mt-5 text-[11px] mono text-amber-500/70 hover:text-amber-500 transition-all font-bold uppercase tracking-[0.4em] py-3 border border-amber-500/20 rounded-2xl hover:bg-amber-500/10">[ Send Query ]</button>
         </div>
-
-        <input type="text" id="globalSearch" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm mb-12 text-white focus:outline-none focus:border-amber-500/40" placeholder="搜索关键词或日期...">
+        <input type="text" id="globalSearch" class="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-sm mb-12 text-white focus:outline-none focus:border-amber-500/30" placeholder="关键词搜索或日期检索...">
         <div id="historyTimeline" class="space-y-16"></div>
     </aside>
 
@@ -383,23 +313,21 @@
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- 核心全局变量 ---
+        const ADMIN_SECRET = "Zjx207661"; 
         let db, auth, appId, GEMINI_API_KEY = "";
         window.isAdmin = localStorage.getItem('is_garden_admin') === 'true';
-        const ADMIN_SECRET = "Zjx207661"; 
 
-        // --- 1. 立即执行的 UI 引导 (核心修复：解决点不动和时钟不走) ---
-        function runUI() {
-            // 时钟立即走
-            const clock = document.getElementById('liveClock');
-            setInterval(() => { if(clock) clock.innerText = new Date().toLocaleTimeString(); }, 1000);
+        // --- 1. 立即执行的 UI 初始化 (解决 ReferenceError 的核心修复) ---
+        function initBase() {
+            // 时钟
+            const clockEl = document.getElementById('liveClock');
+            setInterval(() => { if(clockEl) clockEl.innerText = new Date().toLocaleTimeString(); }, 1000);
 
-            // 侧边栏
-            const searchBtn = document.getElementById('searchTrigger');
-            const drawer = document.getElementById('historyDrawer');
-            if(searchBtn) searchBtn.onclick = () => drawer.classList.add('open');
-            document.getElementById('closeHistory').onclick = () => drawer.classList.remove('open');
+            // 侧边栏与按钮
+            document.getElementById('searchTrigger').onclick = () => document.getElementById('historyDrawer').classList.add('open');
+            document.getElementById('closeHistory').onclick = () => document.getElementById('historyDrawer').classList.remove('open');
 
-            // 登录逻辑
+            // 登录弹窗控制
             const lockBtn = document.getElementById('adminLock');
             const loginModal = document.getElementById('loginModal');
             const confirmBtn = document.getElementById('confirmLogin');
@@ -413,29 +341,42 @@
                     } else { loginModal.style.display = 'flex'; pwdInput.focus(); }
                 };
             }
-
-            const doLogin = () => {
+            const handleAuth = () => {
                 if (pwdInput.value === ADMIN_SECRET) {
                     window.isAdmin = true; localStorage.setItem('is_garden_admin', 'true');
                     loginModal.style.display = 'none'; updateAdminUI(); refreshDisplay();
-                } else {
-                    pwdInput.style.borderColor = '#ef4444'; setTimeout(()=>pwdInput.style.borderColor='', 1000);
-                }
+                } else { pwdInput.style.borderColor = '#ef4444'; setTimeout(()=>pwdInput.style.borderColor='', 1000); }
             };
-            if(confirmBtn) confirmBtn.onclick = doLogin;
-            if(pwdInput) pwdInput.onkeydown = (e) => { if(e.key === 'Enter') doLogin(); };
+            if(confirmBtn) confirmBtn.onclick = handleAuth;
+            if(pwdInput) pwdInput.onkeydown = (e) => { if(e.key === 'Enter') handleAuth(); };
             document.getElementById('cancelLogin').onclick = () => loginModal.style.display = 'none';
 
-            // 功能按钮
-            document.getElementById('emailBtn').onclick = () => window.open('mailto:zjx207656@gmail.com');
-            document.getElementById('wechatBtn').onclick = () => window.copyToClipboard('Zj_6174');
+            // 名片浮窗控制 (零跳转)
+            const cPanel = document.getElementById('contactPanel');
+            document.getElementById('triggerContact').onclick = (e) => {
+                e.stopPropagation();
+                cPanel.style.display = 'block';
+                setTimeout(() => cPanel.classList.add('active'), 10);
+            };
+            document.getElementById('closeContact').onclick = () => {
+                cPanel.classList.remove('active');
+                setTimeout(() => cPanel.style.display = 'none', 400);
+            };
+            document.addEventListener('click', (e) => {
+                if(cPanel.style.display === 'block' && !cPanel.contains(e.target)) {
+                    cPanel.classList.remove('active');
+                    setTimeout(() => cPanel.style.display = 'none', 400);
+                }
+            });
+
+            // 环境音效
             const sBtn = document.getElementById('soundToggle');
             const audio = document.getElementById('ambientAudio');
             if(sBtn) sBtn.onclick = () => audio.paused ? (audio.play(), sBtn.classList.remove('sound-off')) : (audio.pause(), sBtn.classList.add('sound-off'));
         }
 
-        // --- 2. Firebase 云端系统 ---
-        async function runCloud() {
+        // --- 2. 数据库与同步系统 ---
+        async function startDatabase() {
             try {
                 const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
                 if(!configStr) return;
@@ -451,39 +392,37 @@
                         const vDoc = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'visitors');
                         await setDoc(vDoc, { count: increment(1) }, { merge: true });
                         onSnapshot(vDoc, s => { if(s.exists()) document.getElementById('visitorCount').innerText = s.data().count.toLocaleString(); });
-                        
                         // 密钥加载
                         const keyDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'keys'));
                         if(keyDoc.exists()) GEMINI_API_KEY = keyDoc.data().gemini_key || "";
-
-                        updateAdminUI(); loadData(); init3D(); initInvestTabs();
+                        
+                        updateAdminUI(); loadData(); initImmersive(); initInvestLogic();
                     }
                 });
-            } catch(e) { console.error("Cloud Synching Error"); }
+            } catch (e) { console.error("Firebase Sync Blocked."); }
         }
 
         function loadData() {
-            // 全局设置
             onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), s => {
                 const d = s.data() || {};
-                const maps = { weightVal:'weight', speedVal:'speed', versionLabel:'version' };
-                Object.keys(maps).forEach(k => { const el=document.getElementById(k); if(el) el.innerText=d[maps[k]]||'--'; });
+                const ids = { weightVal: 'weight', speedVal: 'speed', versionLabel: 'version' };
+                Object.keys(ids).forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerText = d[ids[id]] || '--'; });
             });
-            // 日志监听
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'logs'), s => {
                 window._publicLogs = s.docs.map(d => ({ id: d.id, ...d.data(), isPrivate: false }));
-                syncAll();
+                finalizeSync();
             });
             onSnapshot(collection(db, 'artifacts', appId, 'users', window.currentUser.uid, 'private_logs'), s => {
                 window._privateLogs = s.docs.map(d => ({ id: d.id, ...d.data(), isPrivate: true }));
-                syncAll();
+                finalizeSync();
             });
         }
 
-        function syncAll() {
+        function finalizeSync() {
             const all = [...(window._publicLogs || []), ...(window._privateLogs || [])].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
             window._allLogs = all; refreshDisplay(); renderTimeline(all);
             if(all[0] && all[0].createdAt) document.getElementById('lastUpdatedGlobal').innerText = new Date(all[0].createdAt.seconds*1000).toLocaleTimeString();
+            const fill = document.getElementById('progressFill'); if(fill) fill.style.width = Math.min(all.length * 5, 100) + '%';
         }
 
         function refreshDisplay() {
@@ -492,69 +431,63 @@
             const latest = window.isAdmin ? echoes[0] : echoes.find(e => !e.isPrivate);
             const echoBox = document.getElementById('latestEcho');
             const placeholder = document.getElementById('visitorPlaceholder');
-            if(echoBox) {
-                if(latest) {
-                    echoBox.classList.remove('hidden'); placeholder.classList.add('hidden');
-                    document.getElementById('echoText').innerText = latest.text;
-                    document.getElementById('latestEchoImgContainer').innerHTML = latest.imageUrl ? `<img src="${latest.imageUrl}" class="record-image">` : '';
-                } else if(!window.isAdmin) {
-                    echoBox.classList.add('hidden'); placeholder.classList.remove('hidden');
-                }
+            if (latest && echoBox) {
+                echoBox.classList.remove('hidden'); placeholder.classList.add('hidden');
+                document.getElementById('echoText').innerText = latest.text;
+                document.getElementById('latestEchoImgContainer').innerHTML = latest.imageUrl ? `<img src="${latest.imageUrl}" class="record-image">` : '';
+            } else if(!window.isAdmin) {
+                echoBox.classList.add('hidden'); placeholder.classList.remove('hidden');
             }
-            // 列表
             const renderL = (type, elId) => {
-                const el = document.getElementById(elId); if(!el) return;
-                const items = all.filter(l => l.type === type).slice(0,3);
-                el.innerHTML = items.map(i => `<div class="flex gap-5 items-start animate-fade-in">${i.imageUrl ? `<img src="${i.imageUrl}" class="w-12 h-12 object-cover rounded-xl">` : '<div class="w-1.5 h-1.5 bg-white/20 rounded-full mt-2"></div>'}<div class="flex-grow"><div class="flex justify-between items-baseline mb-1"><span class="text-sm font-semibold ${type==='entertainment'?'text-amber-500/80':'text-gray-300'}">${i.title || 'Log'}</span><span class="module-time">${i.createdAt?new Date(i.createdAt.seconds*1000).toLocaleDateString():''}</span></div><p class="text-[12px] text-gray-500 line-clamp-1 italic">${i.text.split('|')[0]}</p></div></div>`).join('');
+                const items = all.filter(l => l.type === type).slice(0, 3);
+                const el = document.getElementById(elId);
+                if(el) el.innerHTML = items.map(i => `<div class="flex gap-6 items-start animate-fade-in">${i.imageUrl ? `<img src="${i.imageUrl}" class="w-12 h-12 object-cover rounded-xl shadow-xl">` : '<div class="w-2 mt-2 h-2 bg-white/20 rounded-full"></div>'}<div class="flex-grow"><div class="flex justify-between items-start mb-1"><span class="text-sm font-semibold ${type==='entertainment'?'text-amber-500/80':'text-gray-300'}">${i.title || 'Log Entry'}</span><span class="module-time">${i.createdAt ? new Date(i.createdAt.seconds * 1000).toLocaleDateString() : ''}</span></div><p class="text-[12px] text-gray-500 italic line-clamp-1">${i.text.split('|')[0]}</p></div></div>`).join('');
             };
             renderL('learning', 'ingestList'); renderL('entertainment', 'entertainmentList');
             updateInvest();
-            // 文章
             const arts = all.filter(l => l.type === 'article');
             const alist = document.getElementById('dynamicArticleList');
-            if(alist) alist.innerHTML = arts.map(a => `<div class="flex justify-between items-center border-b border-white/5 pb-3 hover:text-white transition-colors"><a href="${a.text.includes('http')?a.text:'#'}" target="_blank" class="text-base text-gray-400">${a.title}</a><span class="module-time">${a.createdAt?new Date(a.createdAt.seconds*1000).toLocaleDateString():''}</span></div>`).join('');
+            if(alist && arts.length > 0) alist.innerHTML = arts.map(a => `<div class="flex justify-between items-center border-b border-white/5 pb-3 hover:text-white transition-colors"><a href="${a.text.includes('http') ? a.text : '#'}" target="_blank" class="text-base">${a.title}</a><span class="module-time font-bold">External</span></div>`).join('');
         }
 
-        // --- 3. 高级模块实现 ---
+        // --- 3. 逻辑与交互实现 ---
         function updateAdminUI() {
             if (window.isAdmin) {
                 document.getElementById('adminPostArea').classList.add('active');
                 document.getElementById('lockIcon').classList.add('text-amber-500');
-                document.getElementById('masterPrivacyContainer').classList.remove('hidden');
+                const t = document.getElementById('masterPrivacyContainer'); if(t) t.classList.remove('hidden');
             }
         }
 
         function updateInvest() {
             const all = window._allLogs || [];
             const subtypeMap = { fund: '基金', stock: '股票', crypto: '币', metal: '金属' };
-            const tab = document.querySelector('.invest-tab.active')?.dataset.type || 'fund';
-            const sum = { fund:0, stock:0, crypto:0, metal:0 };
-            Object.keys(subtypeMap).forEach(k => {
-                const r = all.filter(l => l.type==='investment' && (l.title?.includes(subtypeMap[k]) || l.title?.toLowerCase().includes(k))).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-                if(r[0]) sum[k] = parseFloat(r[0].text.split('|')[0]) || 0;
+            const activeTab = document.querySelector('.invest-tab.active')?.dataset.type || 'fund';
+            const sum = { fund: 0, stock: 0, crypto: 0, metal: 0 };
+            Object.keys(subtypeMap).forEach(key => {
+                const recs = all.filter(l => l.type === 'investment' && (l.title?.includes(subtypeMap[key]) || l.title?.toLowerCase().includes(key))).sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                if(recs.length > 0) sum[key] = parseFloat(recs[recs.length-1].text.split('|')[0]) || 0;
             });
-            const total = Object.values(sum).reduce((a,b)=>a+b, 0);
-            const perc = total > 0 ? (sum[tab]/total*100).toFixed(1) : 0;
-            const donut = document.getElementById('donutSegment');
-            if(donut) donut.style.strokeDasharray = `${perc} 100`;
-            if(document.getElementById('donutPercent')) document.getElementById('donutPercent').innerText = perc + '%';
-
-            const records = all.filter(l => l.type==='investment' && (l.title?.includes(subtypeMap[tab]) || l.title?.toLowerCase().includes(tab))).sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
-            if(records[0]) {
-                const latest = records[records.length-1];
-                document.getElementById('investText').innerHTML = `<div class="mb-2 text-[10px] opacity-40 font-mono">${latest.createdAt?new Date(latest.createdAt.seconds*1000).toLocaleString():''}</div>${latest.text.split('|')[1] || latest.text}`;
+            const total = Object.values(sum).reduce((a, b) => a + b, 0);
+            const percent = total > 0 ? (sum[activeTab] / total * 100).toFixed(1) : 0;
+            if(document.getElementById('donutSegment')) document.getElementById('donutSegment').style.strokeDasharray = `${percent} 100`;
+            if(document.getElementById('donutPercent')) document.getElementById('donutPercent').innerText = percent + '%';
+            const records = all.filter(l => l.type === 'investment' && (l.title?.includes(subtypeMap[activeTab]) || l.title?.toLowerCase().includes(activeTab))).sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+            if (records.length > 0) {
+                const latest = records[records.length - 1];
+                document.getElementById('investText').innerHTML = `<div class="mb-3 text-[10px] opacity-40 font-mono tracking-tighter">${latest.createdAt ? new Date(latest.createdAt.seconds * 1000).toLocaleString() : ''}</div>${latest.text.split('|')[1] || latest.text}`;
                 const pts = records.map(r => parseFloat(r.text.split('|')[0]) || 0);
                 const path = document.getElementById('trendPath'); const area = document.getElementById('trendArea');
                 if(path && area && pts.length>0) {
-                    const min = Math.min(...pts, 0); const max = Math.max(...pts, 100); const r = max-min||1; const step = 400/(Math.max(pts.length,2)-1);
-                    let d = `M 0 ${95 - ((pts[0]-min)/r*90)}`;
-                    pts.forEach((p, i) => { if(i>0) d += ` L ${i*step} ${95 - ((p-min)/r*90)}`; });
-                    path.setAttribute('d', d); area.setAttribute('d', d + ` L 400 100 L 0 100 Z`);
+                    const min = Math.min(...pts, 0); const max = Math.max(...pts, 100); const range = max - min || 1; const step = 400 / (Math.max(pts.length, 2) - 1);
+                    let dL = `M 0 ${95 - ((pts[0] - min) / range * 90)}`;
+                    pts.forEach((p, i) => { if(i > 0) dL += ` L ${i * step} ${95 - ((p - min) / range * 90)}`; });
+                    path.setAttribute('d', dL); area.setAttribute('d', dL + ` L 400 100 L 0 100 Z`);
                 }
             }
         }
 
-        function initInvestTabs() { document.querySelectorAll('.invest-tab').forEach(t => t.onclick = () => { document.querySelectorAll('.invest-tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); updateInvest(); }); }
+        function initInvestLogic() { document.querySelectorAll('.invest-tab').forEach(tab => { tab.onclick = () => { document.querySelectorAll('.invest-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); updateInvest(); }; }); }
 
         document.getElementById('askGuardianBtn').onclick = async () => {
             const box = document.getElementById('guardianMsg'); const input = document.getElementById('aiChatInput');
@@ -563,20 +496,18 @@
             const memories = (window._allLogs || []).slice(0, 15).map(l => `[${l.type}] ${l.text}`).join('\n');
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: `你是档案馆守望者。分析历史回答提问：\n${memories}\n问题：${input.value}` }] }] })
+                    method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: `你是档案守望者。分析历史碎片回答提问：\n${memories}\n问题：${input.value}` }] }] })
                 });
                 const data = await res.json(); box.innerText = data.candidates[0].content.parts[0].text;
-            } catch(e) { box.innerText = "时空回响断裂，请检查 API Key。"; }
+            } catch(e) { box.innerText = "回响断裂，时空处于波动中。"; }
             input.value = "";
         };
 
-        function init3D() {
+        function initImmersive() {
             document.querySelectorAll('.bento-card').forEach(card => {
                 card.onmousemove = (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = (e.clientX - rect.left) / rect.width - 0.5;
-                    const y = (e.clientY - rect.top) / rect.height - 0.5;
-                    card.style.transform = `perspective(1200px) rotateX(${y * -10}deg) rotateY(${x * 10}deg) translateZ(10px)`;
+                    const rect = card.getBoundingClientRect(); const x = (e.clientX - rect.left) / rect.width - 0.5; const y = (e.clientY - rect.top) / rect.height - 0.5;
+                    card.style.transform = `perspective(1200px) rotateX(${y * -10}deg) rotateY(${x * 10}deg) translateZ(15px)`;
                 };
                 card.onmouseleave = () => card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg)`;
             });
@@ -586,56 +517,37 @@
             const container = document.getElementById('historyTimeline'); if(!container) return;
             const q = document.getElementById('globalSearch').value.toLowerCase();
             const filtered = data.filter(l => (window.isAdmin || !l.isPrivate) && (l.text?.toLowerCase().includes(q) || l.title?.toLowerCase().includes(q)));
-            container.innerHTML = filtered.map(l => `
-                <div class="pl-12 relative group mb-12">
-                    <div class="absolute left-0 top-3 w-7 h-7 rounded-full border-4 border-[#0d1017] ${l.isPrivate ? 'bg-amber-600' : 'bg-[#85a583]'} shadow-2xl"></div>
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="mono text-[10px] opacity-40">${l.createdAt ? new Date(l.createdAt.seconds * 1000).toLocaleString() : ''}</span>
-                        ${window.isAdmin ? `<button onclick="window.deleteLog('${l.id}', ${l.isPrivate})" class="text-[9px] opacity-0 group-hover:opacity-40 hover:text-red-400 transition-all font-bold uppercase">[ Delete ]</button>` : ''}
-                    </div>
-                    <h4 class="text-white font-bold text-sm mb-2">${l.title || l.type}</h4>
-                    <p class="text-sm text-gray-400 font-light leading-relaxed">${l.text.split('|')[0]}</p>
-                    ${l.imageUrl ? `<img src="${l.imageUrl}" class="record-image" style="max-height:150px">` : ''}
-                </div>
-            `).join('');
+            container.innerHTML = filtered.map(l => `<div class="pl-14 relative group mb-14"><div class="absolute left-0 top-3 w-8 h-8 rounded-full border-4 border-[#0d1017] ${l.isPrivate ? 'bg-amber-600' : 'bg-[#85a583]'} shadow-2xl"></div><div class="flex justify-between items-center mb-2"><span class="mono text-[10px] opacity-30 font-bold">${l.createdAt ? new Date(l.createdAt.seconds * 1000).toLocaleString() : ''}</span>${window.isAdmin ? `<button onclick="window.deleteLog('${l.id}', ${l.isPrivate})" class="text-[9px] opacity-0 group-hover:opacity-40 hover:text-red-500 transition-all font-bold">[ DELETE ]</button>` : ''}</div><h4 class="text-white font-bold text-sm mb-2 uppercase">${l.title || l.type}</h4><p class="text-sm text-gray-400 font-light leading-relaxed">${l.text.split('|')[0]}</p>${l.imageUrl ? `<img src="${l.imageUrl}" class="record-image" style="max-height:160px">` : ''}</div>`).join('');
         }
 
-        window.deleteLog = async (id, isPriv) => { if(!confirm("确定抹除这段存根？")) return; await deleteDoc(doc(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? window.currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs', id)); };
+        window.deleteLog = async (id, isPriv) => { if(!confirm("确定抹除？")) return; await deleteDoc(doc(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? window.currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs', id)); };
         
         document.getElementById('postEchoBtn').onclick = async () => {
             if(!window.isAdmin) return;
-            const text = document.getElementById('newEchoInput').value.trim(); const title = document.getElementById('postTitle').value.trim(); const imageUrl = document.getElementById('postImageUrl').value.trim(); const type = document.getElementById('postType').value; const isPriv = document.getElementById('isPrivateEntry').checked;
+            const text = document.getElementById('newEchoInput').value.trim(); const title = document.getElementById('postTitle').value.trim(); const type = document.getElementById('postType').value; const isPriv = document.getElementById('isPrivateEntry').checked;
             if(!text) return;
             try {
-                if(type === 'sys_keys') { await setDoc(doc(db, 'artifacts', appId, 'users', window.currentUser.uid, 'settings', 'keys'), { gemini_key: text }); alert("System Configuration Uploaded."); }
+                if(type === 'sys_keys') { await setDoc(doc(db, 'artifacts', appId, 'users', window.currentUser.uid, 'settings', 'keys'), { gemini_key: text }); alert("Configuration Saved."); }
                 else if(type === 'metrics') { const p = text.split(','); await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { weight: p[0].trim(), speed: p[1].trim(), version: title || "v0.3.5" }, { merge: true }); }
-                else { await addDoc(collection(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? window.currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs'), { text, title, type, imageUrl, createdAt: serverTimestamp(), isPrivate: isPriv }); }
+                else { await addDoc(collection(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? window.currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs'), { text, title, type, createdAt: serverTimestamp(), isPrivate: isPriv }); }
                 document.getElementById('newEchoInput').value = '';
-            } catch(e) { alert("Deployment Failed"); }
+            } catch(e) { alert("Deployment error."); }
         };
 
         const nc = document.getElementById('narrativeCard'); 
-        if(nc) nc.onclick = (e) => { 
-            if(!e.target.closest('a') && e.target.id !== 'closeArchive') {
-                nc.querySelector('.default-content').classList.add('hidden');
-                document.getElementById('articleListView').classList.remove('hidden');
-            }
-        };
-        document.getElementById('closeArchive').onclick = (e) => { 
-            e.stopPropagation(); 
-            nc.querySelector('.default-content').classList.remove('hidden');
-            document.getElementById('articleListView').classList.add('hidden');
-        };
+        if(nc) nc.onclick = (e) => { if(!e.target.closest('a') && e.target.id !== 'closeArchive') { nc.querySelector('.default-content').classList.add('hidden'); document.getElementById('articleListView').classList.remove('hidden'); } };
+        document.getElementById('closeArchive').onclick = (e) => { e.stopPropagation(); nc.querySelector('.default-content').classList.remove('hidden'); document.getElementById('articleListView').classList.add('hidden'); };
 
         window.copyToClipboard = (t) => {
             const el = document.createElement('textarea'); el.value = t; document.body.appendChild(el); el.select();
             document.execCommand('copy'); document.body.removeChild(el);
-            const msg = document.createElement('div'); msg.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-3 rounded-full z-[9999] mono text-xs shadow-2xl font-bold";
-            msg.innerText = "COPIED: " + t; document.body.appendChild(msg); setTimeout(() => msg.remove(), 2500);
+            const msg = document.createElement('div'); msg.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-10 py-4 rounded-full z-[9999] mono text-xs shadow-2xl font-bold border-2 border-amber-500";
+            msg.innerText = "IDENTIFIER COPIED: " + t; document.body.appendChild(msg); setTimeout(() => msg.remove(), 2500);
         };
 
-        runUI();
-        runCloud();
+        // 顺序引导启动
+        initBase();
+        startDatabase();
     </script>
 </body>
 </html>
