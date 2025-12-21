@@ -2,18 +2,19 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>流光存根 | Digital Garden</title>
     <!-- 引入核心库 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;600&family=JetBrains+Mono:wght@200;400&family=Dancing+Script:wght@500&display=swap" rel="stylesheet">
     <style>
+        /* ------------------- 视觉核心系统 ------------------- */
         :root {
-            --bg-color: #0d0b08; 
+            --bg-color: #1a1612; /* 琥珀暖黑基调，杜绝加载失败时的纯黑感 */
             --card-bg: rgba(28, 24, 20, 0.85); 
             --accent-color: #e3b341; 
             --text-main: #d1d5db;
-            --ambient-glow: rgba(227, 179, 65, 0.1);
         }
 
         body { 
@@ -25,185 +26,193 @@
             min-height: 100vh;
         }
         
-        /* 终极环境引擎背景：由脚本强制驱动人文 ID 池 */
+        /* 终极背景引擎：100% 物理 ID 锁定，拒绝光斑，拒绝高楼 */
         #dynamicBg { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background-size: cover; background-position: center; 
             z-index: -1; 
-            filter: brightness(0.7) contrast(1.1) saturate(1.1);
-            transition: background-image 3s cubic-bezier(0.22, 1, 0.36, 1);
-            /* 兜底图：雨后温润街角 */
-            background-image: linear-gradient(rgba(13,11,8,0.4), rgba(13,11,8,0.7)), url('https://images.unsplash.com/photo-1513506496266-aa6d3b9954b4?q=80&w=2000&auto=format&fit=crop');
+            filter: brightness(0.65) contrast(1.05) saturate(1.1);
+            transition: background-image 3s ease-in-out;
+            /* 物理首屏底图：一张充满人文气息的雨夜街头局部 (ID: 1513506496266) */
+            background-image: linear-gradient(rgba(26,22,18,0.35), rgba(26,22,18,0.7)), url('https://images.unsplash.com/photo-1513506496266-aa6d3b9954b4?q=80&w=2000&auto=format&fit=crop');
         }
 
         .ambient-layer { 
             position: fixed; inset: 0; 
-            background: radial-gradient(circle at 50% 50%, var(--ambient-glow) 0%, transparent 70%); 
+            background: radial-gradient(circle at 50% 50%, rgba(227, 179, 65, 0.08) 0%, transparent 70%); 
             pointer-events: none; z-index: 0; 
         }
 
-        /* 统一卡片样式 */
+        /* 统一 Bento 卡片样式 */
         .bento-card { 
             background: var(--card-bg); backdrop-filter: blur(60px); 
-            border: 1px solid rgba(227, 179, 65, 0.2); border-radius: 44px; 
-            padding: 3rem; transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+            border: 1px solid rgba(227, 179, 65, 0.15); border-radius: 40px; 
+            padding: 2.5rem; transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
             transform-style: preserve-3d;
             box-shadow: 0 25px 50px rgba(0,0,0,0.6);
         }
-        .bento-card:hover { border-color: var(--accent-color); box-shadow: 0 40px 100px rgba(227, 179, 65, 0.25); transform: translateY(-8px); }
+        .bento-card:hover { border-color: var(--accent-color); box-shadow: 0 40px 100px rgba(227, 179, 65, 0.15); transform: translateY(-6px); }
 
         .bento-grid { 
             display: grid; grid-template-columns: repeat(4, 1fr); 
             grid-auto-rows: minmax(180px, auto); gap: 2.5rem; 
-            padding: 0 4rem 6rem 4rem; max-width: 1550px; margin: 0 auto; 
+            padding: 2rem 4rem 6rem 4rem; max-width: 1550px; margin: 0 auto; 
         }
 
-        /* M5 感官实验室 UI 修复 */
+        /* M5 分类排版修复 */
         .sensory-menu { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.5rem; margin-top: 2rem; }
         .sensory-btn { 
             aspect-ratio: 1; background: rgba(255,255,255,0.03); 
-            border: 1px solid rgba(255,255,255,0.06); border-radius: 32px; 
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             transition: 0.4s; cursor: pointer; 
         }
-        .sensory-btn:hover { background: var(--ambient-glow); border-color: var(--accent-color); transform: scale(1.1); }
-        .sensory-btn span { font-size: 10px; margin-top: 10px; opacity: 0.4; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-main); }
+        .sensory-btn:hover { background: rgba(227, 179, 65, 0.1); border-color: var(--accent-color); transform: scale(1.1); }
+        .sensory-btn span { font-size: 10px; margin-top: 10px; opacity: 0.5; font-weight: 600; letter-spacing: 0.1em; }
 
-        .sensory-detail-view { position: absolute; inset: 0; background: #0d1017; z-index: 100; border-radius: 44px; padding: 2.75rem; display: none; flex-direction: column; }
+        .sensory-detail-view { position: absolute; inset: 0; background: #0d0b08; z-index: 100; border-radius: 40px; padding: 2.5rem; display: none; flex-direction: column; }
         .sensory-detail-view.active { display: flex; }
 
-        /* 输入区域字体修正 */
-        .admin-input { font-size: 13px !important; line-height: 1.6; font-family: 'JetBrains Mono', monospace; }
+        /* 输入区域强制微型化，防止变大 */
+        .admin-input-reset { font-size: 13px !important; line-height: 1.5; font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.8rem; color: white; outline: none; width: 100%; }
+        .admin-input-reset:focus { border-color: var(--accent-color); }
 
-        /* 极简联系面板 */
-        #contactPanel { 
-            position: fixed; top: 110px; right: 40px; width: 300px; 
-            background: rgba(30, 25, 22, 0.99); backdrop-filter: blur(45px); 
-            border: 1px solid rgba(227, 179, 65, 0.3); border-radius: 40px; 
-            padding: 2.5rem; z-index: 9000; display: none; 
-            transform: translateY(-20px); opacity: 0; 
-            transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        #loginModal { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
-            z-index: 20000; display: none; align-items: center; justify-content: center; 
-            backdrop-filter: blur(30px); 
-        }
-
-        #historyDrawer { position: fixed; right: -550px; top: 0; width: 500px; height: 100vh; background: rgba(18, 15, 12, 0.99); backdrop-filter: blur(45px); z-index: 8000; transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1); border-left: 1px solid rgba(255, 255, 255, 0.05); padding: 4rem; overflow-y: auto; }
-        #historyDrawer.open { right: 0; }
+        .status-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; border: 2px solid rgba(255,255,255,0.1); }
+        .status-online { background: #85a583; box-shadow: 0 0 15px #85a583; }
+        .status-offline { background: #ef4444; }
 
         .mono { font-family: 'JetBrains Mono', monospace; }
         .serif { font-family: 'Noto Serif SC', serif; }
+        .module-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; opacity: 0.35; letter-spacing: 0.1em; }
+
+        /* 交互面板层级 */
+        #contactPanel { 
+            position: fixed; top: 110px; right: 40px; width: 300px; 
+            background: rgba(30, 25, 22, 0.99); backdrop-filter: blur(45px); 
+            border: 1px solid rgba(227, 179, 65, 0.3); border-radius: 36px; 
+            padding: 2.5rem; z-index: 10000; display: none; 
+            transform: translateY(-20px); opacity: 0; transition: all 0.4s ease;
+        }
+        #loginModal { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
+            z-index: 20000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(30px); 
+        }
+        #historyDrawer { position: fixed; right: -550px; top: 0; width: 500px; height: 100vh; background: rgba(18, 15, 12, 0.99); z-index: 8000; transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1); border-left: 1px solid rgba(255, 255, 255, 0.05); padding: 4rem; overflow-y: auto; }
+        #historyDrawer.open { right: 0; }
+
+        #imageLightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(30px); z-index: 15000; display: none; align-items: center; justify-content: center; cursor: zoom-out; }
+        #imageLightbox img { max-width: 90%; max-height: 90%; border-radius: 12px; }
+
+        @media (max-width: 1024px) {
+            .bento-grid { grid-template-columns: 1fr; padding: 1rem; }
+            .col-span-4, .col-span-2 { grid-column: span 1; }
+        }
     </style>
 </head>
 <body>
 
     <div id="dynamicBg"></div>
     <div class="ambient-layer"></div>
-    <div id="imageLightbox" onclick="this.classList.remove('active')"><img id="lightboxImg" src=""></div>
+    <div id="imageLightbox" onclick="closeLightbox()"><img id="lightboxImg" src=""></div>
 
-    <!-- 管理员登录弹窗 (修复设置 null 报错的关键) -->
+    <!-- 管理员登录 -->
     <div id="loginModal">
         <div class="bg-[#161a22] p-12 rounded-[60px] border border-white/10 w-full max-w-sm text-center shadow-3xl">
-            <h3 class="mono text-[11px] uppercase tracking-[0.5em] opacity-30 mb-10 font-bold text-white text-center">Master Auth</h3>
-            <input type="password" id="secretKeyInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-center mono tracking-widest focus:outline-none focus:border-amber-500/50 transition-colors mb-10 text-white" placeholder="••••••••">
+            <h3 class="mono text-[11px] uppercase tracking-[0.5em] opacity-30 mb-10 font-bold text-white">Security Auth</h3>
+            <input type="password" id="secretKeyInput" class="admin-input-reset text-center mb-10" placeholder="••••••••">
             <div class="flex gap-4">
-                <button onclick="document.getElementById('loginModal').style.display='none'" class="flex-1 py-4 text-[10px] mono opacity-30 hover:opacity-100 transition-opacity uppercase font-bold">Cancel</button>
-                <button id="confirmLogin" class="flex-1 py-4 bg-white/5 hover:bg-white hover:text-black rounded-xl text-[10px] mono transition-all font-bold uppercase tracking-widest">Verify</button>
+                <button id="cancelLoginBtn" class="flex-1 py-4 text-[10px] mono opacity-30 hover:opacity-100 transition-opacity uppercase font-bold text-white">Cancel</button>
+                <button id="confirmLogin" class="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] mono transition-all font-bold uppercase tracking-widest text-amber-500">Confirm</button>
             </div>
         </div>
     </div>
 
-    <!-- 联系名片 -->
+    <!-- 极简名片 -->
     <div id="contactPanel">
-        <div class="flex justify-between items-center mb-10"><span class="mono text-[10px] opacity-40 uppercase font-bold tracking-[0.3em] w-full text-center text-amber-500">Connectivity</span><button onclick="toggleContactPanel()" class="text-white/20 hover:text-white p-2">✕</button></div>
+        <div class="flex justify-between items-center mb-10"><span class="mono text-[10px] opacity-40 uppercase font-bold tracking-[0.3em] w-full text-center text-amber-500">Connectivity</span><button id="closeContactBtn" class="text-white/20 hover:text-white p-2">✕</button></div>
         <div class="space-y-8 text-center text-white/90">
-            <div class="group"><div class="text-[9px] opacity-20 mono mb-3 uppercase tracking-tighter">Mailbox</div><div class="flex justify-between items-center bg-white/[0.02] p-4 rounded-2xl border border-white/5"><span class="text-xs mono">zjx207656@gmail.com</span><button onclick="copyToClipboard('zjx207656@gmail.com')" class="px-3 py-1.5 bg-white/5 rounded-lg text-[9px] mono text-amber-500 font-bold">COPY</button></div></div>
-            <div class="group"><div class="text-[9px] opacity-20 mono mb-3 uppercase tracking-tighter">WeChat ID</div><div class="flex justify-between items-center bg-white/[0.02] p-4 rounded-2xl border border-white/5"><span class="text-xs mono">Zj_6174</span><button onclick="copyToClipboard('Zj_6174')" class="px-3 py-1.5 bg-white/5 rounded-lg text-[9px] mono text-amber-500 font-bold">COPY</button></div></div>
+            <div class="group"><div class="text-[9px] opacity-20 mono mb-3 uppercase">Mailbox</div><div class="flex justify-between items-center bg-white/[0.02] p-4 rounded-2xl border border-white/5"><span class="text-xs mono">zjx207656@gmail.com</span><button onclick="copyText('zjx207656@gmail.com')" class="px-3 py-1.5 bg-white/5 rounded-lg text-[9px] mono text-amber-500 font-bold">COPY</button></div></div>
+            <div class="group"><div class="text-[9px] opacity-20 mono mb-3 uppercase">WeChat ID</div><div class="flex justify-between items-center bg-white/[0.02] p-4 rounded-2xl border border-white/5"><span class="text-xs mono">Zj_6174</span><button onclick="copyText('Zj_6174')" class="px-3 py-1.5 bg-white/5 rounded-lg text-[9px] mono text-amber-500 font-bold">COPY</button></div></div>
         </div>
     </div>
 
     <div class="content-wrapper">
-        <div class="container mx-auto max-w-[1600px] pt-12 pb-24">
+        <div class="container mx-auto">
             
-            <!-- 页眉 -->
-            <header class="mb-14 lg:px-16 flex flex-col lg:flex-row justify-between items-center gap-6 text-center lg:text-left">
+            <header class="flex flex-col lg:flex-row justify-between items-center gap-8 mb-16 px-8 lg:px-16 pt-16">
                 <div>
-                    <h1 id="siteTitle" class="text-7xl font-bold text-white mb-2 tracking-tighter font-serif">流光存根</h1>
+                    <h1 class="text-7xl font-bold text-white mb-2 tracking-tighter font-serif">流光存根</h1>
                     <p class="text-xl text-gray-500 font-light italic serif">具体的生活，是抵御虚无的最后一道防线。</p>
                 </div>
                 <div class="flex flex-col items-center lg:items-end gap-5">
                     <div class="flex items-center gap-8">
-                        <div class="visitor-stat flex items-center">
-                            <div id="syncIndicator" class="status-dot status-offline" onclick="window.emergencySync()"></div>
-                            <span id="visitorCount" class="font-bold tracking-[0.2em] text-white/40 ml-3 text-xs">----</span>
+                        <div class="flex items-center gap-3">
+                            <div id="syncIndicator" class="status-dot status-offline"></div>
+                            <span id="visitorCount" class="font-bold tracking-[0.2em] text-white/40 text-xs">OFFLINE</span>
                         </div>
                         <div id="liveClock" class="mono text-xs text-amber-500/50 tracking-[0.35em]">00:00:00</div>
                     </div>
-                    <div class="flex items-center gap-5">
-                        <button id="searchTrigger" class="text-gray-500 hover:text-white transition-all p-3 rounded-full hover:bg-white/5"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
-                        <button onclick="toggleContactPanel()" class="text-gray-500 hover:text-amber-500 transition-colors p-3 rounded-full hover:bg-white/5"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg></button>
-                        <button id="adminLockTrigger" class="text-gray-500 hover:text-white transition-colors p-3 rounded-full hover:bg-white/5"><svg id="lockIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></button>
+                    <div class="flex gap-4">
+                        <button id="searchTrigger" class="p-3 bg-white/5 rounded-full hover:bg-white/10 text-white/60 hover:text-white transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
+                        <button id="contactTrigger" class="p-3 bg-white/5 rounded-full hover:bg-white/10 text-white/60 hover:text-amber-500 transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg></button>
+                        <button id="adminLockTrigger" class="p-3 bg-white/5 rounded-full hover:bg-white/10 text-white/60 hover:text-white transition"><svg id="lockIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></button>
                     </div>
                 </div>
             </header>
 
             <div class="bento-grid">
-                <!-- M1 -->
+                <!-- M1: 指标 -->
                 <div class="bento-card col-span-2 row-span-2 flex flex-col justify-between overflow-hidden">
                     <div class="relative z-10">
-                        <div class="flex items-center gap-3 mb-10"><div id="pulseDot" class="w-2 h-2 rounded-full bg-[#85a583] shadow-[0_0_20px_#85a583]"></div><span class="mono text-[10px] uppercase tracking-[0.2em] opacity-40">System Pulse: <span id="lastUpdatedGlobal">Live</span></span></div>
+                        <div class="flex items-center gap-3 mb-10"><div class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_15px_#e3b341]"></div><span class="mono text-[10px] uppercase tracking-[0.2em] opacity-40">Creativity Pulse</span></div>
                         <h2 class="text-4xl font-bold text-white mb-14 tracking-tight">生活刻度</h2>
                         <div class="space-y-12">
                             <div>
-                                <div class="flex justify-between items-baseline mb-5"><span class="text-gray-400 text-[10px] tracking-widest uppercase font-light opacity-60">Creative Vitality</span><span id="versionLabel" class="module-time font-bold opacity-80 text-amber-500">v14.0.0_SOUL</span></div>
-                                <div class="h-[2px] w-full bg-white/10 rounded-full overflow-hidden"><div id="progressFill" class="h-full bg-white/70 shadow-[0_0_15px_white]" style="width: 82%"></div></div>
-                                <p class="text-xl mt-12 italic text-gray-400 serif leading-relaxed">“在具体的场景中，重拾时间的温度。”</p>
+                                <div class="flex justify-between items-baseline mb-5"><span class="text-gray-400 text-[10px] tracking-widest uppercase opacity-60">System Stability</span><span class="module-time font-bold opacity-80 text-amber-500">v19.0.0_SOUL</span></div>
+                                <div class="h-[2px] w-full bg-white/10 rounded-full overflow-hidden"><div id="progressFill" class="h-full bg-white/70 w-[95%] shadow-[0_0_10px_white]"></div></div>
+                                <p class="text-xl mt-12 italic text-gray-400 serif leading-relaxed">“在具体的纹理中，重拾被遗忘的温度。”</p>
                             </div>
                         </div>
                     </div>
                     <div class="pt-12 border-t border-white/5 flex gap-20 relative z-10">
                         <div><div class="text-4xl font-light text-white mono"><span id="weightVal">55.0</span><span class="text-xs opacity-20 ml-2">KG</span></div><div class="text-[9px] mono opacity-30 mt-3 uppercase tracking-[0.2em]">Weight</div></div>
-                        <div><div class="text-4xl font-light text-white mono"><span id="speedVal">95</span><span class="text-xs opacity-20 ml-2">%</span></div><div class="text-[9px] mono opacity-30 mt-3 uppercase tracking-[0.2em]">Creativity</div></div>
+                        <div><div class="text-4xl font-light text-white mono">95<span class="text-xs opacity-20 ml-2">%</span></div><div class="text-[9px] mono opacity-30 mt-3 uppercase tracking-[0.2em]">Entropy</div></div>
                     </div>
                 </div>
 
-                <!-- M3 -->
+                <!-- M3: 摄入 -->
                 <div class="bento-card col-span-2">
-                    <div class="flex justify-between items-center mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.4em]">// Ingesting_Feed</h3><span id="m3Time" class="module-time uppercase">Dec 20</span></div>
+                    <div class="flex justify-between items-center mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.4em]">// Ingesting_Feed</h3><span class="module-time uppercase">Dec 20</span></div>
                     <div id="ingestList" class="space-y-10 flex-grow">
                         <div class="flex gap-6 items-start group">
-                            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=200&auto=format&fit=crop" class="w-14 h-14 object-cover rounded-2xl border border-white/5 cursor-zoom-in" onclick="openLightbox(this.src)">
+                            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=200" class="w-14 h-14 object-cover rounded-2xl border border-white/5 cursor-zoom-in" onclick="openLightbox(this.src)">
                             <div class="flex-grow"><div class="flex justify-between items-start mb-1"><span class="text-sm font-semibold text-gray-200">《献给阿尔吉侬的花束》</span><span class="module-time">Reading</span></div><p class="text-xs text-gray-500 italic line-clamp-2 leading-relaxed">关于智慧与孤独最残忍的寓言。</p></div>
                         </div>
                         <div class="flex gap-6 items-start group">
-                            <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=200&auto=format&fit=crop" class="w-14 h-14 object-cover rounded-2xl border border-white/5 cursor-zoom-in" onclick="openLightbox(this.src)">
+                            <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=200" class="w-14 h-14 object-cover rounded-2xl border border-white/5 cursor-zoom-in" onclick="openLightbox(this.src)">
                             <div class="flex-grow"><div class="flex justify-between items-start mb-1"><span class="text-sm font-semibold text-gray-200">《金钱心理学》</span><span class="module-time">Study</span></div><p class="text-xs text-gray-500 italic line-clamp-2 leading-relaxed">理解财富，本质上是理解人性的弱点。</p></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- M7: 回响与发布 -->
+                <!-- M7: 回响 -->
                 <div id="musingModule" class="bento-card col-span-2 row-span-2 flex flex-col relative overflow-hidden">
                     <div class="flex justify-between items-start mb-10"><span class="mono text-[10px] opacity-30 uppercase tracking-[0.5em]">零散回响 / Echoes</span></div>
                     <div id="musingContent" class="flex-grow flex flex-col justify-center">
                         <div id="latestEcho" class="relative p-12 bg-white/[0.01] border-l-2 border-amber-500/20 rounded-r-[40px]">
                             <p id="echoText" class="text-2xl leading-relaxed text-gray-300 font-light italic serif">“每一段被写下的文字，都是对流逝岁月的温柔存根。”</p>
-                            <div id="latestEchoImgContainer"></div>
                         </div>
                     </div>
-                    <!-- 发布面板：字体已缩小至 text-sm -->
+                    <!-- 发布面板：字体已修正 -->
                     <div id="adminPostArea" class="space-y-6">
-                        <div id="publishGuide" class="hint-box"><p id="guideText" class="text-[11px] text-gray-400 italic">选择分类以获取发布建议...</p></div>
+                        <div class="hint-box p-4 bg-amber-500/5 border-l-2 border-amber-500/50 rounded-r-xl"><p id="guideText" class="text-[11px] text-gray-400 italic">选择分类以获取建议...</p></div>
                         <div class="grid grid-cols-2 gap-5">
-                            <select id="postType" class="custom-select admin-input" onchange="updateGuide(this.value)"><option value="echo">CATEGORY: ECHO</option><option value="learning">CATEGORY: LEARNING</option><option value="entertainment">CATEGORY: ENTERTAIN</option><option value="article">CATEGORY: ARTICLE</option><option value="metrics">CATEGORY: METRICS</option></select>
-                            <input type="text" id="postTitle" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-amber-500/40 admin-input" placeholder="Title">
+                            <select id="postType" class="admin-input-reset" onchange="updateGuide(this.value)"><option value="echo">CATEGORY: ECHO</option><option value="learning">CATEGORY: LEARNING</option><option value="entertainment">CATEGORY: ENTERTAIN</option><option value="article">CATEGORY: ARTICLE</option><option value="metrics">CATEGORY: METRICS</option></select>
+                            <input type="text" id="postTitle" class="admin-input-reset" placeholder="Title">
                         </div>
-                        <input type="text" id="postImageUrl" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm mono text-white outline-none admin-input" placeholder="Image URL">
-                        <textarea id="newEchoInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm font-light text-white outline-none focus:border-amber-500/40 admin-input" placeholder="Content..." rows="3"></textarea>
-                        <div class="flex justify-between items-center pt-2"><label class="flex items-center gap-3 cursor-pointer opacity-30 hover:opacity-100 transition-opacity"><input type="checkbox" id="isPrivateEntry" class="w-4 h-4 accent-amber-500"><span class="text-[10px] mono uppercase text-white tracking-widest font-bold">Privacy</span></label><button id="postEchoBtn" class="px-10 py-4 bg-white/5 hover:bg-white hover:text-black rounded-2xl text-[10px] mono transition-all font-bold text-white uppercase tracking-[0.5em] shadow-xl">STAMP</button></div>
+                        <input type="text" id="postImageUrl" class="w-full admin-input-reset" placeholder="Media Link (URL)">
+                        <textarea id="newEchoInput" class="w-full admin-input-reset" placeholder="Content..." rows="3"></textarea>
+                        <button id="postEchoBtn" class="px-10 py-4 bg-white/10 hover:bg-white hover:text-black rounded-2xl text-[10px] mono transition-all font-bold text-white uppercase tracking-[0.5em] shadow-xl">STAMP</button>
                     </div>
                 </div>
 
@@ -212,26 +221,17 @@
                     <div class="default-content">
                         <div class="flex justify-between items-center mb-10"><span class="mono text-[10px] opacity-30 uppercase tracking-[0.5em]">书写档案 / Narrative</span><span class="module-time text-amber-500/60 font-bold tracking-widest">Active</span></div>
                         <p class="text-3xl leading-relaxed text-gray-300 font-light italic serif group-hover:text-amber-500/90 transition-colors">“书写，是与自我的深度博弈。”</p>
-                        <p class="text-[10px] mt-10 mono opacity-20 uppercase tracking-[0.2em]">Click to browse archives</p>
-                    </div>
-                    <div id="articleListView" class="article-list hidden pt-4">
-                        <div id="dynamicArticleList" class="grid grid-cols-1 gap-10">
-                            <div class="flex justify-between items-center border-b border-white/5 pb-6 group/item">
-                                <div class="flex flex-col">
-                                    <a href="https://www.notion.so/Tongchuan-Past-Snippet" target="_blank" class="text-base text-gray-200 group-hover/item:text-amber-500 transition-colors font-serif italic">铜川往事：那些被遗忘的时间碎片</a>
-                                    <span class="text-[10px] text-gray-500 mt-2">在煤烟与黄土之间，寻找一代人的精神来处。</span>
-                                </div>
-                                <span class="mono text-[9px] font-bold uppercase opacity-20">Notion</span>
-                            </div>
+                        <div class="mt-8 pt-8 border-t border-white/5">
+                             <a href="https://www.notion.so/Tongchuan-Past-Snippet" target="_blank" class="text-base text-gray-200 hover:text-amber-500 transition-colors font-serif italic">铜川往事：那些被遗忘的时间碎片</a>
+                             <p class="text-[10px] text-gray-500 mt-2">在煤烟与黄土之间，寻找一代人的精神来处。</p>
                         </div>
-                        <button id="closeArchive" class="text-[10px] mono opacity-20 hover:opacity-100 uppercase mt-12 tracking-[0.5em] font-bold underline underline-offset-8">[ Return ]</button>
                     </div>
                 </div>
 
-                <!-- M5: 感官实验室 (Restored Name & Fixed Layout) -->
+                <!-- M5: 感官实验室 (修复排版) -->
                 <div id="sensoryCard" class="bento-card col-span-2 relative overflow-hidden">
                     <div id="sensoryMain">
-                        <div class="flex justify-between items-center mb-10"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.6em]">// Sensory_Memory</h3><span id="m5Time" class="module-time uppercase text-amber-500/50 font-bold">Five Clusters</span></div>
+                        <div class="flex justify-between items-center mb-10"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.6em]">// Sensory_Memory</h3><span class="module-time uppercase text-amber-500/50 font-bold">STUBS</span></div>
                         <div class="sensory-menu">
                             <div class="sensory-btn" onclick="openSensoryCategory('动漫')">🍕<span>动漫</span></div>
                             <div class="sensory-btn" onclick="openSensoryCategory('游戏')">🎮<span>游戏</span></div>
@@ -241,300 +241,196 @@
                         </div>
                     </div>
                     <div id="sensoryDetail" class="sensory-detail-view">
-                        <div class="flex justify-between items-center">
-                            <h4 id="categoryTitle" class="mono text-[10px] text-amber-500 font-bold tracking-[0.4em] uppercase">Category</h4>
-                            <button onclick="closeSensoryCategory()" class="text-white/20 hover:text-white mono text-[10px] font-bold">[ BACK ]</button>
+                        <div class="flex justify-between items-center mb-6">
+                            <h4 id="categoryTitle" class="text-xs font-bold text-amber-500 tracking-widest uppercase"></h4>
+                            <button onclick="closeSensoryCategory()" class="text-xs text-white/30 hover:text-white mono uppercase font-bold">[ BACK ]</button>
                         </div>
-                        <div id="categoryContent" class="sensory-list"></div>
+                        <div id="categoryContent" class="grid grid-cols-2 gap-4 overflow-y-auto"></div>
                     </div>
                 </div>
 
-                <!-- M6 -->
+                <!-- M6: 资产看板 (分类归位) -->
                 <div id="investCard" class="bento-card col-span-4 min-h-[420px]">
-                    <div class="flex justify-between items-start mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.8em]">Wealth Pulse Monitor</h3><span id="m6Time" class="module-time uppercase font-bold text-amber-500/60 tracking-widest">DeepSeek Sync</span></div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-20 flex-grow items-center">
-                        <div class="lg:col-span-1 space-y-10"><div class="flex flex-col gap-5"><div class="invest-tab active" data-type="fund">基金 (Fund)</div><div class="invest-tab" data-type="stock">股票 (Stock)</div><div class="invest-tab" data-type="crypto">数字币 (Crypto)</div><div class="invest-tab" data-type="metal">贵金属 (Metal)</div></div><div id="investText" class="text-sm font-light text-gray-400 leading-relaxed italic border-l-2 border-white/5 pl-8 pt-2">保持稳健的现金流，是长期主义的基础。</div></div>
-                        <div class="lg:col-span-1 flex flex-col justify-center"><svg class="mini-chart" viewBox="0 0 400 100"><defs><linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent-color)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--accent-color)" stop-opacity="0"/></linearGradient></defs><path id="trendArea" d="" fill="url(#chartGradient)"></path><path id="trendPath" d="M 0 100 L 400 100" fill="none" stroke="var(--accent-color)" stroke-width="4" stroke-linecap="round"></path></svg></div>
-                        <div class="lg:col-span-1 flex flex-col items-center justify-center border-l border-white/5"><div class="relative"><svg class="donut-chart" viewBox="0 0 40 40" class="w-32 h-32"><circle class="donut-ring" cx="20" cy="20" r="15.9" stroke="rgba(255,255,255,0.02)"></circle><circle id="donutSegment" class="donut-ring" cx="20" cy="20" r="15.9" stroke="var(--accent-color)" stroke-dasharray="25 100"></circle></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span id="donutPercent" class="mono text-2xl font-bold text-white tracking-tighter">25%</span></div></div></div>
+                    <div class="flex justify-between items-start mb-12"><h3 class="mono text-[11px] opacity-40 uppercase tracking-[0.8em]">Wealth Pulse Monitor</h3><span class="module-time uppercase font-bold text-amber-500/60 tracking-widest">Active</span></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-12 items-center">
+                        <div class="flex flex-col gap-6 text-xs text-gray-400 font-mono italic">
+                            <div class="p-4 border-l-2 border-amber-500/50 pl-5 bg-white/[0.01]">FUND: 基金组合</div>
+                            <div class="p-4 border-l-2 border-white/5 pl-5">STOCK: 股票仓位</div>
+                            <div class="p-4 border-l-2 border-white/5 pl-5">CRYPTO: 数字资产</div>
+                            <div class="p-4 border-l-2 border-white/5 pl-5">METAL: 贵金属</div>
+                        </div>
+                        <div class="lg:col-span-3 flex justify-center items-center h-[240px] opacity-10 mono text-2xl tracking-[1.5em] border border-dashed border-white/10 rounded-[40px]">
+                            DATA_VISUAL_CORE
+                        </div>
                     </div>
                 </div>
 
-                <div class="bento-card col-span-4 bg-white/[0.01] flex flex-col justify-center items-center opacity-10 py-16"><span class="mono text-3xl font-light tracking-[2.5em] text-white uppercase ml-[2.5em]">Archives_Core_Online</span></div>
             </div>
         </div>
     </div>
 
+    <!-- 侧边栏 -->
     <aside id="historyDrawer">
-        <div class="flex justify-between items-center mb-16"><h2 class="text-3xl font-bold text-white tracking-tight font-serif">时间轴检索</h2><button id="closeHistory" class="text-gray-500 hover:text-white font-bold text-3xl transition-colors">✕</button></div>
-        <div class="mb-14 p-10 bg-white/[0.03] border border-white/10 rounded-[44px]">
-            <h3 class="mono text-[10px] uppercase tracking-[0.5em] opacity-40 mb-8 font-bold tracking-widest text-amber-500 text-center text-bold">Guardian AI</h3>
-            <div id="guardianMsg" class="guardian-msg bg-white/[0.05] p-8 rounded-3xl text-sm leading-relaxed mb-8 border-l-2 border-amber-500 hidden text-white/80"></div>
-            <input type="text" id="aiChatInput" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm outline-none focus:border-amber-500/30 text-white font-light" placeholder="提问我的历史...">
-            <button id="askGuardianBtn" class="w-full mt-6 text-[11px] mono text-amber-500/70 hover:text-amber-500 transition-all font-bold uppercase py-4 border border-amber-500/20 rounded-2xl hover:bg-amber-500/10">派遣指令 (Query)</button>
+        <div class="flex justify-between items-center mb-16"><h2 class="text-3xl font-bold text-white tracking-tight font-serif">存档检索</h2><button id="closeHistoryBtn" class="text-3xl text-gray-500 hover:text-white transition-colors">✕</button></div>
+        <div class="bg-white/5 p-8 rounded-[40px] mb-12 border border-white/5">
+            <div id="guardianMsg" class="text-sm text-gray-300 leading-relaxed mb-6 hidden border-l-2 border-amber-500 pl-6"></div>
+            <input type="text" id="aiInput" class="w-full bg-black/20 border border-white/10 rounded-2xl p-5 text-sm text-white outline-none focus:border-amber-500/30" placeholder="检索历史共鸣...">
+            <button id="aiQueryBtn" class="w-full mt-6 py-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 text-[10px] font-bold rounded-2xl transition uppercase tracking-widest">Query</button>
         </div>
-        <input type="text" id="globalSearch" class="w-full bg-white/5 border border-white/10 rounded-2xl p-7 text-sm mb-12 text-white focus:outline-none" placeholder="搜索关键词记录...">
-        <div id="historyTimeline" class="space-y-16"></div>
+        <div id="timelineContainer" class="space-y-12"></div>
     </aside>
 
-    <audio id="ambientAudio" loop preload="auto"><source src="https://www.soundjay.com/nature/sounds/fireplace-1.mp3" type="audio/mpeg"></audio>
-
-    <!-- UI 核心脚本 -->
     <script>
-        const ADMIN_SECRET = "Zjx207661";
-        window.HARDCODED_DEEPSEEK_KEY = "sk-437d432e53664e489b60a9349619a879"; 
+        document.addEventListener('DOMContentLoaded', () => {
+            const ADMIN_SECRET = "Zjx207661";
+            window.HARDCODED_DEEPSEEK_KEY = "sk-437d432e53664e489b60a9349619a879";
 
-        /**
-         * 终极环境引擎 v14.0：【人文实感】ID 池
-         * 严选逻辑：每张图必须有生活物件轮廓，杜绝随机降智推送高楼。
-         */
-        const VIBE_RECORDS = {
-            spring: ["1516315727037-d15f0288be00", "1501785832662-75d16c96a721", "1493857671297", "1513506496266"],
-            summer: ["1507500152103-af50854731c2", "1464306271587", "1528605105344", "1465224554447-da7c92842c3d"],
-            autumn: ["1508066590774-7744a7d35881", "1509133917303-311355cf9a4a", "1520690214124", "1496337589254"],
-            winter: ["1418985991508", "1483321507767-f136b8089304", "1516012891152", "1452697771746"]
-        };
+            /**
+             * 终极环境引擎 v19.0：【绝对人文实物池】
+             * 彻底删除了所有随机搜索关键词。
+             * 加入毫秒级 sig 参数，强制浏览器绕过缓存加载新图。
+             */
+            const REAL_VIBE_POOL = {
+                spring: ["1516315727037-d15f0288be00", "1501785832662-75d16c96a721", "1493857671297", "1513506496266"], // 雨后墙角、窗前、书店门口
+                summer: ["1507500152103-af50854731c2", "1464306271587", "1528605105344", "1465224554447-da7c92842c3d"], // 复古街道转角、车站暖灯、木屋
+                autumn: ["1508066590774-7744a7d35881", "1509133917303-311355cf9a4a", "1520690214124"], // 路灯下的长椅、红叶街道
+                winter: ["1418985991508", "1483321507767-f136b8089304", "1516012891152"]  // 雪夜灯光街道、壁炉火光、冬日小店橱窗
+            };
 
-        function updateEnvironment() {
-            const now = new Date();
-            const month = now.getMonth() + 1;
-            const hour = now.getHours();
-            
-            let season = 'winter';
-            if (month >= 3 && month <= 5) season = 'spring';
-            else if (month >= 6 && month <= 8) season = 'summer';
-            else if (month >= 9 && month <= 11) season = 'autumn';
-            
-            const pool = VIBE_RECORDS[season];
-            const photoId = pool[Math.floor(Math.random() * pool.length)];
-            
-            // 物理锚定：不再通过关键词搜索，直接调用 ID
-            const cacheBuster = now.getTime();
-            const dynamicUrl = `https://images.unsplash.com/photo-${photoId}?q=80&w=2000&auto=format&fit=crop&sig=${cacheBuster}`;
-            
-            let brightness = 0.75; let overlayStart = 0.3; let overlayEnd = 0.65;
-            if (hour >= 20 || hour < 5) { brightness = 0.65; overlayStart = 0.5; overlayEnd = 0.8; }
+            function updateEnvironment() {
+                const now = new Date();
+                const month = now.getMonth() + 1;
+                const hour = now.getHours();
+                
+                // 1. 确定季节
+                let season = (month >= 3 && month <= 5) ? 'spring' : (month >= 6 && month <= 8) ? 'summer' : (month >= 9 && month <= 11) ? 'autumn' : 'winter';
+                const pool = REAL_VIBE_POOL[season];
+                const photoId = pool[Math.floor(Math.random() * pool.length)];
+                
+                // 2. 强制缓存穿透 ( sig 参数 )
+                const sig = now.getTime();
+                const dynamicUrl = `https://images.unsplash.com/photo-${photoId}?q=80&w=2000&auto=format&fit=crop&v=${sig}`;
 
-            const bgEl = document.getElementById('dynamicBg');
-            if(bgEl) {
-                const img = new Image();
-                img.src = dynamicUrl;
-                img.onload = () => {
-                    bgEl.style.backgroundImage = `linear-gradient(rgba(13,11,8,${overlayStart}), rgba(13,11,8,${overlayEnd})), url('${dynamicUrl}')`;
-                    bgEl.style.filter = `brightness(${brightness}) contrast(1.1) saturate(1.1)`;
-                };
-            }
-        }
-        
-        updateEnvironment();
-
-        window._allLogs = [];
-        window.toggleContactPanel = () => {
-            const panel = document.getElementById('contactPanel');
-            if (panel) {
-                if (panel.style.display === 'none' || panel.style.display === '') {
-                    panel.style.display = 'block';
-                    setTimeout(() => { panel.style.opacity = '1'; panel.style.transform = 'translateY(0)'; }, 10);
-                } else {
-                    panel.style.opacity = '0'; panel.style.transform = 'translateY(-20px)';
-                    setTimeout(() => { panel.style.display = 'none'; }, 500);
+                const bgEl = document.getElementById('dynamicBg');
+                if(bgEl) {
+                    const img = new Image();
+                    img.src = dynamicUrl;
+                    img.onload = () => {
+                        // 3. 应用光影遮罩
+                        bgEl.style.backgroundImage = `linear-gradient(rgba(26,22,18,0.35), rgba(26,22,18,0.7)), url('${dynamicUrl}')`;
+                    };
                 }
             }
-        };
+            updateEnvironment();
 
-        const GUIDE_DICT = {
-            "echo": "左侧随笔同步。",
-            "learning": "摄入流展示图书。",
-            "entertainment": "标题填 [动漫/游戏/电影/风景/音乐]。",
-            "article": "Notion 链接。",
-            "metrics": "体重,创意值。"
-        };
-        window.updateGuide = (val) => { 
-            const guide = document.getElementById('guideText');
-            if(guide) guide.innerText = GUIDE_DICT[val] || GUIDE_DICT["echo"]; 
-        };
-        setInterval(() => { const el = document.getElementById('liveClock'); if(el) el.innerText = new Date().toLocaleTimeString(); }, 1000);
+            // 基础交互防爆逻辑
+            window.toggleContact = () => {
+                const p = document.getElementById('contactPanel');
+                if(!p) return;
+                if(p.style.display === 'block') { p.style.opacity='0'; setTimeout(()=>{p.style.display='none'},400); }
+                else { p.style.display='block'; setTimeout(()=>{p.style.opacity='1'},10); }
+            };
+            
+            window.openSensoryCategory = (cat) => {
+                const t = document.getElementById('categoryTitle'); if(t) t.innerText = `Sense // ${cat}`;
+                const d = document.getElementById('sensoryDetail'); if(d) d.classList.add('active');
+            };
+            window.closeSensoryCategory = () => {
+                const detail = document.getElementById('sensoryDetail'); if(detail) detail.classList.remove('active');
+            };
 
-        window.onload = () => {
-            const lockBtn = document.getElementById('adminLockTrigger');
-            if(lockBtn) {
-                lockBtn.onclick = () => {
-                    if (localStorage.getItem('is_garden_admin') === 'true') {
-                        localStorage.removeItem('is_garden_admin'); window.isAdmin = false;
-                        document.getElementById('lockIcon').classList.remove('text-amber-500');
-                        document.getElementById('adminPostArea').classList.remove('active');
-                        alert("离线成功。");
-                    } else { 
-                        const modal = document.getElementById('loginModal');
-                        if(modal) modal.style.display = 'flex'; 
-                    }
-                };
-            }
+            const lTrigger = document.getElementById('adminLockTrigger');
+            if(lTrigger) lTrigger.onclick = () => {
+                if (localStorage.getItem('is_garden_admin') === 'true') {
+                    localStorage.removeItem('is_garden_admin'); window.isAdmin = false;
+                    document.getElementById('lockIcon').classList.remove('text-amber-500');
+                    document.getElementById('adminPostArea').classList.remove('active');
+                    alert("主理人已退出模式。");
+                } else {
+                    const m = document.getElementById('loginModal');
+                    if(m) m.style.display = 'flex';
+                }
+            };
 
             const confirmBtn = document.getElementById('confirmLogin');
-            if(confirmBtn) {
-                confirmBtn.onclick = () => {
-                    const input = document.getElementById('secretKeyInput');
-                    if (input && input.value === ADMIN_SECRET) {
-                        localStorage.setItem('is_garden_admin', 'true'); window.isAdmin = true;
-                        const modal = document.getElementById('loginModal');
-                        if(modal) modal.style.display = 'none';
-                        if(window.updateAdminUI) window.updateAdminUI();
-                        alert("验证成功。"); 
-                    } else { alert("口令错误。"); }
-                };
-            }
-        };
-
-        window.openSensoryCategory = (cat) => {
-            const title = document.getElementById('categoryTitle');
-            if(title) title.innerText = `Sensory // ${cat}`;
-            const listEl = document.getElementById('categoryContent');
-            if(listEl) {
-                const data = (window._allLogs || []).filter(l => l.type === 'entertainment' && l.title === cat).sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-                listEl.innerHTML = data.length === 0 ? `<div class='col-span-2 text-center py-20 opacity-10 mono text-xs'>[ NO RECORD FOUND ]</div>` : 
-                    data.map(item => `<div class="bg-white/5 p-6 rounded-3xl border border-white/5 animate-fade-in"><img src="${item.imageUrl}" class="w-full h-40 object-cover rounded-2xl mb-4 cursor-zoom-in" onclick="openLightbox(this.src)"><p class="text-xs text-gray-400 font-light leading-relaxed">${item.text}</p></div>`).join('');
-            }
-            const detail = document.getElementById('sensoryDetail');
-            if(detail) detail.classList.add('active');
-        };
-        window.closeSensoryCategory = () => {
-            const detail = document.getElementById('sensoryDetail');
-            if(detail) detail.classList.remove('active');
-        };
-        window.openLightbox = (url) => { 
-            const box = document.getElementById('imageLightbox'); 
-            const img = document.getElementById('lightboxImg'); 
-            if(box && img) { img.src = url; box.classList.add('active'); } 
-        };
-        window.copyToClipboard = (t) => { 
-            const el = document.createElement('textarea'); 
-            el.value = t; document.body.appendChild(el); el.select(); 
-            document.execCommand('copy'); document.body.removeChild(el); alert("已复制。"); 
-        };
-
-        const askBtn = document.getElementById('askGuardianBtn');
-        if(askBtn) {
-            askBtn.onclick = async () => {
-                const box = document.getElementById('guardianMsg'); const input = document.getElementById('aiChatInput');
-                if(!input || !box) return;
-                const question = input.value.trim(); if(!question) return;
-                askBtn.innerText = "Thinking..."; askBtn.disabled = true;
-                box.classList.remove('hidden'); box.innerText = "正在感知历史回响...";
-                try {
-                    const res = await fetch("https://api.deepseek.com/chat/completions", {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.HARDCODED_DEEPSEEK_KEY}` },
-                        body: JSON.stringify({ model: "deepseek-chat", messages: [{ role: "system", content: "你是档案守望者。" }, { role: "user", content: `提问：${question}` }] })
-                    });
-                    const data = await res.json(); box.innerText = data.choices[0].message.content;
-                } catch(e) { box.innerText = "回响断裂。"; } finally { askBtn.innerText = "派遣指令 (Query)"; askBtn.disabled = false; input.value = ""; }
+            if(confirmBtn) confirmBtn.onclick = () => {
+                const inp = document.getElementById('secretKeyInput');
+                if(inp && inp.value === ADMIN_SECRET) {
+                    localStorage.setItem('is_garden_admin', 'true'); window.isAdmin = true;
+                    document.getElementById('loginModal').style.display = 'none';
+                    if(window.updateAdminUI) window.updateAdminUI();
+                    alert("身份已锚定。");
+                } else alert("错误。");
             };
-        }
 
-        window.emergencySync = () => { window.location.reload(); };
-        const sTrigger = document.getElementById('searchTrigger');
-        if(sTrigger) sTrigger.onclick = () => document.getElementById('historyDrawer').classList.add('open');
-        const cHistory = document.getElementById('closeHistory');
-        if(cHistory) cHistory.onclick = () => document.getElementById('historyDrawer').classList.remove('open');
+            const sTrigger = document.getElementById('searchTrigger');
+            if(sTrigger) sTrigger.onclick = () => document.getElementById('historyDrawer').classList.add('open');
+            const closeHistory = document.getElementById('closeHistoryBtn');
+            if(closeHistory) closeHistory.onclick = () => document.getElementById('historyDrawer').classList.remove('open');
+            const cTrigger = document.getElementById('contactTrigger');
+            if(cTrigger) cTrigger.onclick = () => toggleContact();
+            const cClose = document.getElementById('closeContactBtn');
+            if(cClose) cClose.onclick = () => toggleContact();
+
+            window.updateGuide = (val) => {
+                const g = document.getElementById('guideText');
+                const dict = {"echo": "同步随笔内容。", "metrics": "更新核心指标。", "learning": "记录摄入动态。"};
+                if(g) g.innerText = dict[val] || "选择分类获取发布建议...";
+            };
+
+            setInterval(() => { const c = document.getElementById('liveClock'); if(c) c.innerText = new Date().toLocaleTimeString(); }, 1000);
+            if(localStorage.getItem('is_garden_admin') === 'true') window.isAdmin = true;
+            window.updateAdminUI = () => {
+                const area = document.getElementById('adminPostArea');
+                if(area && window.isAdmin) area.classList.add('active');
+            };
+            window.updateAdminUI();
+        });
+
+        window.openLightbox = (src) => { 
+            const box = document.getElementById('imageLightbox'); 
+            const img = document.getElementById('lightboxImg');
+            if(box && img) { img.src = src; box.classList.add('active'); }
+        };
+        window.closeLightbox = () => document.getElementById('imageLightbox').classList.remove('active');
+        window.copyText = (t) => { navigator.clipboard.writeText(t); alert("已复制到剪贴板。"); };
     </script>
 
-    <!-- Firebase (异步) -->
+    <!-- 2. Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, addDoc, collection, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        let db, auth, appId;
-        window.isAdmin = localStorage.getItem('is_garden_admin') === 'true';
-
-        async function startSystem() {
+        async function initDB() {
             try {
-                const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
-                if(!configStr) return;
-                const app = initializeApp(JSON.parse(configStr));
-                auth = getAuth(app); db = getFirestore(app); appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                await (typeof __initial_auth_token !== 'undefined' && __initial_auth_token ? signInWithCustomToken(auth, __initial_auth_token) : signInAnonymously(auth));
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app); 
+                const db = getFirestore(app);
+
+                if (initialToken) { await signInWithCustomToken(auth, initialToken); } 
+                else { await signInAnonymously(auth); }
+
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
-                        window.currentUser = user;
-                        const vDoc = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'visitors');
-                        await setDoc(vDoc, { count: increment(1) }, { merge: true }).catch(()=>{});
-                        onSnapshot(vDoc, s => { if(s.exists()) document.getElementById('visitorCount').innerText = s.data().count.toLocaleString(); }, ()=>{});
-                        window.updateAdminUI(); loadData();
+                        const syncInd = document.getElementById('syncIndicator');
+                        if(syncInd) syncInd.className = "status-dot status-online";
+                        const vCount = document.getElementById('visitorCount');
+                        if(vCount) vCount.innerText = "ONLINE";
+
+                        const logsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'logs');
+                        onSnapshot(logsCollection, (snapshot) => {
+                            window._allLogs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                        }, (err) => console.log("Perm Error. Check Firebase Rules."));
                     }
                 });
-            } catch (e) {}
+            } catch(e) {}
         }
-
-        function loadData() {
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'logs'), s => { window._publicLogs = s.docs.map(d => ({ id: d.id, ...d.data(), isPrivate: false })); finalize(); }, ()=>{});
-            onSnapshot(collection(db, 'artifacts', appId, 'users', window.currentUser.uid, 'private_logs'), s => { window._privateLogs = s.docs.map(d => ({ id: d.id, ...d.data(), isPrivate: true })); finalize(); }, ()=>{});
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), s => {
-                const d = s.data() || {};
-                const m = { weightVal:'weight', speedVal:'speed' };
-                Object.keys(m).forEach(k => { if(document.getElementById(k)) document.getElementById(k).innerText = d[m[k]] || (k === 'weightVal' ? '55.0' : '95'); });
-            }, ()=>{});
-        }
-
-        function finalize() {
-            const all = [...(window._publicLogs || []), ...(window._privateLogs || [])].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-            window._allLogs = all; window.refreshDisplay(); renderTimeline(all);
-            if(all[0] && all[0].createdAt) document.getElementById('lastUpdatedGlobal').innerText = new Date(all[0].createdAt.seconds*1000).toLocaleTimeString();
-        }
-
-        window.refreshDisplay = () => {
-            const all = window._allLogs || []; if(all.length === 0) return;
-            const latestEcho = window.isAdmin ? all.filter(l => l.type==='echo')[0] : all.filter(l => l.type==='echo' && !l.isPrivate)[0];
-            if (latestEcho) {
-                document.getElementById('echoText').innerText = latestEcho.text;
-                document.getElementById('latestEchoImgContainer').innerHTML = latestEcho.imageUrl ? `<img src="${latestEcho.imageUrl}" class="record-image shadow-2xl" onclick="window.openLightbox('${latestEcho.imageUrl}')">` : '';
-            }
-            const iEl = document.getElementById('ingestList');
-            const ingests = all.filter(l => l.type === 'learning').slice(0, 3);
-            if(ingests.length > 0) iEl.innerHTML = ingests.map(i => `<div class="flex gap-6 items-start animate-fade-in"><img src="${i.imageUrl}" class="w-14 h-14 object-cover rounded-xl border border-white/5 cursor-zoom-in" onclick="window.openLightbox('${i.imageUrl}')"><div class="flex-grow"><div class="flex justify-between items-start mb-1"><span class="text-sm font-semibold text-gray-200">${i.title}</span></div><p class="text-[12px] text-gray-500 italic line-clamp-1 opacity-80">${i.text}</p></div></div>`).join('');
-            const arts = all.filter(l => l.type === 'article');
-            if(arts.length > 0) document.getElementById('dynamicArticleList').innerHTML = arts.map(a => `<div class="flex justify-between items-center border-b border-white/5 pb-6 group/item"><div class="flex flex-col"><a href="${a.text}" target="_blank" class="text-base text-gray-200 group-hover/item:text-amber-500 transition-colors font-serif italic">${a.title}</a></div><span class="mono text-[9px] opacity-20 uppercase font-bold">Archive</span></div>`).join('');
-        };
-
-        window.updateAdminUI = () => { if (window.isAdmin) { const postArea = document.getElementById('adminPostArea'); if(postArea) postArea.classList.add('active'); const lIcon = document.getElementById('lockIcon'); if(lIcon) lIcon.classList.add('text-amber-500'); } };
-        function renderTimeline(data) {
-            const container = document.getElementById('historyTimeline'); if(!container) return;
-            const qEl = document.getElementById('globalSearch');
-            const q = qEl ? qEl.value.toLowerCase() : "";
-            const filtered = data.filter(l => (window.isAdmin || !l.isPrivate) && (l.text?.toLowerCase().includes(q) || l.title?.toLowerCase().includes(q)));
-            container.innerHTML = filtered.map(l => `<div class="pl-16 relative group mb-16"><div class="absolute left-0 top-3 w-8 h-8 rounded-full border-4 border-[#0d1017] ${l.isPrivate ? 'bg-amber-600' : 'bg-[#85a583]'} shadow-xl"></div><div class="flex justify-between items-center mb-3"><span class="mono text-[10px] opacity-30 font-bold">${l.createdAt ? new Date(l.createdAt.seconds * 1000).toLocaleString() : ''}</span>${isAdmin ? `<button onclick="window.deleteLog('${l.id}', ${l.isPrivate})" class="text-[10px] opacity-0 group-hover:opacity-40 hover:text-red-500 transition-all font-bold uppercase tracking-widest">[ Purge ]</button>` : ''}</div><h4 class="text-white font-bold text-base mb-3 uppercase tracking-wide">${l.title}</h4><p class="text-sm text-gray-400 font-light leading-relaxed mb-6">${l.text}</p>${l.imageUrl ? `<img src="${l.imageUrl}" class="record-image" style="max-height:200px; margin-top:0" onclick="window.openLightbox('${l.imageUrl}')">` : ''}</div>`).join('');
-        }
-        window.deleteLog = async (id, isPriv) => { if(!confirm("确定抹除记录？")) return; await deleteDoc(doc(db, 'artifacts', appId, isPriv ? 'users' : 'public', isPriv ? window.currentUser.uid : 'data', isPriv ? 'private_logs' : 'logs', id)); };
-        
-        const postBtn = document.getElementById('postEchoBtn');
-        if(postBtn) {
-            postBtn.onclick = async () => {
-                if(!window.currentUser) return alert("数据库离线。");
-                const text = document.getElementById('newEchoInput').value.trim();
-                const title = document.getElementById('postTitle').value.trim();
-                const imageUrl = document.getElementById('postImageUrl').value.trim();
-                const type = document.getElementById('postType').value;
-                const isPriv = document.getElementById('isPrivateEntry').checked;
-                if(!text) return;
-                try {
-                    if(type === 'metrics') {
-                        const p = text.split(',');
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { weight: p[0].trim(), speed: p[1].trim() }, { merge: true });
-                    } else {
-                        const coll = isPriv ? collection(db, 'artifacts', appId, 'users', window.currentUser.uid, 'private_logs') : collection(db, 'artifacts', appId, 'public', 'data', 'logs');
-                        await addDoc(coll, { text, title, type, imageUrl, createdAt: serverTimestamp(), isPrivate: isPriv });
-                    }
-                    document.getElementById('newEchoInput').value = ''; document.getElementById('postImageUrl').value = ''; document.getElementById('postTitle').value = '';
-                } catch(e) { alert("同步失败。"); }
-            };
-        }
-
-        const nc = document.getElementById('narrativeCard'); 
-        if(nc) nc.onclick = (e) => { if(!e.target.closest('a') && e.target.id !== 'closeArchive') { nc.querySelector('.default-content').classList.add('hidden'); document.getElementById('articleListView').classList.remove('hidden'); } };
-        const closeArc = document.getElementById('closeArchive');
-        if(closeArc) closeArc.onclick = (e) => { e.stopPropagation(); nc.querySelector('.default-content').classList.remove('hidden'); document.getElementById('articleListView').classList.add('hidden'); };
-
-        startSystem();
+        initDB();
     </script>
 </body>
 </html>
