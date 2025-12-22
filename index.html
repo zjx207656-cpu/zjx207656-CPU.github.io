@@ -1,566 +1,1022 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="antialiased scroll-smooth">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>记录生活的网页</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>流光存根 | 窄巷夜语 FINAL</title>
+    
+    <!-- 核心 CSS 引擎 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        leviathan: {
+                            bg: '#0c0b0a',
+                            surface: 'var(--surface-color)',
+                            border: 'var(--border-color)',
+                            accent: '#e3b341',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif SC"', 'serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    animation: {
+                        'fade-in-pro': 'fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'dash': 'dash 2s ease-out forwards',
+                        'glow-breath': 'glowBreath 15s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(15px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        dash: { from: { strokeDashoffset: '1000' }, to: { strokeDashoffset: '0' } },
+                        glowBreath: { from: { opacity: '0.5' }, to: { opacity: '0.9' } }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;400;700&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --glass-blur: 16px; 
+            --amber-primary: #e3b341;
+            --surface-color: rgba(20, 25, 30, 0.65);
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
 
-<!-- 基础样式 -->
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body, html { width:100%; height:100%; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; }
+        html { background-color: #0c0b0a; margin: 0; overflow-x: hidden; }
+        
+        body { 
+            color: #ffffff; 
+            min-height: 100vh; 
+            font-family: "Noto Serif SC", serif;
+            /* 移除旧的径向渐变背景，由分层系统接管 */
+        }
 
-/* 背景层 */
-#bg-layer-1 {
-  position: fixed; top:0; left:0;
-  width:100%; height:100%;
-  background-image: url("https://images.pexels.com/photos/35030856/pexels-photo-35030856.jpeg");
-  background-size: cover;
-  background-position: center;
-  transition: filter 2s ease, background-color 2s ease;
-  z-index:-1;
-}
+        /* ============= 重构：分层背景系统 ============= */
+        /* 1. 核心：固定窄巷夜景 */
+        #bg-core {
+            position: fixed;
+            inset: 0;
+            background-image: url('https://images.pexels.com/photos/35030856/pexels-photo-35030856.jpeg?auto=compress&cs=tinysrgb&w=1920&dpr=2');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            z-index: -60;
+            pointer-events: none;
+            /* 基础氛围滤镜：压暗提对比，突出暖光 */
+            filter: brightness(0.88) contrast(1.12) saturate(0.85);
+        }
 
-/* 滤镜覆盖层，用于四季+时间段 */
-#bg-overlay {
-  position: fixed; top:0; left:0;
-  width:100%; height:100%;
-  pointer-events:none;
-  transition: background 2s ease;
-  z-index:0;
-}
+        /* 2. 记忆衬底：极微质感 */
+        #bg-texture {
+            position: fixed;
+            inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=5');
+            background-size: cover;
+            opacity: 0.03;
+            z-index: -55;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
 
-/* 内容层 */
-#content {
-  position: relative;
-  z-index:1;
-  width:100%;
-  min-height:100vh;
-  padding:20px;
-  color:#fff;
-  display:flex;
-  flex-direction: column;
-  gap:20px;
-}
+        /* 3. 心绪焦点：呼吸光晕 */
+        #bg-glow {
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90vw;
+            height: 70vh;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(227, 179, 65, 0.07) 0%,
+                rgba(140, 100, 50, 0.02) 30%,
+                transparent 70%
+            );
+            z-index: -54;
+            pointer-events: none;
+            animation: glow-breath 15s ease-in-out infinite alternate;
+        }
 
-h1 { font-size:3em; margin-bottom:20px; }
-p { font-size:1.2em; line-height:1.6; }
+        /* 4. 时间色温滤镜 (JS可动态控制) */
+        #bg-time-filter {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(20, 40, 80, 0.25); /* 默认夜晚蓝调 */
+            z-index: -53;
+            pointer-events: none;
+            transition: background-color 5s ease;
+        }
 
-/* 按钮 */
-.btn {
-  padding: 10px 20px;
-  border:none;
-  border-radius:5px;
-  cursor:pointer;
-  font-size:1em;
-  background: rgba(255,255,255,0.2);
-  color:#fff;
-  transition: background 0.3s;
-}
-.btn:hover { background: rgba(255,255,255,0.4); }
+        /* 5. 动态效果层：雪与晕影 (原样保留) */
+        .snow-blizzard {
+            position: fixed; inset: 0; pointer-events: none; z-index: -45;
+            background-image: 
+                radial-gradient(3px 3px at 100px 50px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(4px 4px at 200px 150px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(2px 2px at 300px 250px, rgba(255,255,255,0.6), transparent);
+            background-size: 500px 500px, 400px 400px, 300px 300px;
+            animation: blizzard 30s linear infinite;
+            opacity: 0.15; /* 调低雪花在夜景上的强度 */
+            mix-blend-mode: screen;
+        }
+        @keyframes blizzard {
+            '0%': { backgroundPosition: '0 0, 0 0, 0 0' },
+            '100%': { backgroundPosition: '400px 1200px, 200px 600px, 100px 400px' }
+        }
+        
+        .vignette {
+            position: fixed; inset: 0; z-index: -40;
+            background: radial-gradient(circle at center, rgba(0,0,0,0) 30%, rgba(2, 6, 23, 0.5) 100%);
+            pointer-events: none;
+        }
+        /* ============= 背景系统结束 ============= */
 
-/* 滤镜参数 */
-.season-winter { filter: brightness(0.9) saturate(0.7) hue-rotate(200deg); }
-.season-spring { filter: brightness(1.05) saturate(1.2) hue-rotate(120deg); }
-.season-summer { filter: brightness(1.1) saturate(1.3) hue-rotate(60deg); }
-.season-autumn { filter: brightness(1) saturate(1) hue-rotate(30deg); }
+        .layout-container {
+            max-width: 1440px; margin: 0 auto; padding: 5rem 2rem;
+            position: relative; z-index: 10;
+        }
 
-.time-morning { background: rgba(255,230,200,0.2); }
-.time-afternoon { background: rgba(255,255,230,0.2); }
-.time-evening { background: rgba(255,180,150,0.3); }
-.time-night { background: rgba(20,20,60,0.4); }
+        /* 布局 */
+        .titan-matrix {
+            display: grid; gap: 1.5rem; grid-template-columns: repeat(1, 1fr);
+        }
 
-/* 聊天区域 */
-#chat-container {
-  margin-top:20px;
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  border:1px solid rgba(255,255,255,0.3);
-  border-radius:10px;
-  background: rgba(0,0,0,0.4);
-  padding:10px;
-  overflow-y:auto;
-}
+        @media (min-width: 1024px) {
+            .titan-matrix {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: 240px 240px auto auto auto; 
+                padding-bottom: 8rem;
+            }
+            .card-m1 { grid-column: 1 / span 2; grid-row: 1 / span 2; }
+            .card-m3 { grid-column: 3 / span 2; grid-row: 1; }
+            .card-m2 { grid-column: 3 / span 2; grid-row: 2; }
+            .card-writing { grid-column: 1 / span 4; grid-row: 3; min-height: 380px; }
+            .card-m5 { grid-column: 1 / span 4; grid-row: 4; }
+            .card-m6 { grid-column: 1 / span 4; grid-row: 5; }
+        }
 
-.chat-message {
-  margin-bottom:10px;
-  padding:8px 12px;
-  border-radius:8px;
-  max-width:70%;
-  word-wrap: break-word;
-}
+        .glass-cell {
+            background: rgba(20, 25, 30, 0.6); 
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px; padding: 2rem;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative; overflow: hidden;
+        }
+        .glass-cell:hover {
+            border-color: rgba(227, 179, 65, 0.4);
+            transform: translateY(-2px);
+            background: rgba(30, 40, 55, 0.75);
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.7);
+        }
 
-.chat-user { background: rgba(0,150,255,0.4); align-self:flex-end; }
-.chat-ai { background: rgba(150,150,150,0.4); align-self:flex-start; }
+        .precision-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; text-transform: uppercase;
+            letter-spacing: 0.3em; color: rgba(255, 255, 255, 0.4); font-weight: 700;
+        }
 
-/* 输入区域 */
-#chat-input-container {
-  margin-top:10px;
-  display:flex;
-  gap:10px;
-}
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+        
+        .watcher-drawer-width { width: 100%; }
+        @media (min-width: 768px) { .watcher-drawer-width { width: 520px; } }
 
-#chat-input {
-  flex:1;
-  padding:8px 12px;
-  border-radius:5px;
-  border:none;
-  font-size:1em;
-}
+        .auth-glow { color: var(--amber-primary) !important; filter: drop-shadow(0 0 12px var(--amber-primary)); }
+        
+        .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; transform: translateY(15px); }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-#chat-send {
-  padding:8px 16px;
-  border:none;
-  border-radius:5px;
-  background: rgba(255,255,255,0.2);
-  color:#fff;
-  cursor:pointer;
-}
+        .header-circle-btn {
+            width: 44px; height: 44px;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header-circle-btn:hover { border-color: rgba(227, 179, 65, 0.5); color: #e3b341; }
+        
+        .search-pill-expanded {
+            width: 240px !important;
+            border-radius: 9999px !important;
+            padding-left: 1rem;
+            justify-content: flex-start !important;
+        }
 
-#chat-send:hover { background: rgba(255,255,255,0.4); }
+        .dropdown-menu {
+            opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute; top: 3.5rem; right: 0;
+            background: rgba(12, 13, 17, 0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(24px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            z-index: 50;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            min-width: 280px;
+        }
+        .dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        
+        .asset-compact-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.3s ease; margin-bottom: 0.5rem;
+        }
+        .asset-compact-item:hover { background: rgba(227, 179, 65, 0.1); border-color: rgba(227, 179, 65, 0.3); transform: translateX(4px); }
 
-/* 文本编辑区 */
-#editor-container {
-  margin-top:20px;
-  border:1px solid rgba(255,255,255,0.3);
-  border-radius:10px;
-  padding:10px;
-  background: rgba(0,0,0,0.3);
-}
+        /* 图表样式 */
+        .chart-wrapper { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .pie-layout { display: flex; align-items: center; gap: 2rem; width: 100%; justify-content: center; }
+        
+        .pie-chart {
+            width: 130px; height: 130px; border-radius: 50%;
+            position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+            background: #222;
+        }
+        .pie-chart::after {
+            content: ''; position: absolute; inset: 35px; background: #15181e; border-radius: 50%;
+        }
+        .pie-label-container { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; z-index: 10; }
+        
+        .pie-legend-side { display: flex; flex-direction: column; gap: 0.6rem; }
+        .legend-item { display: flex; align-items: center; gap: 0.6rem; font-family: 'JetBrains Mono'; font-size: 11px; color: rgba(255,255,255,0.6); }
+        .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+        .legend-val { color: #fff; font-weight: bold; margin-left: auto; }
 
-#editor {
-  width:100%;
-  height:200px;
-  background: rgba(0,0,0,0.1);
-  color:#fff;
-  border:none;
-  padding:10px;
-  resize:none;
-  font-size:1em;
-}
+        /* Trend */
+        svg.trend-chart { width: 100%; height: 100%; overflow: visible; }
+        .trend-line { fill: none; stroke: var(--amber-primary); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: dash 2.5s ease-out forwards; filter: drop-shadow(0 0 4px var(--amber-primary)); }
+        .grid-line { stroke: rgba(255,255,255,0.05); stroke-width: 1; }
+        .trend-point { fill: #0c0b0a; stroke: var(--amber-primary); stroke-width: 2; r: 0; transition: all 0.2s; cursor: pointer; animation: popIn 0.5s ease-out forwards; animation-delay: 2s; }
+        .trend-point:hover { r: 6; fill: white; }
+        @keyframes popIn { to { r: 3; } }
 
-/* 图表区域 */
-#chart-container {
-  margin-top:20px;
-  height:300px;
-  border-radius:10px;
-  overflow:hidden;
-  background: rgba(0,0,0,0.3);
-}
-
-/* 响应式 */
-@media (max-width:768px){
-  h1 { font-size:2em; }
-  p { font-size:1em; }
-  #editor { height:150px; }
-  #chart-container { height:200px; }
-}
-</style>
+        .fab-publish {
+            position: fixed; bottom: 40px; right: 40px;
+            width: 64px; height: 64px; background: var(--amber-primary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 30px rgba(227, 179, 65, 0.3); color: #000; font-size: 24px;
+            cursor: pointer; z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0; pointer-events: none; transform: scale(0.8);
+        }
+        .fab-publish.visible { opacity: 1; pointer-events: auto; transform: scale(1); }
+        .fab-publish:hover { transform: scale(1.1) rotate(90deg); }
+    </style>
 </head>
-<body>
+<body class="opacity-0 animate-fade-in-pro">
 
-<!-- 背景 -->
-<div id="bg-layer-1"></div>
-<div id="bg-overlay"></div>
+    <!-- ============= 分层背景系统开始 ============= -->
+    <!-- 顺序: 核心图 -> 纹理 -> 光晕 -> 时间滤镜 -> 雪花 -> 晕影 -->
+    <div id="bg-core"></div>
+    <div id="bg-texture"></div>
+    <div id="bg-glow"></div>
+    <div id="bg-time-filter"></div>
+    <div class="snow-blizzard"></div>
+    <div class="vignette"></div>
+    <!-- ============= 分层背景系统结束 ============= -->
 
-<!-- 内容 -->
-<div id="content">
-  <h1>记录生活的页面</h1>
-  <p>欢迎来到这个记录生活的网页，这里你可以写下每天的感悟、点滴故事，背景会随着四季和时间变换，带来温暖而静谧的氛围。</p>
-  <button class="btn" onclick="simulateNextTime()">模拟下一个时间段</button>
+    <div class="layout-container">
+        <!-- 头部导航 -->
+        <header class="flex flex-col lg:flex-row justify-between items-end gap-10 mb-20">
+            <div class="w-full">
+                <h1 class="text-5xl lg:text-7xl font-black tracking-[0.2em] font-serif mb-8 hover:text-amber-500 transition-all duration-1000">流光存根</h1>
+                <div class="h-px w-64 bg-gradient-to-r from-amber-500/60 to-transparent mb-5"></div>
+                <p class="text-xs lg:text-sm text-gray-400 italic font-serif opacity-80 tracking-[0.25em] leading-loose">
+                    具体的生活，是抵御虚无的最后一道防线。
+                </p>
+            </div>
+            
+            <div class="flex flex-col items-end gap-5">
+                <div id="clockDisplay" class="font-mono text-[14px] text-amber-500 font-bold tracking-[0.4em] mb-1 drop-shadow-glow">00:00:00</div>
+                
+                <div class="flex items-center gap-4 relative">
+                    <!-- 搜索 -->
+                    <div class="header-btn-container relative">
+                        <div id="searchPill" class="header-circle-btn overflow-hidden w-11 h-11" onclick="GardenOS.ui.activateSearch()">
+                            <i id="searchIcon" class="ri-search-line text-lg text-white/50"></i>
+                            <input type="text" id="headerSearchInput" onkeyup="GardenOS.ui.search(this.value)" onblur="GardenOS.ui.deactivateSearch()" class="hidden w-full bg-transparent border-0 outline-none text-xs font-mono text-white placeholder-white/30 h-full ml-2" placeholder="SEARCH...">
+                        </div>
+                    </div>
+                    <!-- AI -->
+                    <div class="header-btn-container relative">
+                        <div id="aiBtn" onclick="GardenOS.ui.toggleDropdown('aiMenu')" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50">
+                             <i class="ri-brain-line text-lg"></i>
+                        </div>
+                        <div id="aiMenu" class="dropdown-menu">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                <span class="text-[10px] font-mono tracking-widest text-amber-500">DEEPSEEK_ONLINE</span>
+                                <span id="aiUsageText" class="text-[9px] text-gray-500 ml-auto">0/15</span>
+                            </div>
+                            <div class="h-48 overflow-y-auto custom-scroll mb-4 border border-white/5 rounded-xl p-3 bg-black/20 text-xs text-gray-300 font-serif leading-relaxed" id="aiChatLog">
+                                <span class="opacity-50">神经链路已连接。<br>正在读取全站数据...<br>就绪。</span>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="aiHeaderInput" onkeypress="GardenOS.api.handleAIInput(event)" class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-3 pr-8 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="Ask AI...">
+                                <i class="ri-corner-down-left-line absolute right-2 top-2 text-white/20 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 联系方式 -->
+                    <div class="header-btn-container relative">
+                        <div id="contactBtn" onclick="GardenOS.ui.toggleDropdown('contactMenu')" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50">
+                             <i class="ri-signal-tower-line text-lg"></i>
+                        </div>
+                        <div id="contactMenu" class="dropdown-menu">
+                             <div class="flex flex-col gap-3">
+                                 <div class="group/c">
+                                     <div class="text-amber-500/60 text-[9px] font-mono tracking-[0.2em] mb-1">EMAIL</div>
+                                     <span class="text-sm font-serif text-white select-all border-b border-transparent group-hover/c:border-amber-500 transition-all">zjx207656@gmail.com</span>
+                                 </div>
+                                 <div class="group/c">
+                                     <div class="text-amber-500/60 text-[9px] font-mono tracking-[0.2em] mb-1">WECHAT</div>
+                                     <span class="text-sm font-serif text-white select-all border-b border-transparent group-hover/c:border-amber-500 transition-all">Zj_6174</span>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
+                    <!-- 季节 -->
+                    <div class="header-circle-btn h-11 w-11 text-white/50 cursor-default" title="Winter">
+                         <span id="linkDot" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    </div>
+                    <!-- 登录 -->
+                    <div onclick="GardenOS.ui.toggleLogin(true)" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50 cursor-pointer" title="Login">
+                         <i id="lockIcon" class="ri-user-3-line text-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-  <!-- 聊天区域 -->
-  <div id="chat-container"></div>
-  <div id="chat-input-container">
-    <input type="text" id="chat-input" placeholder="输入内容...">
-    <button id="chat-send">发送</button>
-  </div>
+        <main class="titan-matrix">
+            <!-- M1 -->
+            <div class="glass-cell card-m1 flex flex-col justify-between group h-full">
+                <div>
+                    <span class="precision-tag text-amber-500">Neural_Scale_v62.4</span>
+                    <h2 class="text-4xl font-bold font-serif mt-12 mb-8 tracking-wide whitespace-nowrap">生活刻度</h2>
+                    <div class="space-y-10">
+                        <div>
+                            <div class="flex justify-between text-[11px] font-mono opacity-40 mb-3 uppercase tracking-[0.5em]"><span>Entropy_Index</span><span id="valEntropy" class="text-amber-500 font-black">95.00%</span></div>
+                            <div class="h-[1px] w-full bg-white/10 relative overflow-hidden"><div class="absolute h-full bg-white w-[95%] shadow-[0_0_20px_white]"></div></div>
+                        </div>
+                        <p id="valQuote" class="text-lg italic text-gray-300 font-serif leading-relaxed opacity-90 max-w-sm mt-8">“万物皆有裂痕，那是光进来的地方。”</p>
+                    </div>
+                </div>
+                <div class="flex gap-20 pt-10 border-t border-white/10">
+                    <div><div class="text-3xl font-mono font-light tracking-tighter"><span id="valWeight">55.0</span> <span class="text-[10px] opacity-30 uppercase font-black">Kg</span></div><div class="precision-tag mt-3 opacity-50">Mass</div></div>
+                    <div><div class="text-3xl font-mono font-light tracking-tighter"><span id="valVitality">98</span> <span class="text-[10px] opacity-30 uppercase font-black">En</span></div><div class="precision-tag mt-3 opacity-50">Vitality</div></div>
+                </div>
+            </div>
 
-  <!-- 编辑区 -->
-  <div id="editor-container">
-    <textarea id="editor" placeholder="写下你的日记或故事..."></textarea>
-  </div>
+            <!-- M3 -->
+            <div id="ingestCard" class="glass-cell card-m3 flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-8"><span class="precision-tag text-white/40">// Ingest_Record</span><i class="ri-book-read-line text-white/20 text-xl"></i></div>
+                <div id="ingestListContainer" class="overflow-y-auto custom-scroll h-full pr-3"><div id="ingestList" class="space-y-6"></div></div>
+            </div>
 
-  <!-- 图表 -->
-  <div id="chart-container">
-    <canvas id="chart"></canvas>
-  </div>
-</div>
+            <!-- M2 -->
+            <div id="memoCard" class="glass-cell card-m2 flex flex-col justify-start">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/10"><span class="precision-tag text-amber-500/60 tracking-widest">Fragmented_Echoes</span><i class="ri-chat-history-line text-white/20 text-xl"></i></div>
+                <div id="memoList" class="w-full h-full overflow-y-auto custom-scroll pr-3 space-y-6 max-h-[160px]"></div>
+            </div>
 
-<!-- 脚本 -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  // 背景控制
-  const bgLayer = document.getElementById('bg-layer-1');
-  const overlay = document.getElementById('bg-overlay');
+            <!-- Writing -->
+            <div id="writingDeck" class="glass-cell card-writing flex flex-col justify-center items-center relative overflow-hidden group cursor-pointer" onclick="GardenOS.ui.toggleWritingDeck()">
+                <div class="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors duration-1000"></div>
+                <div id="writingCover" class="text-center relative z-10 transition-all duration-700">
+                    <i class="ri-quill-pen-line text-4xl text-amber-500 mb-10 block animate-pulse"></i>
+                    <h3 class="text-3xl lg:text-3xl font-serif italic text-white mb-8 tracking-[0.2em] leading-loose">“文字是捕获时间的网，<br>打捞沉没的岁月。”</h3>
+                    <span class="precision-tag tracking-[1em] text-white/20 uppercase">Click to open archive</span>
+                </div>
+                <div id="writingList" class="hidden w-full max-w-5xl relative z-10 animate-fade-in-pro grid grid-cols-1 md:grid-cols-3 gap-10 p-8">
+                     <a href="https://shade-plant-9cc.notion.site/2cd5c4b326c88025b72fd4fd1574d4c9?source=copy_link" target="_blank" class="bg-[#0c0d11]/90 p-10 rounded-[40px] border border-amber-500/20 hover:border-amber-500 hover:bg-black/90 transition-all group/item shadow-3xl relative block transform hover:-translate-y-2 searchable-item">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-500 rounded-l-[40px]"></div>
+                        <div class="flex justify-between items-center mb-6"><h4 class="text-2xl font-serif italic font-bold text-white group-hover/item:text-amber-500">铜川往事</h4><i class="ri-external-link-line text-white/30 group-hover/item:text-amber-500 text-2xl"></i></div>
+                        <p class="text-sm text-gray-400 font-serif leading-loose opacity-80">被折叠的时间碎片，个体在宏大叙事缝隙中的呼吸。</p>
+                        <div class="mt-8"><span class="text-[10px] border border-white/20 px-3 py-1 rounded-full text-white/40 uppercase tracking-wider">Novel</span></div>
+                    </a>
+                    <div id="dynamicWritingContainer" class="contents"></div>
+                </div>
+            </div>
 
-  const seasons = ['winter','spring','summer','autumn'];
-  const times = ['morning','afternoon','evening','night'];
+            <!-- M5 -->
+            <div class="glass-cell card-m5">
+                <div class="flex justify-between items-center mb-12"><span class="precision-tag text-white/30 tracking-[4em] uppercase">// Sensory_Laboratory</span><i class="ri-eye-2-line text-white/10 text-2xl"></i></div>
+                <div id="sensoryGrid" class="grid grid-cols-2 md:grid-cols-5 gap-10">
+                    <button class="flex flex-col items-center gap-5 group/btn searchable-item"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 transition-all shadow-xl">⛩️</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100">Anime</span></button>
+                    <button class="flex flex-col items-center gap-5 group/btn searchable-item"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 transition-all shadow-xl">🕹️</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100">Game</span></button>
+                    <button class="flex flex-col items-center gap-5 group/btn searchable-item"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 transition-all shadow-xl">🎬</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100">Film</span></button>
+                    <button class="flex flex-col items-center gap-5 group/btn searchable-item"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 transition-all shadow-xl">🌲</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100">Vista</span></button>
+                    <button class="flex flex-col items-center gap-5 group/btn searchable-item"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 transition-all shadow-xl">📻</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100">Audio</span></button>
+                </div>
+            </div>
 
-  function getCurrentSeason() {
-    const month = new Date().getMonth() + 1;
-    if(month>=3 && month<=5) return 'spring';
-    if(month>=6 && month<=8) return 'summer';
-    if(month>=9 && month<=11) return 'autumn';
-    return 'winter';
-  }
+            <!-- M6: 资产终端 -->
+            <div class="glass-cell card-m6 min-h-[440px] overflow-hidden">
+                <div class="flex justify-between items-start mb-14">
+                    <span class="precision-tag text-white/30 tracking-[4em] uppercase">Wealth_Pulse</span>
+                    <div class="flex items-center gap-3">
+                         <button onclick="GardenOS.ui.switchChart('pie')" id="btnPie" class="text-[10px] text-amber-500 hover:text-white font-bold transition-colors">DISTRIBUTION</button>
+                         <span class="text-white/20">|</span>
+                         <button onclick="GardenOS.ui.switchChart('trend')" id="btnTrend" class="text-[10px] text-white/50 hover:text-amber-500 font-bold transition-colors">TREND</button>
+                    </div>
+                </div>
+                <div class="flex flex-col lg:flex-row gap-12 h-full">
+                    <!-- 左侧：一列资产 -->
+                    <div id="assetList" class="w-full lg:w-1/3 flex flex-col gap-2 pr-2 h-full">
+                        <!-- JS 填充 -->
+                    </div>
+                    
+                    <!-- 右侧：可视化区域 -->
+                    <div id="vizContainer" class="w-full lg:w-2/3 bg-black/40 rounded-[48px] border border-white/5 relative overflow-hidden flex flex-col items-center justify-center p-8 shadow-inner">
+                        
+                        <!-- 饼图 -->
+                        <div id="pieChart" class="chart-wrapper w-full h-full">
+                            <div class="pie-layout">
+                                <!-- 左：环形图 -->
+                                <div class="pie-chart"></div>
+                                
+                                <!-- 右：详细图例列表 (4项) -->
+                                <div class="pie-legend">
+                                    <div class="legend-item"><div class="legend-dot bg-[#e3b341]"></div> <span id="legFunds">FUNDS 77%</span></div>
+                                    <div class="legend-item"><div class="legend-dot bg-[#10b981]"></div> <span id="legStocks">STOCKS 0%</span></div>
+                                    <div class="legend-item"><div class="legend-dot bg-[#3b82f6]"></div> <span id="legCrypto">CRYPTO 16%</span></div>
+                                    <div class="legend-item"><div class="legend-dot bg-[#a8a29e]"></div> <span id="legMetal">METAL 7%</span></div>
+                                </div>
+                            </div>
+                            <!-- 中心文字 -->
+                            <div class="pie-label-container absolute" style="left: -80px;">
+                                <span class="text-xl font-mono font-bold text-white mb-1">Total</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 趋势图 -->
+                        <div id="trendChart" class="chart-wrapper hidden w-full h-full relative p-4">
+                            <svg class="trend-chart" viewBox="0 0 300 150">
+                                <defs><linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:rgb(227, 179, 65);stop-opacity:0.2" /><stop offset="100%" style="stop-color:rgb(227, 179, 65);stop-opacity:0" /></linearGradient></defs>
+                                <path class="trend-area" d="" fill="url(#grad1)"/>
+                                <polyline class="trend-line" points="" style="fill:none;stroke:#e3b341;stroke-width:2;" />
+                            </svg>
+                            <!-- Axis -->
+                            <div id="xAxisLabels" class="absolute bottom-2 left-0 w-full flex justify-between px-6 pointer-events-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- FAB -->
+        <div id="fabPublish" onclick="GardenOS.ui.toggleWatcher(true)" class="fab-publish"><i class="ri-add-line"></i></div>
+    </div>
 
-  function getCurrentTimeOfDay() {
-    const hour = new Date().getHours();
-    if(hour>=6 && hour<12) return 'morning';
-    if(hour>=12 && hour<18) return 'afternoon';
-    if(hour>=18 && hour<21) return 'evening';
-    return 'night';
-  }
+    <!-- 侧边栏：发布中心 -->
+    <aside id="watcherDrawer" class="fixed top-0 right-[-100%] h-full bg-[#0c0b0a]/98 backdrop-blur-3xl border-l border-white/10 z-[200] transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) p-12 flex flex-col no-scrollbar shadow-3xl overflow-y-auto watcher-drawer-width">
+        <div class="flex justify-between items-center mb-12">
+            <h2 class="text-3xl font-serif italic font-black tracking-[0.2em] uppercase text-white">COMMAND_CTR</h2>
+            <button onclick="GardenOS.ui.toggleWatcher(false)" class="p-4 text-2xl text-gray-500 hover:text-white transition-all hover:rotate-90">✕</button>
+        </div>
+        <div class="flex-grow flex flex-col">
+            <div id="adminPostArea" class="hidden mb-12 p-8 bg-white/[0.02] border border-amber-500/20 rounded-[48px] space-y-6 animate-fade-in-pro shadow-2xl">
+                <div class="flex justify-between items-center mb-4"><span class="precision-tag text-amber-500 font-black tracking-[0.5em] uppercase">Control_Matrix</span><div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"></div></div>
+                <div class="space-y-5">
+                    <select id="postTarget" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500 cursor-pointer"><option value="memo">碎碎念</option><option value="writing">写作区</option><option value="ingest">摄入区</option><option value="sensory">感官区</option><option value="assets">资产区</option><option value="status">生命体征</option></select>
+                    <input type="text" id="postTitle" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="TITLE / BOOK NAME / WEIGHT">
+                    <div class="grid grid-cols-2 gap-4"><input type="text" id="linkText" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="LABEL / ENTROPY"><input type="text" id="linkUrl" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="URL"></div>
+                    <input type="text" id="postImage" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="IMAGE_URL / VITALITY">
+                    <textarea id="postContent" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-serif italic text-gray-300 outline-none focus:border-amber-500 h-36" placeholder="Content..."></textarea>
+                    <button onclick="GardenOS.cms.createPost()" class="w-full py-5 bg-amber-500 text-black font-black uppercase tracking-[0.8em] text-[10px] rounded-2xl shadow-glow active:scale-95 transition-all">EXECUTE_PUBLISH</button>
+                </div>
+            </div>
+            <div id="aiResponseSide" class="min-h-[120px] font-serif italic text-gray-400 p-8 bg-white/[0.01] rounded-[32px] border-l-4 border-white/10 mb-8 leading-relaxed text-sm"><span class="text-white/20 font-mono">SYSTEM_LOG:</span> 等待发布指令...</div>
+        </div>
+    </aside>
 
-  function applyBackground() {
-    const season = getCurrentSeason();
-    const time = getCurrentTimeOfDay();
-    bgLayer.className = '';
-    overlay.className = '';
-    bgLayer.classList.add(`season-${season}`);
-    overlay.classList.add(`time-${time}`);
-  }
+    <div id="loginModal" class="fixed inset-0 bg-black/98 z-[500] hidden items-center justify-center p-6 backdrop-blur-3xl">
+        <div class="bg-[#0c0d11] p-12 rounded-[56px] border border-white/10 w-full max-w-md text-center shadow-3xl relative overflow-hidden">
+            <span class="precision-tag mb-10 block tracking-[0.6em] text-amber-500 font-black relative z-10">Root_Identity_Auth</span>
+            <input type="password" id="authKeyInput" class="w-full bg-white/5 border border-white/10 rounded-[32px] p-8 text-center text-2xl font-mono text-white mb-10 tracking-[0.5em] focus:border-amber-500 outline-none shadow-inner relative z-10">
+            <div class="flex gap-5 relative z-10"><button onclick="GardenOS.ui.toggleLogin(false)" class="flex-1 precision-tag py-6 hover:text-white transition-all tracking-[0.5em] text-[10px]">Abort</button><button onclick="GardenOS.auth.verify()" class="flex-1 py-6 bg-white/5 border border-white/10 rounded-[24px] font-black text-amber-500 tracking-[1em] text-[11px] hover:bg-white/10 active:scale-95 transition-all shadow-xl">Connect</button></div>
+        </div>
+    </div>
 
-  applyBackground();
+    <script>
+        // ============= 核心系统配置 =============
+        const GardenOS = {
+            config: { 
+                secret: 'Zjx207661', 
+                storageKey: 'garden_v62_4_db', 
+                deepSeekApiKey: 'sk-437d432e53664e489b60a9349619a879', 
+                dailyLimit: 15 
+            },
+            data: {
+                defaultContent: {
+                    assets: [
+                        {title: '01 // FUNDS', content: '700.00', val: 700},
+                        {title: '02 // STOCKS', content: '0.00', val: 0},
+                        {title: '03 // CRYPTO', content: '150.00', val: 150},
+                        {title: '04 // METAL', content: '60.00 GR', val: 60}
+                    ],
+                    ingest: { title: '《献给阿尔吉侬的花束》', content: '智慧是孤独的解药。' },
+                    memo: '“岁月不语，唯有文字能在大雪中取暖。”'
+                }
+            },
+            // !!! 关键修改：移除了所有与旧背景图相关的状态 !!!
+            state: { 
+                isAuthorized: false, 
+                // 不再有 currentSeason, activeBgLayer 等背景控制状态
+            },
 
-  let timeIndex = 0;
-  function simulateNextTime() {
-    timeIndex = (timeIndex + 1) % times.length;
-    overlay.className = '';
-    overlay.classList.add(`time-${times[timeIndex]}`);
-  }
+            // ============= 系统启动 =============
+            boot() {
+                this.auth.init();
+                this.temporal.init(); // 启动时钟
+                this.ui.init();
+                this.cms.renderAll();
+                // !!! 关键修改：不再调用 environment.sync() !!!
+            },
 
-  // 聊天功能模拟
-  const chatContainer = document.getElementById('chat-container');
-  const chatInput = document.getElementById('chat-input');
-  const chatSend = document.getElementById('chat-send');
+            // ============= API与AI模块 =============
+            api: {
+                getUsage() { 
+                    const t = new Date().toDateString();
+                    const u = JSON.parse(localStorage.getItem('garden_ai_usage') || '{}'); 
+                    return u.date !== t ? {date: t, count: 0} : u; 
+                },
+                updateUsage(c) { 
+                    localStorage.setItem('garden_ai_usage', JSON.stringify({date: new Date().toDateString(), count: c})); 
+                    document.getElementById('aiUsageText').innerText = `${c}/15`; 
+                },
+                async handleAIInput(e) {
+                    if (e.key === 'Enter') {
+                        const val = e.target.value.trim(); 
+                        if (!val) return;
+                        const usage = this.getUsage();
+                        if (usage.count >= GardenOS.config.dailyLimit) { 
+                            this.typewriter("今日额度已用尽。", `ai_${Date.now()}`); 
+                            e.target.disabled = true; 
+                            return; 
+                        }
+                        const log = document.getElementById('aiChatLog'); 
+                        log.innerHTML += `<div class="mb-2 text-white">> ${val}</div>`; 
+                        e.target.value = '';
+                        const lid = Date.now(); 
+                        log.innerHTML += `<div id="r_${lid}" class="text-amber-500 mb-4 opacity-50">思考中...</div>`;
+                        // 可选的上下文信息
+                        const siteData = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                        const context = `这是“流光存根”数字花园。用户当前状态：体重${siteData.status?.weight || '55'}kg。`;
+                        const res = await this.callDeepSeek(val, context);
+                        document.getElementById(`r_${lid}`).remove();
+                        const id = Date.now(); 
+                        log.innerHTML += `<div id="res_${id}" class="text-amber-500 mb-4 text-xs font-mono"></div>`;
+                        this.typewriter(res, `res_${id}`);
+                        this.updateUsage(usage.count + 1);
+                    }
+                },
+                async callDeepSeek(p, c) {
+                    if(!GardenOS.config.deepSeekApiKey) return "[AI 离线]";
+                    try {
+                        const r = await fetch('https://api.deepseek.com/chat/completions', { 
+                            method: 'POST', 
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${GardenOS.config.deepSeekApiKey}`
+                            }, 
+                            body: JSON.stringify({
+                                model: "deepseek-chat",
+                                messages: [
+                                    {role: "system", content: c || '你是一个充满诗意的数字花园助手。'},
+                                    {role: "user", content: p}
+                                ]
+                            })
+                        });
+                        const d = await r.json(); 
+                        return d.choices?.[0]?.message?.content || "未收到回复。";
+                    } catch(e) { 
+                        return "网络错误: " + e.message; 
+                    }
+                },
+                typewriter(t, id) { 
+                    const el = document.getElementById(id); 
+                    let i = 0; 
+                    const tm = setInterval(() => { 
+                        if (!el) return clearInterval(tm); 
+                        el.innerText += t.charAt(i++); 
+                        if (i >= t.length) clearInterval(tm); 
+                    }, 20); 
+                }
+            },
 
-  chatSend.addEventListener('click', () => {
-    const msg = chatInput.value.trim();
-    if(msg==='') return;
-    appendMessage(msg,'user');
-    chatInput.value='';
-    setTimeout(()=>{ appendMessage("这是AI模拟回复: " + msg,'ai'); }, 800);
-  });
+            // ============= 认证模块 =============
+            auth: {
+                init() {
+                    const stored = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    if(stored.isAuthorized) { 
+                        GardenOS.state.isAuthorized = true; 
+                        GardenOS.ui.updateAuthUI(true); 
+                    }
+                },
+                verify() {
+                    const val = document.getElementById('authKeyInput').value;
+                    if (val === GardenOS.config.secret) {
+                        GardenOS.state.isAuthorized = true;
+                        localStorage.setItem(GardenOS.config.storageKey, JSON.stringify({isAuthorized: true}));
+                        GardenOS.ui.toggleLogin(false); 
+                        GardenOS.ui.updateAuthUI(true);
+                    } else {
+                        const input = document.getElementById('authKeyInput');
+                        input.style.borderColor = '#ff4757';
+                        setTimeout(() => input.style.borderColor = '', 1000);
+                    }
+                }
+            },
 
-  function appendMessage(msg,type){
-    const div = document.createElement('div');
-    div.className = 'chat-message ' + (type==='user'?'chat-user':'chat-ai');
-    div.textContent = msg;
-    chatContainer.appendChild(div);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  }
+            // ============= 时间模块 =============
+            temporal: {
+                init() { 
+                    this.tick(); 
+                    setInterval(() => this.tick(), 1000); 
+                },
+                tick() { 
+                    const clock = document.getElementById('clockDisplay');
+                    if(clock) clock.innerText = new Date().toLocaleTimeString('zh-CN', { hour12: false }); 
+                }
+            },
 
-  // 图表
-  const ctx = document.getElementById('chart').getContext('2d');
-  const myChart = new Chart(ctx, {
-    type:'line',
-    data:{
-      labels:['一月','二月','三月','四月','五月','六月'],
-      datasets:[{
-        label:'记录数量',
-        data:[3,2,5,4,6,7],
-        borderColor:'rgba(255,255,255,0.7)',
-        backgroundColor:'rgba(255,255,255,0.3)',
-        fill:true,
-        tension:0.4
-      }]
-    },
-    options:{
-      responsive:true,
-      plugins:{ legend:{ labels:{ color:'#fff' } } },
-      scales:{
-        x:{ ticks:{ color:'#fff' }, grid:{ color:'rgba(255,255,255,0.2)' } },
-        y:{ ticks:{ color:'#fff' }, grid:{ color:'rgba(255,255,255,0.2)' } }
-      }
-    }
-  });
-</script>
+            // ============= 环境模块 - 已简化 =============
+            // !!! 关键修改：此模块不再加载或切换任何背景图片 !!!
+            environment: {
+                // 此函数被保留但置空，防止任何旧的调用加载图片
+                sync(force) { 
+                    console.log('背景已固定为窄巷夜景。'); 
+                },
+                checkUpdate() {} 
+            },
 
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>记录生活的网页</title>
+            // ============= 用户界面模块 =============
+            ui: {
+                init() { 
+                    // 初始化UI交互
+                },
+                toggleLogin(s) { 
+                    const modal = document.getElementById('loginModal');
+                    if (modal) modal.style.display = s ? 'flex' : 'none'; 
+                    if (s) document.getElementById('authKeyInput').focus();
+                },
+                toggleWatcher(s) { 
+                    const drawer = document.getElementById('watcherDrawer');
+                    if (drawer) drawer.style.right = s ? '0' : '-100%'; 
+                },
+                toggleDropdown(id) { 
+                    const el = document.getElementById(id); 
+                    if (!el) return;
+                    // 关闭其他菜单
+                    ['contactMenu', 'aiMenu'].forEach(mid => { 
+                        if (mid !== id) {
+                            const otherMenu = document.getElementById(mid);
+                            if (otherMenu) otherMenu.classList.remove('active');
+                        }
+                    });
+                    el.classList.toggle('active'); 
+                },
+                toggleWritingDeck() { 
+                    const cover = document.getElementById('writingCover');
+                    const list = document.getElementById('writingList');
+                    if (cover && list) {
+                        cover.classList.toggle('hidden');
+                        list.classList.toggle('hidden');
+                    }
+                },
+                activateSearch() { 
+                    const searchPill = document.getElementById('searchPill');
+                    const searchInput = document.getElementById('headerSearchInput');
+                    if (searchPill && searchInput) {
+                        searchPill.style.width = '240px';
+                        searchInput.classList.remove('hidden');
+                        searchInput.focus();
+                    }
+                },
+                deactivateSearch() { 
+                    const searchInput = document.getElementById('headerSearchInput');
+                    const searchPill = document.getElementById('searchPill');
+                    if (searchInput && searchPill && !searchInput.value) {
+                        searchInput.classList.add('hidden');
+                        searchPill.style.width = '44px';
+                    }
+                },
+                search(v) { 
+                    document.querySelectorAll('.searchable-item').forEach(el => {
+                        el.style.display = el.innerText.toLowerCase().includes(v.toLowerCase()) ? '' : 'none';
+                    }); 
+                },
+                updateAuthUI(auth) { 
+                    if (auth) { 
+                        const lockIcon = document.getElementById('lockIcon');
+                        if (lockIcon) lockIcon.className = 'ri-shield-user-line text-amber-500';
+                        const adminArea = document.getElementById('adminPostArea');
+                        if (adminArea) adminArea.classList.remove('hidden');
+                        const fab = document.getElementById('fabPublish');
+                        if (fab) fab.classList.add('visible');
+                    } 
+                },
+                
+                // 图表切换
+                switchChart(t) { 
+                    document.getElementById('pieChart').classList.toggle('hidden', t !== 'pie'); 
+                    document.getElementById('trendChart').classList.toggle('hidden', t !== 'trend'); 
+                    const btnPie = document.getElementById('btnPie');
+                    const btnTrend = document.getElementById('btnTrend');
+                    if (btnPie) btnPie.className = t === 'pie' ? 'text-[10px] text-amber-500 font-bold' : 'text-[10px] text-white/50 font-bold';
+                    if (btnTrend) btnTrend.className = t === 'trend' ? 'text-[10px] text-amber-500 font-bold' : 'text-[10px] text-white/50 font-bold';
+                },
+                
+                // 绘制图表
+                drawCharts(total, breakdown) {
+                    const pieEl = document.querySelector('.pie-chart');
+                    if(!pieEl) return;
+                    
+                    // 计算百分比
+                    const pFund = (breakdown.funds / total) * 100;
+                    const pStock = (breakdown.stocks / total) * 100;
+                    const pCrypto = (breakdown.crypto / total) * 100;
+                    const pMetal = (breakdown.metal / total) * 100;
+                    
+                    // 饼图颜色分段
+                    const s1 = pFund;
+                    const s2 = s1 + pStock;
+                    const s3 = s2 + pCrypto;
+                    
+                    pieEl.style.background = `conic-gradient(
+                        #e3b341 0% ${s1}%, 
+                        #10b981 ${s1}% ${s2}%, 
+                        #3b82f6 ${s2}% ${s3}%, 
+                        #a8a29e ${s3}% 100%
+                    )`;
+                    
+                    // 更新图例
+                    document.getElementById('legFunds').innerText = `FUNDS ${Math.round(pFund)}%`;
+                    document.getElementById('legStocks').innerText = `STOCKS ${Math.round(pStock)}%`;
+                    document.getElementById('legCrypto').innerText = `CRYPTO ${Math.round(pCrypto)}%`;
+                    document.getElementById('legMetal').innerText = `METAL ${Math.round(pMetal)}%`;
+                    
+                    const labelSpan = document.querySelector('.pie-label-container span.text-xl');
+                    if(labelSpan) labelSpan.innerText = total;
 
-<!-- 基础样式 -->
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body, html { width:100%; height:100%; font-family: 'Segoe UI', sans-serif; overflow-x:hidden; }
+                    // 趋势图数据生成
+                    const trendData = [];
+                    for(let i = 6; i > 0; i--) {
+                        const variance = 1 + (Math.random() * 0.1 - 0.05);
+                        trendData.push(Math.floor(total * variance));
+                    }
+                    trendData.push(total);
+                    
+                    const min = Math.min(...trendData) * 0.95;
+                    const max = Math.max(...trendData) * 1.05;
+                    const range = max - min;
+                    
+                    const points = trendData.map((val, idx) => {
+                        const x = idx * 50; 
+                        const y = 150 - ((val - min) / range * 130 + 10); 
+                        return `${x},${y}`;
+                    }).join(' ');
+                    
+                    const svg = document.querySelector('.trend-chart');
+                    if(svg) {
+                        const area = svg.querySelector('.trend-area');
+                        const line = svg.querySelector('.trend-line');
+                        const axisContainer = document.getElementById('xAxisLabels');
+                        
+                        if(area) area.setAttribute('d', `M0,150 L${points.split(' ').join(' L')} L300,150 Z`);
+                        if(line) line.setAttribute('points', points);
+                        svg.querySelectorAll('circle').forEach(c => c.remove());
+                        
+                        // 生成坐标轴标签
+                        if(axisContainer) axisContainer.innerHTML = '';
+                        const days = [];
+                        for(let i = 6; i >= 0; i--) {
+                            const d = new Date(); 
+                            d.setDate(d.getDate() - i);
+                            days.push(d.toLocaleDateString('en-US', {weekday:'short'}));
+                        }
 
-/* 背景层 */
-#bg-layer-1 {
-  position: fixed; top:0; left:0;
-  width:100%; height:100%;
-  background-image: url("https://images.pexels.com/photos/35030856/pexels-photo-35030856.jpeg");
-  background-size: cover;
-  background-position: center;
-  transition: filter 2s ease, background-color 2s ease;
-  z-index:-1;
-}
+                        trendData.forEach((val, idx) => {
+                            const x = idx * 50;
+                            const y = 150 - ((val - min) / range * 130 + 10);
+                            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            circle.setAttribute("cx", x); 
+                            circle.setAttribute("cy", y); 
+                            circle.setAttribute("class", "trend-point");
+                            circle.setAttribute("data-value", val);
+                            const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+                            title.textContent = `${days[idx]}: ${val}`;
+                            circle.appendChild(title);
+                            svg.appendChild(circle);
+                            
+                            if(axisContainer && idx < days.length) {
+                                const label = document.createElement('div');
+                                label.className = "text-[9px] text-white/30 font-mono absolute bottom-0";
+                                label.style.left = `${(idx/6) * 100}%`;
+                                label.style.transform = "translateX(-50%)";
+                                label.innerText = days[idx];
+                                axisContainer.appendChild(label);
+                            }
+                        });
+                    }
+                }
+            },
 
-/* 滤镜覆盖层，用于四季+时间段 */
-#bg-overlay {
-  position: fixed; top:0; left:0;
-  width:100%; height:100%;
-  pointer-events:none;
-  transition: background 2s ease;
-  z-index:0;
-}
+            // ============= 内容管理系统 =============
+            cms: {
+                createPost() {
+                    if(!GardenOS.state.isAuthorized) return;
+                    const target = document.getElementById('postTarget').value;
+                    const title = document.getElementById('postTitle').value.trim();
+                    const content = document.getElementById('postContent').value.trim();
+                    const lText = document.getElementById('linkText').value.trim();
+                    const lUrl = document.getElementById('linkUrl').value.trim();
+                    const img = document.getElementById('postImage').value.trim();
 
-/* 内容层 */
-#content {
-  position: relative;
-  z-index:1;
-  width:100%;
-  min-height:100vh;
-  padding:20px;
-  color:#fff;
-  display:flex;
-  flex-direction: column;
-  gap:20px;
-}
+                    // 更新生命体征
+                    if (target === 'status') {
+                        const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                        data.status = { 
+                            weight: title || '55.0', 
+                            vitality: img || '98', 
+                            entropy: lText || '95.00%', 
+                            quote: content || '万物皆有裂痕，那是光进来的地方。' 
+                        };
+                        localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(data));
+                        GardenOS.cms.renderAll(); 
+                        return;
+                    }
 
-h1 { font-size:3em; margin-bottom:20px; }
-p { font-size:1.2em; line-height:1.6; }
+                    if(!title || !content) return;
+                    const post = { 
+                        id: Date.now(), 
+                        target, 
+                        title, 
+                        content, 
+                        link: {text: lText, url: lUrl}, 
+                        image: img, 
+                        timestamp: new Date().toLocaleString('zh-CN') 
+                    };
+                    const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    const posts = data.posts || []; 
+                    posts.unshift(post); 
+                    data.posts = posts;
+                    localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(data));
+                    // 清空表单
+                    ['postTitle', 'postContent', 'linkText', 'linkUrl', 'postImage'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
+                    });
+                    GardenOS.cms.renderAll();
+                },
+                
+                renderAll() {
+                    const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    
+                    // 1. 更新生命体征
+                    if (data.status) {
+                        const valWeight = document.getElementById('valWeight');
+                        const valVitality = document.getElementById('valVitality');
+                        const valEntropy = document.getElementById('valEntropy');
+                        const valQuote = document.getElementById('valQuote');
+                        if (valWeight) valWeight.innerText = data.status.weight || '55.0';
+                        if (valVitality) valVitality.innerText = data.status.vitality || '98';
+                        if (valEntropy) valEntropy.innerText = data.status.entropy || '95.00%';
+                        if (valQuote) valQuote.innerText = data.status.quote || '万物皆有裂痕，那是光进来的地方。';
+                    }
+                    
+                    // 获取容器
+                    const memoList = document.getElementById('memoList');
+                    const ingestList = document.getElementById('ingestList');
+                    const assetList = document.getElementById('assetList');
+                    if (!memoList || !ingestList || !assetList) return;
+                    
+                    // 清空容器
+                    memoList.innerHTML = '';
+                    ingestList.innerHTML = '';
+                    assetList.innerHTML = '';
+                    
+                    const posts = data.posts || [];
+                    
+                    // 2. 渲染资产
+                    const defAssets = GardenOS.data.defaultContent.assets;
+                    const userAssets = posts.filter(p => p.target === 'assets');
+                    let totalValue = 0;
+                    let breakdown = { funds: 700, stocks: 0, crypto: 150, metal: 60 }; // 默认值
+                    
+                    const assetMix = [...userAssets];
+                    for (let i = userAssets.length; i < 4; i++) { 
+                        if (defAssets[i]) assetMix.push(defAssets[i]); 
+                    }
+                    
+                    assetMix.slice(0, 4).forEach((p, index) => {
+                        const contentStr = p.content || p.val || '0';
+                        let val = parseFloat(contentStr.toString().replace(/[^0-9.-]+/g, ""));
+                        if (!isNaN(val)) totalValue += val;
+                        
+                        // 简单分配（可根据实际逻辑调整）
+                        if (index === 0) breakdown.funds = val;
+                        else if (index === 1) breakdown.stocks = val;
+                        else if (index === 2) breakdown.crypto = val;
+                        else if (index === 3) breakdown.metal = val;
 
-/* 按钮 */
-.btn {
-  padding: 10px 20px;
-  border:none;
-  border-radius:5px;
-  cursor:pointer;
-  font-size:1em;
-  background: rgba(255,255,255,0.2);
-  color:#fff;
-  transition: background 0.3s;
-}
-.btn:hover { background: rgba(255,255,255,0.4); }
+                        assetList.innerHTML += `
+                            <div class="asset-compact-item searchable-item">
+                                <div class="precision-tag text-amber-500/50">${p.title || 'ASSET'}</div>
+                                <div class="text-base font-mono text-white group-hover:text-amber-500 transition-all">${contentStr}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    // 绘制图表
+                    GardenOS.ui.drawCharts(Math.round(totalValue), breakdown);
 
-/* 滤镜参数 */
-.season-winter { filter: brightness(0.9) saturate(0.7) hue-rotate(200deg); }
-.season-spring { filter: brightness(1.05) saturate(1.2) hue-rotate(120deg); }
-.season-summer { filter: brightness(1.1) saturate(1.3) hue-rotate(60deg); }
-.season-autumn { filter: brightness(1) saturate(1) hue-rotate(30deg); }
+                    // 3. 渲染摄入记录
+                    if (!posts.some(p => p.target === 'ingest')) {
+                        const defaultIngest = GardenOS.data.defaultContent.ingest;
+                        ingestList.innerHTML = `
+                            <div class="group flex gap-5 items-start cursor-pointer mb-6 border-b border-white/5 pb-4 searchable-item">
+                                <div class="w-14 h-14 bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 border border-white/5">
+                                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=100" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold font-serif group-hover:text-amber-500 transition-colors">${defaultIngest.title}</h4>
+                                    <p class="text-[10px] text-gray-400 mt-1 font-serif">${defaultIngest.content}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // 渲染用户摄入记录
+                    posts.filter(p => p.target === 'ingest').forEach(p => {
+                        ingestList.innerHTML += `
+                            <div class="group flex gap-5 items-start cursor-pointer mb-6 border-b border-white/5 pb-4 last:border-0 searchable-item">
+                                <div class="w-14 h-14 bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 border border-white/5">
+                                    <img src="${p.image || 'https://via.placeholder.com/100'}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/100'">
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold group-hover:text-amber-500 transition-colors">${p.title}</h4>
+                                    <p class="text-[10px] text-gray-400 mt-1">${p.content}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    // 4. 渲染碎碎念
+                    if (!posts.some(p => p.target === 'memo')) {
+                        const defaultMemo = GardenOS.data.defaultContent.memo;
+                        memoList.innerHTML = `
+                            <div class="bg-white/5 p-4 rounded-[20px] border border-white/5 opacity-60 text-center">
+                                <p class="text-xs text-gray-400 font-serif italic">${defaultMemo}</p>
+                            </div>
+                        `;
+                    }
+                    
+                    posts.filter(p => p.target === 'memo').forEach(p => {
+                        const imgHtml = p.image ? `<img src="${p.image}" class="w-full h-auto object-cover rounded-lg mb-2 opacity-80" onerror="this.style.display='none'">` : '';
+                        memoList.innerHTML += `
+                            <div class="group/item bg-white/5 p-6 rounded-[28px] border border-white/5 mb-4 searchable-item">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="text-sm font-bold">${p.title}</h4>
+                                    <span class="text-[9px] text-white/20">${p.timestamp?.split(' ')[0] || ''}</span>
+                                </div>
+                                <p class="text-xs text-gray-400">${p.content}</p>
+                                ${imgHtml}
+                            </div>
+                        `;
+                    });
+                }
+            }
+        };
 
-.time-morning { background: rgba(255,230,200,0.2); }
-.time-afternoon { background: rgba(255,255,230,0.2); }
-.time-evening { background: rgba(255,180,150,0.3); }
-.time-night { background: rgba(20,20,60,0.4); }
-
-/* 聊天区域 */
-#chat-container {
-  margin-top:20px;
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  border:1px solid rgba(255,255,255,0.3);
-  border-radius:10px;
-  background: rgba(0,0,0,0.4);
-  padding:10px;
-  overflow-y:auto;
-}
-
-.chat-message {
-  margin-bottom:10px;
-  padding:8px 12px;
-  border-radius:8px;
-  max-width:70%;
-  word-wrap: break-word;
-}
-
-.chat-user { background: rgba(0,150,255,0.4); align-self:flex-end; }
-.chat-ai { background: rgba(150,150,150,0.4); align-self:flex-start; }
-
-/* 输入区域 */
-#chat-input-container {
-  margin-top:10px;
-  display:flex;
-  gap:10px;
-}
-
-#chat-input {
-  flex:1;
-  padding:8px 12px;
-  border-radius:5px;
-  border:none;
-  font-size:1em;
-}
-
-#chat-send {
-  padding:8px 16px;
-  border:none;
-  border-radius:5px;
-  background: rgba(255,255,255,0.2);
-  color:#fff;
-  cursor:pointer;
-}
-
-#chat-send:hover { background: rgba(255,255,255,0.4); }
-
-/* 文本编辑区 */
-#editor-container {
-  margin-top:20px;
-  border:1px solid rgba(255,255,255,0.3);
-  border-radius:10px;
-  padding:10px;
-  background: rgba(0,0,0,0.3);
-}
-
-#editor {
-  width:100%;
-  height:200px;
-  background: rgba(0,0,0,0.1);
-  color:#fff;
-  border:none;
-  padding:10px;
-  resize:none;
-  font-size:1em;
-}
-
-/* 图表区域 */
-#chart-container {
-  margin-top:20px;
-  height:300px;
-  border-radius:10px;
-  overflow:hidden;
-  background: rgba(0,0,0,0.3);
-}
-
-/* 响应式 */
-@media (max-width:768px){
-  h1 { font-size:2em; }
-  p { font-size:1em; }
-  #editor { height:150px; }
-  #chart-container { height:200px; }
-}
-</style>
-</head>
-<body>
-
-<!-- 背景 -->
-<div id="bg-layer-1"></div>
-<div id="bg-overlay"></div>
-
-<!-- 内容 -->
-<div id="content">
-  <h1>记录生活的页面</h1>
-  <p>欢迎来到这个记录生活的网页，这里你可以写下每天的感悟、点滴故事，背景会随着四季和时间变换，带来温暖而静谧的氛围。</p>
-  <button class="btn" onclick="simulateNextTime()">模拟下一个时间段</button>
-
-  <!-- 聊天区域 -->
-  <div id="chat-container"></div>
-  <div id="chat-input-container">
-    <input type="text" id="chat-input" placeholder="输入内容...">
-    <button id="chat-send">发送</button>
-  </div>
-
-  <!-- 编辑区 -->
-  <div id="editor-container">
-    <textarea id="editor" placeholder="写下你的日记或故事..."></textarea>
-  </div>
-
-  <!-- 图表 -->
-  <div id="chart-container">
-    <canvas id="chart"></canvas>
-  </div>
-</div>
-
-<!-- 脚本 -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  // 背景控制
-  const bgLayer = document.getElementById('bg-layer-1');
-  const overlay = document.getElementById('bg-overlay');
-
-  const seasons = ['winter','spring','summer','autumn'];
-  const times = ['morning','afternoon','evening','night'];
-
-  function getCurrentSeason() {
-    const month = new Date().getMonth() + 1;
-    if(month>=3 && month<=5) return 'spring';
-    if(month>=6 && month<=8) return 'summer';
-    if(month>=9 && month<=11) return 'autumn';
-    return 'winter';
-  }
-
-  function getCurrentTimeOfDay() {
-    const hour = new Date().getHours();
-    if(hour>=6 && hour<12) return 'morning';
-    if(hour>=12 && hour<18) return 'afternoon';
-    if(hour>=18 && hour<21) return 'evening';
-    return 'night';
-  }
-
-  function applyBackground() {
-    const season = getCurrentSeason();
-    const time = getCurrentTimeOfDay();
-    bgLayer.className = '';
-    overlay.className = '';
-    bgLayer.classList.add(`season-${season}`);
-    overlay.classList.add(`time-${time}`);
-  }
-
-  applyBackground();
-
-  let timeIndex = 0;
-  function simulateNextTime() {
-    timeIndex = (timeIndex + 1) % times.length;
-    overlay.className = '';
-    overlay.classList.add(`time-${times[timeIndex]}`);
-  }
-
-  // 聊天功能模拟
-  const chatContainer = document.getElementById('chat-container');
-  const chatInput = document.getElementById('chat-input');
-  const chatSend = document.getElementById('chat-send');
-
-  chatSend.addEventListener('click', () => {
-    const msg = chatInput.value.trim();
-    if(msg==='') return;
-    appendMessage(msg,'user');
-    chatInput.value='';
-    setTimeout(()=>{ appendMessage("这是AI模拟回复: " + msg,'ai'); }, 800);
-  });
-
-  function appendMessage(msg,type){
-    const div = document.createElement('div');
-    div.className = 'chat-message ' + (type==='user'?'chat-user':'chat-ai');
-    div.textContent = msg;
-    chatContainer.appendChild(div);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  }
-
-  // 图表
-  const ctx = document.getElementById('chart').getContext('2d');
-  const myChart = new Chart(ctx, {
-    type:'line',
-    data:{
-      labels:['一月','二月','三月','四月','五月','六月'],
-      datasets:[{
-        label:'记录数量',
-        data:[3,2,5,4,6,7],
-        borderColor:'rgba(255,255,255,0.7)',
-        backgroundColor:'rgba(255,255,255,0.3)',
-        fill:true,
-        tension:0.4
-      }]
-    },
-    options:{
-      responsive:true,
-      plugins:{ legend:{ labels:{ color:'#fff' } } },
-      scales:{
-        x:{ ticks:{ color:'#fff' }, grid:{ color:'rgba(255,255,255,0.2)' } },
-        y:{ ticks:{ color:'#fff' }, grid:{ color:'rgba(255,255,255,0.2)' } }
-      }
-    }
-  });
-</script>
-
+        // ============= 页面加载完成后启动系统 =============
+        document.addEventListener('DOMContentLoaded', () => {
+            GardenOS.init();
+        });
+    </script>
 </body>
 </html>
