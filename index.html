@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>流光存根 | Digital Garden v62.4 DATA_VIS_PERFECTED</title>
+    <title>流光存根 | Digital Garden v63.1 VISUAL_PERFECTION</title>
     
     <!-- 核心 CSS 引擎 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -48,7 +48,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;400;700&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-
+    
     <style>
         :root {
             --glass-blur: 16px; 
@@ -61,7 +61,7 @@
         html { background-color: #0c0b0a; margin: 0; overflow-x: hidden; }
         
         body { 
-            background: radial-gradient(circle at 50% 30%, #1e293b 0%, #020617 100%);
+            background: #000;
             color: #ffffff; min-height: 100vh; font-family: "Noto Serif SC", serif;
         }
 
@@ -73,7 +73,7 @@
             transition: opacity var(--transition-speed) ease-in-out;
             pointer-events: none;
             z-index: -50;
-            background-color: #101214; 
+            background-image: url('https://images.pexels.com/photos/35030856/pexels-photo-35030856.jpeg');
             filter: brightness(0.85) contrast(1.15) sepia(0.05) saturate(0.8);
         }
         
@@ -96,124 +96,252 @@
         }
 
         .layout-container {
-            max-width: 1440px; margin: 0 auto; padding: 5rem 2rem 2rem 2rem;
+            max-width: 1440px; margin: 0 auto; padding: 5rem 2rem;
             position: relative; z-index: 10;
         }
 
-        /* 顶部 Header 样式 */
-        header { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 20px; }
-        header h1 { font-size: 5xl; font-weight: 900; letter-spacing: 0.2em; cursor: default; }
-        header p { font-size: 0.875rem; font-style: italic; color: #aaa; }
-        .header-circle-btn { width:44px; height:44px; border-radius:9999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; cursor:pointer; transition: all 0.3s ease; }
-        .header-circle-btn:hover { border-color: rgba(227,179,65,0.5); color:#e3b341; }
-        .dropdown-menu { opacity:0; visibility:hidden; transform: translateY(10px) scale(0.95); transition: all 0.3s; position:absolute; top:3.5rem; right:0; background: rgba(12,13,17,0.95); border:1px solid rgba(255,255,255,0.1); backdrop-filter: blur(24px); border-radius:20px; padding:1.5rem; z-index:50; min-width:280px; }
-        .dropdown-menu.active { opacity:1; visibility:visible; transform: translateY(0) scale(1); }
+        /* 布局 */
+        .titan-matrix {
+            display: grid; gap: 1.5rem; grid-template-columns: repeat(1, 1fr);
+        }
+
+        @media (min-width: 1024px) {
+            .titan-matrix {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: 240px 240px auto auto auto; 
+                padding-bottom: 8rem;
+            }
+            .card-m1 { grid-column: 1 / span 2; grid-row: 1 / span 2; }
+            .card-m3 { grid-column: 3 / span 2; grid-row: 1; }
+            .card-m2 { grid-column: 3 / span 2; grid-row: 2; }
+            .card-writing { grid-column: 1 / span 4; grid-row: 3; min-height: 380px; }
+            .card-m5 { grid-column: 1 / span 4; grid-row: 4; }
+            .card-m6 { grid-column: 1 / span 4; grid-row: 5; }
+        }
+
+        .glass-cell {
+            background: rgba(20, 25, 30, 0.6); 
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px; padding: 2rem;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative; overflow: hidden;
+        }
+        .glass-cell:hover {
+            border-color: rgba(227, 179, 65, 0.4);
+            transform: translateY(-2px);
+            background: rgba(30, 40, 55, 0.75);
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.7);
+        }
+
+        .precision-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; text-transform: uppercase;
+            letter-spacing: 0.3em; color: rgba(255, 255, 255, 0.4); font-weight: 700;
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+        
+        .watcher-drawer-width { width: 100%; }
+        @media (min-width: 768px) { .watcher-drawer-width { width: 520px; } }
+
+        .auth-glow { color: var(--amber-primary) !important; filter: drop-shadow(0 0 12px var(--amber-primary)); }
+        
+        .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; transform: translateY(15px); }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        .header-circle-btn {
+            width: 44px; height: 44px;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header-circle-btn:hover { border-color: rgba(227, 179, 65, 0.5); color: #e3b341; }
+        
+        .search-pill-expanded {
+            width: 240px !important;
+            border-radius: 9999px !important;
+            padding-left: 1rem;
+            justify-content: flex-start !important;
+        }
+
+        .dropdown-menu {
+            opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute; top: 3.5rem; right: 0;
+            background: rgba(12, 13, 17, 0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(24px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            z-index: 50;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            min-width: 280px;
+        }
+        .dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        
+        .asset-compact-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.3s ease; margin-bottom: 0.5rem;
+        }
+        .asset-compact-item:hover { background: rgba(227, 179, 65, 0.1); border-color: rgba(227, 179, 65, 0.3); transform: translateX(4px); }
+
+        /* 图表布局优化：左右分栏 */
+        .chart-wrapper { 
+            position: relative; width: 100%; height: 100%; 
+            display: flex; align-items: center; 
+        }
+        .pie-layout {
+            display: flex; width: 100%; height: 100%;
+            align-items: center; justify-content: space-between;
+        }
+        .pie-chart {
+            width: 140px; height: 140px; border-radius: 50%;
+            position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+            background: #222; /* 初始底色 */
+        }
+        .pie-chart::after {
+            content: ''; position: absolute; inset: 40px; background: #15181e; border-radius: 50%;
+        }
+        .pie-label-container { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; z-index: 10; }
+        
+        .pie-legend { 
+            display: flex; flex-direction: column; gap: 0.6rem; 
+            padding-left: 1.5rem; border-left: 1px solid rgba(255,255,255,0.05);
+            flex-grow: 1;
+        }
+        .legend-item { 
+            display: flex; align-items: center; justify-content: space-between;
+            font-family: 'JetBrains Mono'; font-size: 11px; color: rgba(255,255,255,0.7); 
+            width: 100%;
+        }
+        .legend-key { display: flex; align-items: center; gap: 0.5rem; }
+        .legend-dot { width: 6px; height: 6px; border-radius: 2px; }
+        .legend-val { color: #fff; opacity: 0.9; }
+
+        svg.trend-chart { width: 100%; height: 100%; overflow: visible; }
+        .trend-line { 
+            fill: none; stroke: var(--amber-primary); stroke-width: 2; 
+            stroke-linecap: round; stroke-linejoin: round; 
+            stroke-dasharray: 1000; stroke-dashoffset: 1000; 
+            animation: dash 2.5s ease-out forwards; 
+            filter: drop-shadow(0 0 4px var(--amber-primary)); 
+        }
+        .trend-area { fill: url(#grad1); stroke: none; opacity: 0; animation: fadeIn 1s ease-out 1s forwards; }
+        .grid-line { stroke: rgba(255,255,255,0.05); stroke-width: 1; }
+        .trend-point { fill: #0c0b0a; stroke: var(--amber-primary); stroke-width: 2; r: 0; transition: all 0.2s; cursor: pointer; animation: popIn 0.5s ease-out forwards; animation-delay: 2s; }
+        .trend-point:hover { r: 6; fill: white; }
+        @keyframes popIn { to { r: 3; } }
+
+        .fab-publish {
+            position: fixed; bottom: 40px; right: 40px;
+            width: 64px; height: 64px; background: var(--amber-primary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 30px rgba(227, 179, 65, 0.3); color: #000; font-size: 24px;
+            cursor: pointer; z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0; pointer-events: none; transform: scale(0.8);
+        }
+        .fab-publish.visible { opacity: 1; pointer-events: auto; transform: scale(1); }
+        .fab-publish:hover { transform: scale(1.1) rotate(90deg); }
+        .header-btn-container { position: relative; }
     </style>
 </head>
 <body class="opacity-0 animate-fade-in-pro">
 
     <div id="bg-layer-1" class="bg-layer"></div>
-    <div id="bg-layer-2" class="bg-layer" style="opacity:0"></div>
     <div class="snow-blizzard"></div>
     <div class="vignette"></div>
 
     <div class="layout-container">
-        <!-- Header -->
-        <header class="flex flex-col lg:flex-row justify-between items-end gap-10 mb-10">
+        <!-- 头部 -->
+        <header class="flex flex-col lg:flex-row justify-between items-end gap-10 mb-20">
             <div class="w-full">
-                <h1 class="hover:text-amber-500 transition-all duration-1000">流光存根</h1>
-                <p>具体的生活，是抵御虚无的最后一道防线。</p>
+                <h1 class="text-5xl lg:text-7xl font-black tracking-[0.2em] font-serif mb-8 hover:text-amber-500 transition-all duration-1000">流光存根</h1>
+                <div class="h-px w-64 bg-gradient-to-r from-amber-500/60 to-transparent mb-5"></div>
+                <p class="text-xs lg:text-sm text-gray-400 italic font-serif opacity-80 tracking-[0.25em] leading-loose">
+                    具体的生活，是抵御虚无的最后一道防线。
+                </p>
             </div>
             
-            <div class="flex items-center gap-4 relative">
-                <!-- Search -->
-                <div id="searchPill" class="header-circle-btn overflow-hidden w-11 h-11" onclick="GardenOS.ui.activateSearch()">
-                    <i id="searchIcon" class="ri-search-line text-lg text-white/50"></i>
-                    <input type="text" id="headerSearchInput" onkeyup="GardenOS.ui.search(this.value)" onblur="GardenOS.ui.deactivateSearch()" class="hidden w-full bg-transparent border-0 outline-none text-xs font-mono text-white placeholder-white/30 h-full ml-2" placeholder="SEARCH...">
-                </div>
-                <!-- AI Button -->
-                <div id="aiBtn" onclick="GardenOS.ui.toggleDropdown('aiMenu')" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50">
-                     <i class="ri-brain-line text-lg"></i>
-                </div>
-                <div id="aiMenu" class="dropdown-menu">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <span class="text-[10px] font-mono tracking-widest text-amber-500">DEEPSEEK_ONLINE</span>
-                        <span id="aiUsageText" class="text-[9px] text-gray-500 ml-auto">0/15</span>
+            <div class="flex flex-col items-end gap-5">
+                <div id="clockDisplay" class="font-mono text-[14px] text-amber-500 font-bold tracking-[0.4em] mb-1 drop-shadow-glow">00:00:00</div>
+                
+                <div class="flex items-center gap-4 relative">
+                    <!-- 1. 搜索 -->
+                    <div class="header-btn-container relative">
+                        <div id="searchPill" class="header-circle-btn overflow-hidden w-11 h-11" onclick="GardenOS.ui.activateSearch()">
+                            <i id="searchIcon" class="ri-search-line text-lg text-white/50"></i>
+                            <input type="text" id="headerSearchInput" onkeyup="GardenOS.ui.search(this.value)" onblur="GardenOS.ui.deactivateSearch()" class="hidden w-full bg-transparent border-0 outline-none text-xs font-mono text-white placeholder-white/30 h-full ml-2" placeholder="SEARCH...">
+                        </div>
                     </div>
-                    <div class="h-48 overflow-y-auto custom-scroll mb-4 border border-white/5 rounded-xl p-3 bg-black/20 text-xs text-gray-300 font-serif leading-relaxed" id="aiChatLog">
-                        <span class="opacity-50">神经链路已连接。<br>正在读取全站数据...<br>就绪。</span>
+                    <!-- 2. AI -->
+                    <div class="header-btn-container relative">
+                        <div id="aiBtn" onclick="GardenOS.ui.toggleDropdown('aiMenu')" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50">
+                             <i class="ri-brain-line text-lg"></i>
+                        </div>
+                        <div id="aiMenu" class="dropdown-menu">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                <span class="text-[10px] font-mono tracking-widest text-amber-500">DEEPSEEK_ONLINE</span>
+                                <span id="aiUsageText" class="text-[9px] text-gray-500 ml-auto">0/15</span>
+                            </div>
+                            <div class="h-48 overflow-y-auto custom-scroll mb-4 border border-white/5 rounded-xl p-3 bg-black/20 text-xs text-gray-300 font-serif leading-relaxed" id="aiChatLog">
+                                <span class="opacity-50">神经链路已连接。<br>读取本站数据中...<br>就绪。</span>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="aiHeaderInput" onkeypress="GardenOS.api.handleAIInput(event)" class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-3 pr-8 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="Ask AI...">
+                                <i class="ri-corner-down-left-line absolute right-2 top-2 text-white/20 text-xs"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div class="relative">
-                        <input type="text" id="aiHeaderInput" onkeypress="GardenOS.api.handleAIInput(event)" class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-3 pr-8 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="Ask AI...">
-                        <i class="ri-corner-down-left-line absolute right-2 top-2 text-white/20 text-xs"></i>
+                    <!-- 3. 联系方式 -->
+                    <div class="header-btn-container relative">
+                        <div id="contactBtn" onclick="GardenOS.ui.toggleDropdown('contactMenu')" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50">
+                             <i class="ri-signal-tower-line text-lg"></i>
+                        </div>
+                        <div id="contactMenu" class="dropdown-menu">
+                             <div class="flex flex-col gap-3">
+                                 <div class="group/c">
+                                     <div class="text-amber-500/60 text-[9px] font-mono tracking-[0.2em] mb-1">EMAIL</div>
+                                     <span class="text-sm font-serif text-white select-all border-b border-transparent group-hover/c:border-amber-500 transition-all">zjx207656@gmail.com</span>
+                                 </div>
+                                 <div class="group/c">
+                                     <div class="text-amber-500/60 text-[9px] font-mono tracking-[0.2em] mb-1">WECHAT</div>
+                                     <span class="text-sm font-serif text-white select-all border-b border-transparent group-hover/c:border-amber-500 transition-all">Zj_6174</span>
+                                 </div>
+                             </div>
+                        </div>
                     </div>
-                </div>
-                <!-- Login -->
-                <div onclick="GardenOS.ui.toggleLogin(true)" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50 cursor-pointer" title="Login">
-                     <i id="lockIcon" class="ri-user-3-line text-lg"></i>
+                    <!-- 4. 季节 -->
+                    <div class="header-circle-btn h-11 w-11 text-white/50 cursor-default" title="Winter">
+                         <span id="linkDot" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    </div>
+                    <!-- 5. 登录 -->
+                    <div onclick="GardenOS.ui.toggleLogin(true)" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50 cursor-pointer" title="Login">
+                         <i id="lockIcon" class="ri-user-3-line text-lg"></i>
+                    </div>
                 </div>
             </div>
         </header>
 
-    <script>
-        const ASSET_MANIFEST = { winter: { night: ['1518536862590-b0c6096054d5'], morning: [], noon: [], sunset: [] } };
-
-        const GardenOS = {
-            config: { secret: 'Zjx207661', storageKey: 'garden_v62_4_db', deepSeekApiKey: 'sk-437d432e53664e489b60a9349619a879', dailyLimit: 15 },
-            state: { isAuthorized: false, currentSeason: 'winter', currentPhase: 'night', activeBgLayer: 1 },
-
-            api: {
-                getUsage() { const t=new Date().toDateString(), u=JSON.parse(localStorage.getItem('garden_ai_usage')||'{}'); return u.date!==t?{date:t,count:0}:u; },
-                updateUsage(c) { localStorage.setItem('garden_ai_usage', JSON.stringify({date:new Date().toDateString(),count:c})); document.getElementById('aiUsageText').innerText=`${c}/15`; },
-                async handleAIInput(e) {
-                    if(e.key==='Enter'){
-                        const val=e.target.value.trim(); if(!val) return;
-                        const usage=this.getUsage();
-                        if(usage.count>=GardenOS.config.dailyLimit){ alert("Limit reached"); return; }
-                        const log=document.getElementById('aiChatLog'); log.innerHTML+=`<div class="mb-2 text-white">> ${val}</div>`; e.target.value='';
-                        const res=await this.callDeepSeek(val,""); log.innerHTML+=`<div class="mb-4 text-amber-500 text-xs font-mono">${res}</div>`;
-                        this.updateUsage(usage.count+1);
-                    }
-                },
-                async callDeepSeek(p,c){
-                    if(!GardenOS.config.deepSeekApiKey) return "[OFFLINE]";
-                    try{
-                        const r=await fetch('https://api.deepseek.com/chat/completions',{
-                            method:'POST',
-                            headers:{'Content-Type':'application/json','Authorization':`Bearer ${GardenOS.config.deepSeekApiKey}`},
-                            body:JSON.stringify({model:"deepseek-chat",messages:[{role:"system",content:c},{role:"user",content:p}]})
-                        });
-                        const d=await r.json(); return d.choices[0].message.content;
-                    }catch(e){ return "Error: "+e.message; }
-                }
-            },
-
-            ui: {
-                activateSearch(){ document.getElementById('searchPill').style.width='240px'; document.getElementById('headerSearchInput').classList.remove('hidden'); document.getElementById('headerSearchInput').focus(); },
-                deactivateSearch(){ if(!document.getElementById('headerSearchInput').value){ document.getElementById('headerSearchInput').classList.add('hidden'); document.getElementById('searchPill').style.width='44px'; } },
-                search(v){ document.querySelectorAll('.searchable-item').forEach(el=>el.style.display=el.innerText.toLowerCase().includes(v.toLowerCase())?'':'none'); },
-                toggleLogin(s){ document.getElementById('loginModal').style.display=s?'flex':'none'; },
-                toggleDropdown(id){ const el=document.getElementById(id); ['aiMenu'].forEach(mid=>{if(mid!==id) document.getElementById(mid).classList.remove('active');}); el.classList.toggle('active');}
-            },
-
-            environment: {
-                sync(force){ 
-                    const id=ASSET_MANIFEST.winter.night[0]; 
-                    const url=`https://images.unsplash.com/photo-${id}?ixlib=rb-4.0.3&auto=format&fit=crop&q=80&w=2400`;
-                    document.getElementById('bg-layer-1').style.backgroundImage=`url('${url}')`;
-                    document.getElementById('bg-layer-1').style.opacity='1';
-                }
-            }
-        };
-
-        window.addEventListener('load',()=>{ GardenOS.environment.sync(true); });
-    </script>
         <main class="titan-matrix">
             <!-- M1 -->
             <div class="glass-cell card-m1 flex flex-col justify-between group h-full">
                 <div>
-                    <span class="precision-tag text-amber-500">Neural_Scale_v62.4</span>
+                    <span class="precision-tag text-amber-500">Neural_Scale_v63.1</span>
                     <h2 class="text-4xl font-bold font-serif mt-12 mb-8 tracking-wide whitespace-nowrap">生活刻度</h2>
                     <div class="space-y-10">
                         <div>
@@ -271,7 +399,8 @@
                     <button class="flex flex-col items-center gap-5 group/btn searchable-item"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 transition-all shadow-xl">📻</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100">Audio</span></button>
                 </div>
             </div>
-            <!-- M6: 资产终端 (Wealth_Pulse) -->
+
+            <!-- M6: 资产终端 (修复布局) -->
             <div class="glass-cell card-m6 min-h-[440px] overflow-hidden">
                 <div class="flex justify-between items-start mb-14">
                     <span class="precision-tag text-white/30 tracking-[4em] uppercase">Wealth_Pulse</span>
@@ -282,38 +411,38 @@
                     </div>
                 </div>
                 <div class="flex flex-col lg:flex-row gap-12 h-full">
-                    <!-- 左侧资产列表 -->
+                    <!-- 左侧：一列资产 -->
                     <div id="assetList" class="w-full lg:w-1/3 flex flex-col gap-2 pr-2 h-full">
                         <!-- JS 填充 -->
                     </div>
                     
-                    <!-- 右侧可视化 -->
+                    <!-- 右侧：可视化区域 (左右布局) -->
                     <div id="vizContainer" class="w-full lg:w-2/3 bg-black/40 rounded-[48px] border border-white/5 relative overflow-hidden flex flex-col items-center justify-center p-8 shadow-inner">
-                        <!-- 饼图 -->
+                        <!-- 饼图 (默认) -->
                         <div id="pieChart" class="chart-wrapper w-full h-full">
-                            <div class="pie-layout">
-                                <div class="pie-chart"></div>
-                                <div class="pie-legend">
-                                    <div class="legend-item"><div class="legend-dot bg-[#e3b341]"></div> <span id="legFunds">FUNDS 77%</span></div>
-                                    <div class="legend-item"><div class="legend-dot bg-[#10b981]"></div> <span id="legStocks">STOCKS 0%</span></div>
-                                    <div class="legend-item"><div class="legend-dot bg-[#3b82f6]"></div> <span id="legCrypto">CRYPTO 16%</span></div>
-                                    <div class="legend-item"><div class="legend-dot bg-[#a8a29e]"></div> <span id="legMetal">METAL 7%</span></div>
+                             <div class="pie-layout">
+                                <!-- Chart -->
+                                <div class="relative flex-shrink-0">
+                                    <div class="pie-chart"></div>
+                                    <div class="pie-label-container absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                        <span class="text-xl font-mono font-bold text-white mb-1" id="totalAssetVal">910</span>
+                                        <span class="text-[9px] tracking-widest text-white/50 uppercase">Total</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="pie-label-container absolute" style="left: -80px;">
-                                <span class="text-xl font-mono font-bold text-white mb-1">Total</span>
-                            </div>
+                                <!-- Legend (Right Side) -->
+                                <div class="pie-legend">
+                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#e3b341]"></div> FUNDS</div> <span id="legFundsVal" class="legend-val">0</span></div>
+                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#10b981]"></div> STOCKS</div> <span id="legStocksVal" class="legend-val">0</span></div>
+                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#3b82f6]"></div> CRYPTO</div> <span id="legCryptoVal" class="legend-val">0</span></div>
+                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#a8a29e]"></div> METAL</div> <span id="legMetalVal" class="legend-val">0</span></div>
+                                </div>
+                             </div>
                         </div>
                         
                         <!-- 趋势图 -->
                         <div id="trendChart" class="chart-wrapper hidden w-full h-full relative p-4">
                             <svg class="trend-chart" viewBox="0 0 300 150">
-                                <defs>
-                                    <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" style="stop-color:rgb(227, 179, 65);stop-opacity:0.2" />
-                                        <stop offset="100%" style="stop-color:rgb(227, 179, 65);stop-opacity:0" />
-                                    </linearGradient>
-                                </defs>
+                                <defs><linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:rgb(227, 179, 65);stop-opacity:0.2" /><stop offset="100%" style="stop-color:rgb(227, 179, 65);stop-opacity:0" /></linearGradient></defs>
                                 <path class="trend-area" d="" fill="url(#grad1)"/>
                                 <polyline class="trend-line" points="" style="fill:none;stroke:#e3b341;stroke-width:2;" />
                             </svg>
@@ -323,11 +452,11 @@
                 </div>
             </div>
         </main>
-
+        
         <div id="fabPublish" onclick="GardenOS.ui.toggleWatcher(true)" class="fab-publish"><i class="ri-add-line"></i></div>
     </div>
 
-    <!-- 侧边栏 WATCHER -->
+    <!-- 侧边栏 -->
     <aside id="watcherDrawer" class="fixed top-0 right-[-100%] h-full bg-[#0c0b0a]/98 backdrop-blur-3xl border-l border-white/10 z-[200] transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) p-12 flex flex-col no-scrollbar shadow-3xl overflow-y-auto watcher-drawer-width">
         <div class="flex justify-between items-center mb-12">
             <h2 class="text-3xl font-serif italic font-black tracking-[0.2em] uppercase text-white">COMMAND_CTR</h2>
@@ -335,103 +464,295 @@
         </div>
         <div class="flex-grow flex flex-col">
             <div id="adminPostArea" class="hidden mb-12 p-8 bg-white/[0.02] border border-amber-500/20 rounded-[48px] space-y-6 animate-fade-in-pro shadow-2xl">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="precision-tag text-amber-500 font-black tracking-[0.5em] uppercase">Control_Matrix</span>
-                    <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"></div>
-                </div>
+                <div class="flex justify-between items-center mb-4"><span class="precision-tag text-amber-500 font-black tracking-[0.5em] uppercase">Control_Matrix</span><div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"></div></div>
                 <div class="space-y-5">
-                    <select id="postTarget" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500 cursor-pointer">
-                        <option value="memo">碎碎念</option>
-                        <option value="writing">写作区</option>
-                        <option value="ingest">摄入区</option>
-                        <option value="sensory">感官区</option>
-                        <option value="assets">资产区</option>
-                        <option value="status">生命体征</option>
-                    </select>
+                    <select id="postTarget" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500 cursor-pointer"><option value="memo">碎碎念</option><option value="writing">写作区</option><option value="ingest">摄入区</option><option value="sensory">感官区</option><option value="assets">资产区</option><option value="status">生命体征</option></select>
                     <input type="text" id="postTitle" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="TITLE / BOOK NAME / WEIGHT">
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="linkText" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="LABEL / ENTROPY">
-                        <input type="text" id="linkUrl" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="URL">
-                    </div>
+                    <div class="grid grid-cols-2 gap-4"><input type="text" id="linkText" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="LABEL / ENTROPY"><input type="text" id="linkUrl" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="URL"></div>
                     <input type="text" id="postImage" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="IMAGE_URL / VITALITY">
                     <textarea id="postContent" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-serif italic text-gray-300 outline-none focus:border-amber-500 h-36" placeholder="Content..."></textarea>
                     <button onclick="GardenOS.cms.createPost()" class="w-full py-5 bg-amber-500 text-black font-black uppercase tracking-[0.8em] text-[10px] rounded-2xl shadow-glow active:scale-95 transition-all">EXECUTE_PUBLISH</button>
                 </div>
             </div>
-            <div id="aiResponseSide" class="min-h-[120px] font-serif italic text-gray-400 p-8 bg-white/[0.01] rounded-[32px] border-l-4 border-white/10 mb-8 leading-relaxed text-sm">
-                <span class="text-white/20 font-mono">SYSTEM_LOG:</span> 等待发布指令...
-            </div>
+            <div id="aiResponseSide" class="min-h-[120px] font-serif italic text-gray-400 p-8 bg-white/[0.01] rounded-[32px] border-l-4 border-white/10 mb-8 leading-relaxed text-sm"><span class="text-white/20 font-mono">SYSTEM_LOG:</span> 等待发布指令...</div>
         </div>
     </aside>
 
-    <!-- 登录模态 -->
     <div id="loginModal" class="fixed inset-0 bg-black/98 z-[500] hidden items-center justify-center p-6 backdrop-blur-3xl">
         <div class="bg-[#0c0d11] p-12 rounded-[56px] border border-white/10 w-full max-w-md text-center shadow-3xl relative overflow-hidden">
             <span class="precision-tag mb-10 block tracking-[0.6em] text-amber-500 font-black relative z-10">Root_Identity_Auth</span>
             <input type="password" id="authKeyInput" class="w-full bg-white/5 border border-white/10 rounded-[32px] p-8 text-center text-2xl font-mono text-white mb-10 tracking-[0.5em] focus:border-amber-500 outline-none shadow-inner relative z-10">
-            <div class="flex gap-5 relative z-10">
-                <button onclick="GardenOS.ui.toggleLogin(false)" class="flex-1 precision-tag py-6 hover:text-white transition-all tracking-[0.5em] text-[10px]">Abort</button>
-                <button onclick="GardenOS.auth.verify()" class="flex-1 py-6 bg-white/5 border border-white/10 rounded-[24px] font-black text-amber-500 tracking-[1em] text-[11px] hover:bg-white/10 active:scale-95 transition-all shadow-xl">Connect</button>
-            </div>
+            <div class="flex gap-5 relative z-10"><button onclick="GardenOS.ui.toggleLogin(false)" class="flex-1 precision-tag py-6 hover:text-white transition-all tracking-[0.5em] text-[10px]">Abort</button><button onclick="GardenOS.auth.verify()" class="flex-1 py-6 bg-white/5 border border-white/10 rounded-[24px] font-black text-amber-500 tracking-[1em] text-[11px] hover:bg-white/10 active:scale-95 transition-all shadow-xl">Connect</button></div>
         </div>
     </div>
 
-    <!-- JS 脚本 (背景系统、AI、发布、登录逻辑) -->
     <script>
-        const ASSET_MANIFEST = { 
-            winter: { 
-                night: ['1518536862590-b0c6096054d5', '1478131143081-80f7f84ca84d'], 
-                morning: ['1483921020237-603db42bf712'], 
-                noon: ['1517299321609-52c1da131a1f'], 
-                sunset: ['1519757609205-09d577484df8'] 
-            } 
-        };
-
         const GardenOS = {
-            config: { secret: 'Zjx207661', storageKey: 'garden_v62_4_db', deepSeekApiKey: 'sk-437d432e53664e489b60a9349619a879', dailyLimit: 15 },
-            state: { isAuthorized: false, currentSeason: 'winter', currentPhase: 'night', activeBgLayer: 1, lastLoadedUrl: '' },
-            data: { defaultContent: { assets: [{title:'01 // FUNDS',content:'700.00',val:700},{title:'02 // STOCKS',content:'0.00',val:0},{title:'03 // CRYPTO',content:'150.00',val:150},{title:'04 // METAL',content:'60.00 GR',val:60}], ingest:{title:'《献给阿尔吉侬的花束》',content:'智慧是孤独的解药。'}, memo:'“岁月不语，唯有文字能在大雪中取暖。”'} },
+            config: { secret: 'Zjx207661', storageKey: 'garden_v63_1_db', deepSeekApiKey: 'sk-437d432e53664e489b60a9349619a879', dailyLimit: 15 },
+            data: {
+                defaultContent: {
+                    assets: [
+                        {title: '01 // FUNDS', content: '700.00', val: 700},
+                        {title: '02 // STOCKS', content: '0.00', val: 0},
+                        {title: '03 // CRYPTO', content: '150.00', val: 150},
+                        {title: '04 // METAL', content: '60.00 GR', val: 60}
+                    ],
+                    ingest: { title: '《献给阿尔吉侬的花束》', content: '智慧是孤独的解药。' },
+                    memo: '“岁月不语，唯有文字能在大雪中取暖。”'
+                }
+            },
+            state: { isAuthorized: false, currentSeason: 'winter', currentPhase: 'night' },
 
-            boot() { this.auth.init(); this.environment.sync(true); this.temporal.init(); this.ui.init(); this.cms.renderAll(); setInterval(()=>this.environment.checkUpdate(),30000); },
+            boot() {
+                this.auth.init();
+                this.temporal.init();
+                this.ui.init();
+                this.cms.renderAll();
+                setTimeout(() => this.ui.activateAnimations(), 500); // 延时激活入场动画
+            },
+
+            // --- API (DEEPSEEK) ---
+            api: {
+                getUsage() { const t=new Date().toDateString(), u=JSON.parse(localStorage.getItem('garden_ai_usage')||'{}'); return u.date!==t?{date:t,count:0}:u; },
+                updateUsage(c) { localStorage.setItem('garden_ai_usage', JSON.stringify({date:new Date().toDateString(),count:c})); document.getElementById('aiUsageText').innerText=`${c}/15`; },
+                async handleAIInput(e) {
+                    if (e.key === 'Enter') {
+                        const val = e.target.value.trim(); if (!val) return;
+                        const usage = this.getUsage();
+                        if (usage.count >= GardenOS.config.dailyLimit) { this.typewriter("Limit reached.", `ai_${Date.now()}`); e.target.disabled = true; return; }
+                        const log = document.getElementById('aiChatLog'); log.innerHTML+=`<div class="mb-2 text-white">> ${val}</div>`; e.target.value='';
+                        const lid = Date.now(); log.innerHTML+=`<div id="r_${lid}" class="text-amber-500 mb-4 opacity-50">Thinking...</div>`;
+                        const res = await this.callDeepSeek(val, "");
+                        document.getElementById(`r_${lid}`).remove();
+                        const id = Date.now(); log.innerHTML+=`<div id="res_${id}" class="text-amber-500 mb-4 text-xs font-mono"></div>`;
+                        this.typewriter(res, `res_${id}`);
+                        this.updateUsage(usage.count+1);
+                    }
+                },
+                async callDeepSeek(p, c) {
+                    if(!GardenOS.config.deepSeekApiKey) return "[OFFLINE]";
+                    try {
+                        const r = await fetch('https://api.deepseek.com/chat/completions', { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${GardenOS.config.deepSeekApiKey}`}, body:JSON.stringify({model:"deepseek-chat",messages:[{role:"system",content:c},{role:"user",content:p}]})});
+                        const d = await r.json(); return d.choices[0].message.content;
+                    } catch(e) { return "Error: "+e.message; }
+                },
+                typewriter(t, id) { const el=document.getElementById(id); let i=0; const tm=setInterval(()=>{ if(!el) return clearInterval(tm); el.innerText+=t.charAt(i++); if(i>=t.length) clearInterval(tm); }, 20); }
+            },
 
             auth: {
-                init() { const stored=JSON.parse(localStorage.getItem(GardenOS.config.storageKey)||'{}'); if(stored.isAuthorized){ GardenOS.state.isAuthorized=true; GardenOS.ui.updateAuthUI(true); } },
-                verify() { const val=document.getElementById('authKeyInput').value; if(val===GardenOS.config.secret){ GardenOS.state.isAuthorized=true; localStorage.setItem(GardenOS.config.storageKey, JSON.stringify({isAuthorized:true})); GardenOS.ui.toggleLogin(false); GardenOS.ui.updateAuthUI(true);} }
+                init() {
+                    const stored = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    if(stored.isAuthorized) { GardenOS.state.isAuthorized = true; GardenOS.ui.updateAuthUI(true); }
+                },
+                verify() {
+                    const val = document.getElementById('authKeyInput').value;
+                    if (val === GardenOS.config.secret) {
+                        GardenOS.state.isAuthorized = true;
+                        localStorage.setItem(GardenOS.config.storageKey, JSON.stringify({isAuthorized:true}));
+                        GardenOS.ui.toggleLogin(false); GardenOS.ui.updateAuthUI(true);
+                    } else { /* Error visual */ }
+                }
             },
 
-            temporal: { init(){ this.tick(); setInterval(()=>this.tick(),1000); }, tick(){ const clock=document.getElementById('clockDisplay'); if(clock) clock.innerText=new Date().toLocaleTimeString('en-GB',{hour12:false}); } },
-
-            environment: { 
-                sync(force){ const id=ASSET_MANIFEST.winter.night[0]; const url=`https://images.unsplash.com/photo-${id}?ixlib=rb-4.0.3&auto=format&fit=crop&q=80&w=2400`; document.getElementById('bg-layer-1').style.backgroundImage=`url('${url}')`; document.getElementById('bg-layer-1').style.opacity='1'; },
-                checkUpdate(){}
+            temporal: {
+                init() { this.tick(); setInterval(() => this.tick(), 1000); },
+                tick() { const clock = document.getElementById('clockDisplay'); if(clock) clock.innerText = new Date().toLocaleTimeString('en-GB', { hour12: false }); }
             },
 
-            ui: { 
-                toggleLogin(s){ document.getElementById('loginModal').style.display=s?'flex':'none'; },
-                toggleWatcher(s){ document.getElementById('watcherDrawer').style.right=s?'0':'-100%'; },
-                toggleDropdown(id){ const el=document.getElementById(id); ['contactMenu','aiMenu'].forEach(mid=>{if(mid!==id) document.getElementById(mid).classList.remove('active');}); el.classList.toggle('active'); },
-                toggleWritingDeck(){ document.getElementById('writingCover').classList.toggle('hidden'); document.getElementById('writingList').classList.toggle('hidden'); },
-                activateSearch(){ document.getElementById('searchPill').style.width='240px'; document.getElementById('headerSearchInput').classList.remove('hidden'); document.getElementById('headerSearchInput').focus(); },
-                deactivateSearch(){ if(!document.getElementById('headerSearchInput').value){ document.getElementById('headerSearchInput').classList.add('hidden'); document.getElementById('searchPill').style.width='44px'; } },
-                updateAuthUI(auth){ if(auth){ document.getElementById('lockIcon').className='ri-shield-user-line text-amber-500'; document.getElementById('adminPostArea').classList.remove('hidden'); document.getElementById('fabPublish').classList.add('visible'); } },
-                switchChart(t){ document.getElementById('pieChart').classList.toggle('hidden', t!=='pie'); document.getElementById('trendChart').classList.toggle('hidden', t!=='trend'); document.getElementById('btnPie').className=t==='pie'?'text-[10px] text-amber-500 font-bold transition-colors':'text-[10px] text-white/50 hover:text-amber-500 font-bold transition-colors'; document.getElementById('btnTrend').className=t==='trend'?'text-[10px] text-amber-500 font-bold transition-colors':'text-[10px] text-white/50 hover:text-amber-500 font-bold transition-colors'; }
+            ui: {
+                init() { 
+                    // 修复：确保ID存在后再操作，或什么都不做等待renderAll
+                },
+                activateAnimations() {
+                    document.querySelector('.layout-container').classList.add('opacity-100');
+                },
+                toggleLogin(s) { document.getElementById('loginModal').style.display=s?'flex':'none'; },
+                toggleWatcher(s) { document.getElementById('watcherDrawer').style.right=s?'0':'-100%'; },
+                toggleDropdown(id) { const el = document.getElementById(id); ['contactMenu', 'aiMenu'].forEach(mid => { if (mid !== id) document.getElementById(mid).classList.remove('active'); }); el.classList.toggle('active'); },
+                toggleWritingDeck() { document.getElementById('writingCover').classList.toggle('hidden'); document.getElementById('writingList').classList.toggle('hidden'); },
+                activateSearch() { document.getElementById('searchPill').style.width='240px'; document.getElementById('headerSearchInput').classList.remove('hidden'); document.getElementById('headerSearchInput').focus(); },
+                deactivateSearch() { if(!document.getElementById('headerSearchInput').value) { document.getElementById('headerSearchInput').classList.add('hidden'); document.getElementById('searchPill').style.width='44px'; } },
+                search(v) { document.querySelectorAll('.searchable-item').forEach(el => el.style.display = el.innerText.toLowerCase().includes(v.toLowerCase())?'':'none'); },
+                updateAuthUI(auth) { if(auth) { document.getElementById('lockIcon').className='ri-shield-user-line text-amber-500'; document.getElementById('adminPostArea').classList.remove('hidden'); document.getElementById('fabPublish').classList.add('visible'); } },
+                
+                switchChart(t) { 
+                    document.getElementById('pieChart').classList.toggle('hidden', t!=='pie'); 
+                    document.getElementById('trendChart').classList.toggle('hidden', t!=='trend'); 
+                    document.getElementById('btnPie').className = t==='pie' ? 'text-[10px] text-amber-500 font-bold transition-colors' : 'text-[10px] text-white/50 hover:text-amber-500 font-bold transition-colors';
+                    document.getElementById('btnTrend').className = t==='trend' ? 'text-[10px] text-amber-500 font-bold transition-colors' : 'text-[10px] text-white/50 hover:text-amber-500 font-bold transition-colors';
+                },
+                
+                drawCharts(total, breakdown) {
+                    const pieEl = document.querySelector('.pie-chart');
+                    if(!pieEl) return;
+                    
+                    const p1 = (breakdown.funds/total)*100 || 0;
+                    const p2 = p1 + (breakdown.stocks/total)*100 || 0;
+                    const p3 = p2 + (breakdown.crypto/total)*100 || 0;
+                    const p4 = p3 + (breakdown.metal/total)*100 || 0; // Should approach 100
+
+                    // 模拟动态加载：0ms后应用渐变
+                    setTimeout(() => {
+                        pieEl.style.background = `conic-gradient(
+                            #e3b341 0% ${p1}%, 
+                            #10b981 ${p1}% ${p2}%, 
+                            #3b82f6 ${p2}% ${p3}%, 
+                            #a8a29e ${p3}% 100%
+                        )`;
+                    }, 100);
+                    
+                    document.getElementById('totalAssetVal').innerText = total;
+
+                    // 更新图例数值
+                    document.getElementById('legFundsVal').innerText = `${breakdown.funds} (${Math.round(p1)}%)`;
+                    document.getElementById('legStocksVal').innerText = `${breakdown.stocks} (${Math.round(p2-p1)}%)`;
+                    document.getElementById('legCryptoVal').innerText = `${breakdown.crypto} (${Math.round(p3-p2)}%)`;
+                    document.getElementById('legMetalVal').innerText = `${breakdown.metal} (${Math.round(100-p3)}%)`;
+
+                    // Trend
+                    const trendData = [];
+                    for(let i=6; i>0; i--) { trendData.push(Math.floor(total * (1 + (Math.random()*0.1-0.05)))); }
+                    trendData.push(total);
+                    const min = Math.min(...trendData) * 0.95;
+                    const max = Math.max(...trendData) * 1.05;
+                    const range = max - min;
+                    const points = trendData.map((val, idx) => {
+                        const x = idx * 50; 
+                        const y = 150 - ((val - min) / range * 130 + 10); 
+                        return `${x},${y}`;
+                    }).join(' ');
+                    
+                    const svg = document.querySelector('.trend-chart');
+                    if(svg) {
+                        const area = svg.querySelector('.trend-area');
+                        const line = svg.querySelector('.trend-line');
+                        const axisContainer = document.getElementById('xAxisLabels');
+                        
+                        if(area) area.setAttribute('d', `M0,150 L${points.split(' ').join(' L')} L300,150 Z`);
+                        if(line) line.setAttribute('points', points);
+                        svg.querySelectorAll('circle').forEach(c => c.remove());
+                        
+                        if(axisContainer) axisContainer.innerHTML = '';
+                        const days = [];
+                        for(let i=6; i>=0; i--) {
+                            const d = new Date(); d.setDate(d.getDate() - i);
+                            days.push(d.toLocaleDateString('en-US', {weekday:'short'}));
+                        }
+
+                        trendData.forEach((val, idx) => {
+                             const x = idx * 50;
+                             const y = 150 - ((val - min) / range * 130 + 10);
+                             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                             circle.setAttribute("cx", x); circle.setAttribute("cy", y); circle.setAttribute("class", "trend-point");
+                             const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+                             title.textContent = `${days[idx]}: ${val}`;
+                             circle.appendChild(title);
+                             svg.appendChild(circle);
+                             
+                             if(axisContainer) {
+                                 const label = document.createElement('div');
+                                 label.className = "text-[9px] text-white/30 font-mono absolute";
+                                 label.style.left = `${(idx/6)*100}%`;
+                                 label.style.transform = "translateX(-50%)";
+                                 label.innerText = days[idx];
+                                 axisContainer.appendChild(label);
+                             }
+                        });
+                    }
+                }
             },
 
-            api: { 
-                getUsage(){ const t=new Date().toDateString(), u=JSON.parse(localStorage.getItem('garden_ai_usage')||'{}'); return u.date!==t?{date:t,count:0}:u; },
-                updateUsage(c){ localStorage.setItem('garden_ai_usage', JSON.stringify({date:new Date().toDateString(),count:c})); document.getElementById('aiUsageText').innerText=`${c}/15`; },
-                async handleAIInput(e){ if(e.key==='Enter'){ const val=e.target.value.trim(); if(!val) return; const usage=this.getUsage(); if(usage.count>=GardenOS.config.dailyLimit){ this.typewriter("Limit reached.",`ai_${Date.now()}`); e.target.disabled=true; return;} const log=document.getElementById('aiChatLog'); log.innerHTML+=`<div class="mb-2 text-white">> ${val}</div>`; e.target.value=''; const lid=Date.now(); log.innerHTML+=`<div id="r_${lid}" class="text-amber-500 mb-4 opacity-50">Thinking...</div>`; const siteData=JSON.parse(localStorage.getItem(GardenOS.config.storageKey)||'{}'); const context=`[Site Data] Weight:${siteData.status?.weight||'55'}kg. Assets: Funds 700.`; const res=await this.callDeepSeek(val,context); document.getElementById(`r_${lid}`).remove(); const id=Date.now(); log.innerHTML+=`<div id="res_${id}" class="text-amber-500 mb-4 text-xs font-mono"></div>`; this.typewriter(res,`res_${id}`); this.updateUsage(usage.count+1);} },
-                async callDeepSeek(p,c){ if(!GardenOS.config.deepSeekApiKey) return "[OFFLINE]"; try{ const r=await fetch('https://api.deepseek.com/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${GardenOS.config.deepSeekApiKey}`},body:JSON.stringify({model:"deepseek-chat",messages:[{role:"system",content:c},{role:"user",content:p}]})}); const d=await r.json(); return d.choices[0].message.content; }catch(e){return "Error: "+e.message;} },
-                typewriter(t,id){ const el=document.getElementById(id); let i=0; const tm=setInterval(()=>{ if(!el) return clearInterval(tm); el.innerText+=t.charAt(i++); if(i>=t.length) clearInterval(tm); },20); }
-            },
+            cms: {
+                createPost() {
+                    if(!GardenOS.state.isAuthorized) return;
+                    const target = document.getElementById('postTarget').value;
+                    const title = document.getElementById('postTitle').value.trim();
+                    const content = document.getElementById('postContent').value.trim();
+                    const lText = document.getElementById('linkText').value.trim();
+                    const lUrl = document.getElementById('linkUrl').value.trim();
+                    const img = document.getElementById('postImage').value.trim();
 
-            cms: { 
-                renderAll(){ /* 用于填充资产/摄入/备忘/写作等 */ },
-                createPost(){ /* 发布逻辑，支持分区及链接 */ }
+                    if (target === 'status') {
+                        const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                        data.status = { weight: title, vitality: img, entropy: lText, quote: content };
+                        localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(data));
+                        GardenOS.cms.renderAll(); return;
+                    }
+
+                    if(!title || !content) return;
+                    const post = { id: Date.now(), target, title, content, link: {text:lText, url:lUrl}, image: img, timestamp: new Date().toLocaleString() };
+                    const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    const posts = data.posts || []; posts.unshift(post); data.posts = posts;
+                    localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(data));
+                    ['postTitle','postContent','linkText','linkUrl','postImage'].forEach(id => document.getElementById(id).value = '');
+                    GardenOS.cms.renderAll();
+                },
+                renderAll() {
+                    const d = JSON.parse(localStorage.getItem(GardenOS.config.storageKey)||'{}');
+                    if(d.status) {
+                        document.getElementById('valWeight').innerText = d.status.weight || '55.0';
+                        document.getElementById('valVitality').innerText = d.status.vitality || '98';
+                        document.getElementById('valEntropy').innerText = d.status.entropy || '95.00%';
+                        document.getElementById('valQuote').innerText = d.status.quote || '万物皆有裂痕...';
+                    }
+                    const posts = d.posts || [];
+                    const c = { memo: document.getElementById('memoList'), ingest: document.getElementById('ingestList'), assets: document.getElementById('assetList') };
+                    
+                    c.memo.innerHTML=''; c.ingest.innerHTML=''; c.assets.innerHTML = ''; 
+
+                    const defAssets = GardenOS.data.defaultContent.assets;
+                    const userAssets = posts.filter(p=>p.target==='assets');
+                    let totalValue = 0;
+                    let breakdown = { funds: 0, stocks: 0, crypto: 0, metal: 0 };
+                    
+                    const assetMix = [];
+                    // User posts first (newest)
+                    userAssets.forEach(p => assetMix.push(p));
+                    // Defaults filler
+                    for(let i=0; i<4; i++) {
+                         // We always want to show the defaults if user hasn't overridden them with *new* posts in that 'slot'.
+                         // But users just add posts to a list.
+                         // Strategy: If user has < 4 posts, fill rest with defaults.
+                         if(assetMix.length < 4) assetMix.push(defAssets[i]); 
+                    }
+                    
+                    // Calc Breakdown & Render List
+                    assetMix.slice(0,4).forEach((p, idx) => {
+                        let valStr = (p.content || p.val || '0').toString().replace(/,/g,'').replace(/[^0-9.]/g, '');
+                        let v = parseFloat(valStr);
+                        if(isNaN(v)) v = 0;
+                        totalValue += v;
+                        
+                        // Map index to category for visualization (Approximation)
+                        if(idx === 0) breakdown.funds = v;
+                        if(idx === 1) breakdown.stocks = v;
+                        if(idx === 2) breakdown.crypto = v;
+                        if(idx === 3) breakdown.metal = v;
+
+                        c.assets.innerHTML += `<div class="asset-compact-item searchable-item"><div class="precision-tag text-amber-500/50">${p.title}</div><div class="text-base font-mono text-white group-hover:text-amber-500 transition-all">${p.content}</div></div>`;
+                    });
+                    
+                    GardenOS.ui.drawCharts(Math.round(totalValue), breakdown);
+
+                    c.ingest.innerHTML = `<div class="group flex gap-5 items-start cursor-pointer mb-6 border-b border-white/5 pb-4 searchable-item"><div class="w-14 h-14 bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 border border-white/5"><img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=100" class="w-full h-full object-cover"></div><div><h4 class="text-sm font-bold font-serif group-hover:text-amber-500 transition-colors">《献给阿尔吉侬的花束》</h4><p class="text-[10px] text-gray-400 mt-1 font-serif">智慧是孤独的解药。</p></div></div>`;
+                    
+                    if(!posts.some(p => p.target === 'memo')) {
+                         c.memo.innerHTML = `<div class="bg-white/5 p-4 rounded-[20px] border border-white/5 opacity-60 text-center"><p class="text-xs text-gray-400 font-serif italic">“岁月不语，唯有文字能在大雪中取暖。”</p></div>`;
+                    }
+                    
+                    posts.forEach(p => {
+                        let img = p.image ? `<img src="${p.image}" class="w-full h-auto object-cover rounded-lg mb-2 opacity-80">` : '';
+                        if(p.target==='memo') {
+                            c.memo.innerHTML += `<div class="group/item bg-white/5 p-6 rounded-[28px] border border-white/5 mb-4 searchable-item"><div class="flex justify-between items-center mb-3"><h4 class="text-sm font-bold">${p.title}</h4><span class="text-[9px] text-white/20">${p.timestamp.split(' ')[0]}</span></div><p class="text-xs text-gray-400">${p.content}</p>${img}</div>`;
+                        } else if(p.target==='ingest') {
+                            c.ingest.innerHTML += `<div class="group flex gap-5 items-start cursor-pointer mb-6 border-b border-white/5 pb-4 last:border-0 searchable-item"><div class="w-14 h-14 bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 border border-white/5"><img src="${p.image||'https://via.placeholder.com/100'}" class="w-full h-full object-cover"></div><div><h4 class="text-sm font-bold group-hover:text-amber-500 transition-colors">${p.title}</h4><p class="text-[10px] text-gray-400 mt-1">${p.content}</p></div></div>`;
+                        }
+                    });
+                }
             }
         };
 
-        window.onload = ()=>{ GardenOS.boot(); };
+        document.addEventListener('DOMContentLoaded', () => GardenOS.boot());
     </script>
 </body>
 </html>
