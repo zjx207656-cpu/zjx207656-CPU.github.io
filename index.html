@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>流光存根 | Digital Garden v62.4 RESTORED</title>
+    <title>流光存根 | Digital Garden v62.3 CHART_AXIS</title>
     
     <!-- 核心 CSS 引擎 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,12 +27,18 @@
                     animation: {
                         'fade-in-pro': 'fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'scan-line': 'scanline 8s linear infinite',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'blizzard': 'blizzard 30s linear infinite',
                         'dash': 'dash 2.5s ease-out forwards',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
                         slideUp: { '0%': { opacity: '0', transform: 'translateY(15px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        blizzard: {
+                            '0%': { backgroundPosition: '0 0, 0 0, 0 0' },
+                            '100%': { backgroundPosition: '400px 1200px, 200px 600px, 100px 400px' }
+                        },
                         dash: { from: { strokeDashoffset: '1000' }, to: { strokeDashoffset: '0' } }
                     }
                 }
@@ -47,6 +53,7 @@
         :root {
             --glass-blur: 16px; 
             --amber-primary: #e3b341;
+            --transition-speed: 2s;
             --surface-color: rgba(20, 25, 30, 0.65);
             --border-color: rgba(255, 255, 255, 0.08);
         }
@@ -54,7 +61,7 @@
         html { background-color: #0c0b0a; margin: 0; overflow-x: hidden; }
         
         body { 
-            background: #020617; 
+            background: radial-gradient(circle at 50% 30%, #1e293b 0%, #020617 100%);
             color: #ffffff; min-height: 100vh; font-family: "Noto Serif SC", serif;
         }
 
@@ -63,23 +70,43 @@
             position: fixed; inset: 0; 
             background-size: cover; background-position: center;
             background-repeat: no-repeat;
-            transition: opacity 3s ease-in-out;
+            transition: opacity var(--transition-speed) ease-in-out;
             pointer-events: none;
             z-index: -50;
-            filter: brightness(0.7) contrast(1.1) saturate(0.8);
+            background-color: #101214; 
+            filter: brightness(0.85) contrast(1.15) sepia(0.05) saturate(0.8);
         }
         
+        /* 时间色温滤镜 */
         #time-color-filter {
-            position: fixed; inset: 0; pointer-events: none; z-index: -45;
-            transition: background-color 5s ease;
+            position: fixed; inset: 0; pointer-events: none; 
+            z-index: -45; transition: background-color 3s linear;
         }
-
-        canvas {
+        
+        /* 雪花/云层 Canvas */
+        #sky-layer {
+            position: fixed; inset: 0; pointer-events: none; z-index: -42;
+        }
+        
+        /* 四季粒子 Canvas */
+        #season-particles {
             position: fixed; inset: 0; pointer-events: none; z-index: -40;
         }
-
+        
+        .snow-blizzard {
+            position: fixed; inset: 0; pointer-events: none; z-index: -45;
+            background-image: 
+                radial-gradient(3px 3px at 100px 50px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(4px 4px at 200px 150px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(2px 2px at 300px 250px, rgba(255,255,255,0.6), transparent);
+            background-size: 500px 500px, 400px 400px, 300px 300px;
+            animation: blizzard 30s linear infinite;
+            opacity: 0.35;
+            mix-blend-mode: screen;
+        }
+        
         .vignette {
-            position: fixed; inset: 0; z-index: -35;
+            position: fixed; inset: 0; z-index: -40;
             background: radial-gradient(circle at center, rgba(0,0,0,0) 20%, rgba(2, 6, 23, 0.7) 100%);
             pointer-events: none;
         }
@@ -89,23 +116,7 @@
             position: relative; z-index: 10;
         }
 
-        /* 玻璃拟态 */
-        .glass-cell {
-            background: rgba(20, 25, 30, 0.6); 
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 32px; padding: 2rem;
-            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative; overflow: hidden;
-        }
-        .glass-cell:hover {
-            border-color: rgba(227, 179, 65, 0.4);
-            transform: translateY(-2px);
-            background: rgba(30, 40, 55, 0.75);
-            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.7);
-        }
-
+        /* 布局 */
         .titan-matrix {
             display: grid; gap: 1.5rem; grid-template-columns: repeat(1, 1fr);
         }
@@ -124,6 +135,22 @@
             .card-m6 { grid-column: 1 / span 4; grid-row: 5; }
         }
 
+        .glass-cell {
+            background: rgba(20, 25, 30, 0.6); 
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px; padding: 2rem;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative; overflow: hidden;
+        }
+        .glass-cell:hover {
+            border-color: rgba(227, 179, 65, 0.4);
+            transform: translateY(-2px);
+            background: rgba(30, 40, 55, 0.75);
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.7);
+        }
+
         .precision-tag {
             font-family: 'JetBrains Mono', monospace;
             font-size: 9px; text-transform: uppercase;
@@ -132,74 +159,122 @@
 
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+        
+        .watcher-drawer-width { width: 100%; }
+        @media (min-width: 768px) { .watcher-drawer-width { width: 520px; } }
+
+        .auth-glow { color: var(--amber-primary) !important; filter: drop-shadow(0 0 12px var(--amber-primary)); }
+        
+        .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; transform: translateY(15px); }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
         .header-circle-btn {
-            width: 44px; height: 44px; border-radius: 9999px;
-            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.3s ease;
+            width: 44px; height: 44px;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .header-circle-btn:hover { border-color: rgba(227, 179, 65, 0.5); color: #e3b341; }
+        
+        .search-pill-expanded {
+            width: 240px !important;
+            border-radius: 9999px !important;
+            padding-left: 1rem;
+            justify-content: flex-start !important;
+        }
 
         .dropdown-menu {
             opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.95);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             position: absolute; top: 3.5rem; right: 0;
-            background: rgba(12, 13, 17, 0.95); border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(24px); border-radius: 20px; padding: 1.5rem; z-index: 50; min-width: 280px;
+            background: rgba(12, 13, 17, 0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(24px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            z-index: 50;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            min-width: 280px;
         }
         .dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        
+        .asset-compact-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.3s ease; margin-bottom: 0.5rem;
+        }
+        .asset-compact-item:hover { background: rgba(227, 179, 65, 0.1); border-color: rgba(227, 179, 65, 0.3); transform: translateX(4px); }
 
         /* 图表样式 */
         .chart-wrapper { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         .pie-chart {
-            width: 160px; height: 160px; border-radius: 50%;
-            position: relative; flex-shrink: 0;
-            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 140px; height: 140px; border-radius: 50%;
+            position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            flex-shrink: 0; margin-right: 2rem;
+            background: #222;
         }
-        .pie-chart::after { 
-            content: ''; position: absolute; inset: 45px; 
-            background: #111418; border-radius: 50%; 
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        .pie-chart::after {
+            content: ''; position: absolute; inset: 40px; background: #15181e; border-radius: 50%;
         }
+        .pie-label-container { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; z-index: 10; }
+        .pie-legend { display: flex; flex-direction: column; gap: 0.8rem; justify-content: center; }
+        .legend-item { display: flex; align-items: center; gap: 0.6rem; font-family: 'JetBrains Mono'; font-size: 11px; color: rgba(255,255,255,0.7); }
+        .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
 
-        .asset-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1rem 1.5rem; background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05); border-radius: 16px;
-            transition: all 0.3s ease;
+        /* SVG Trend Chart Engine */
+        svg.trend-chart { width: 100%; height: 100%; overflow: visible; }
+        .trend-line { 
+            fill: none; stroke: var(--amber-primary); stroke-width: 2; 
+            stroke-linecap: round; stroke-linejoin: round; 
+            stroke-dasharray: 1000; stroke-dashoffset: 1000; 
+            animation: dash 2.5s ease-out forwards; 
+            filter: drop-shadow(0 0 4px var(--amber-primary)); 
         }
-        .asset-item:hover {
-            transform: translateX(6px); background: rgba(227, 179, 65, 0.08);
-            border-color: rgba(227, 179, 65, 0.3);
-        }
+        .trend-area { fill: url(#grad1); stroke: none; opacity: 0; animation: fadeIn 1s ease-out 1s forwards; }
+        .grid-line { stroke: rgba(255,255,255,0.05); stroke-width: 1; }
+        .trend-point { fill: #0c0b0a; stroke: var(--amber-primary); stroke-width: 2; r: 0; transition: all 0.2s; cursor: pointer; animation: popIn 0.5s ease-out forwards; animation-delay: 2s; }
+        .trend-point:hover { r: 6; fill: white; }
+        .axis-text { font-family: 'JetBrains Mono'; font-size: 9px; fill: rgba(255,255,255,0.4); text-anchor: middle; }
+        
+        @keyframes popIn { to { r: 3; } }
 
         .fab-publish {
             position: fixed; bottom: 40px; right: 40px;
             width: 64px; height: 64px; background: var(--amber-primary);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             box-shadow: 0 10px 30px rgba(227, 179, 65, 0.3); color: #000; font-size: 24px;
-            cursor: pointer; z-index: 100; transition: all 0.3s;
+            cursor: pointer; z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             opacity: 0; pointer-events: none; transform: scale(0.8);
         }
         .fab-publish.visible { opacity: 1; pointer-events: auto; transform: scale(1); }
+        .fab-publish:hover { transform: scale(1.1) rotate(90deg); }
     </style>
 </head>
 <body class="opacity-0 animate-fade-in-pro">
 
-    <!-- 环境感知背景系统 -->
+    <!-- 背景系统 -->
     <div id="bg-layer-1" class="bg-layer"></div>
     <div id="bg-layer-2" class="bg-layer" style="opacity:0"></div>
     <div id="time-color-filter"></div>
     <canvas id="sky-layer"></canvas>
     <canvas id="season-particles"></canvas>
+    <div class="snow-blizzard"></div>
     <div class="vignette"></div>
 
     <div class="layout-container">
         <!-- 头部导航 -->
         <header class="flex flex-col lg:flex-row justify-between items-end gap-10 mb-20">
             <div class="w-full">
-                <h1 class="text-5xl lg:text-7xl font-black tracking-[0.2em] font-serif mb-8 hover:text-amber-500 transition-all duration-1000 cursor-pointer" onclick="GardenOS.ui.search('')">流光存根</h1>
+                <h1 class="text-5xl lg:text-7xl font-black tracking-[0.2em] font-serif mb-8 hover:text-amber-500 transition-all duration-1000">流光存根</h1>
                 <div class="h-px w-64 bg-gradient-to-r from-amber-500/60 to-transparent mb-5"></div>
                 <p class="text-xs lg:text-sm text-gray-400 italic font-serif opacity-80 tracking-[0.25em] leading-loose">
                     具体的生活，是抵御虚无的最后一道防线。
@@ -207,37 +282,60 @@
             </div>
             
             <div class="flex flex-col items-end gap-5">
-                <div id="clockDisplay" class="font-mono text-[14px] text-amber-500 font-bold tracking-[0.4em] mb-1">00:00:00</div>
+                <div id="clockDisplay" class="font-mono text-[14px] text-amber-500 font-bold tracking-[0.4em] mb-1 drop-shadow-glow">00:00:00</div>
                 
                 <div class="flex items-center gap-4 relative">
                     <!-- 搜索 -->
-                    <div id="searchPill" class="header-circle-btn overflow-hidden w-11" onclick="GardenOS.ui.activateSearch()">
-                        <i class="ri-search-line text-lg text-white/50"></i>
-                        <input type="text" id="headerSearchInput" onkeyup="GardenOS.ui.search(this.value)" onblur="GardenOS.ui.deactivateSearch()" class="hidden w-full bg-transparent border-0 outline-none text-xs font-mono text-white ml-2" placeholder="SEARCH...">
+                    <div class="header-btn-container relative">
+                        <div id="searchPill" class="header-circle-btn overflow-hidden w-11 h-11" onclick="GardenOS.ui.activateSearch()">
+                            <i id="searchIcon" class="ri-search-line text-lg text-white/50"></i>
+                            <input type="text" id="headerSearchInput" onkeyup="GardenOS.ui.search(this.value)" onblur="GardenOS.ui.deactivateSearch()" class="hidden w-full bg-transparent border-0 outline-none text-xs font-mono text-white placeholder-white/30 h-full ml-2" placeholder="SEARCH...">
+                        </div>
                     </div>
                     <!-- AI -->
-                    <div class="relative">
-                        <div onclick="GardenOS.ui.toggleDropdown('aiMenu')" class="header-circle-btn text-white/50 hover:text-amber-500">
+                    <div class="header-btn-container relative">
+                        <div id="aiBtn" onclick="GardenOS.ui.toggleDropdown('aiMenu')" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50">
                              <i class="ri-brain-line text-lg"></i>
                         </div>
                         <div id="aiMenu" class="dropdown-menu">
                             <div class="flex items-center gap-2 mb-4">
                                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                <span class="text-[10px] font-mono text-amber-500">DEEPSEEK_ONLINE</span>
+                                <span class="text-[10px] font-mono tracking-widest text-amber-500">DEEPSEEK_ONLINE</span>
                                 <span id="aiUsageText" class="text-[9px] text-gray-500 ml-auto">0/15</span>
                             </div>
-                            <div id="aiChatLog" class="h-48 overflow-y-auto custom-scroll mb-4 border border-white/5 rounded-xl p-3 bg-black/20 text-xs text-gray-300 font-serif leading-relaxed">
-                                <span class="opacity-50">神经链路已连接。就绪。</span>
+                            <div class="h-48 overflow-y-auto custom-scroll mb-4 border border-white/5 rounded-xl p-3 bg-black/20 text-xs text-gray-300 font-serif leading-relaxed" id="aiChatLog">
+                                <span class="opacity-50">神经链路已连接。<br>正在读取全站数据...<br>就绪。</span>
                             </div>
-                            <input type="text" id="aiHeaderInput" onkeypress="GardenOS.api.handleAIInput(event)" class="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-xs font-mono text-white outline-none" placeholder="Ask AI...">
+                            <div class="relative">
+                                <input type="text" id="aiHeaderInput" onkeypress="GardenOS.api.handleAIInput(event)" class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-3 pr-8 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="Ask AI...">
+                                <i class="ri-corner-down-left-line absolute right-2 top-2 text-white/20 text-xs"></i>
+                            </div>
                         </div>
                     </div>
-                    <!-- 季节指示器 -->
-                    <div class="header-circle-btn text-white/50 cursor-default" id="seasonIndicator">
-                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    <!-- 联系方式 -->
+                    <div class="header-btn-container relative">
+                        <div id="contactBtn" onclick="GardenOS.ui.toggleDropdown('contactMenu')" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50">
+                             <i class="ri-signal-tower-line text-lg"></i>
+                        </div>
+                        <div id="contactMenu" class="dropdown-menu">
+                             <div class="flex flex-col gap-3">
+                                 <div class="group/c">
+                                     <div class="text-amber-500/60 text-[9px] font-mono tracking-[0.2em] mb-1">EMAIL</div>
+                                     <span class="text-sm font-serif text-white select-all border-b border-transparent group-hover/c:border-amber-500 transition-all">zjx207656@gmail.com</span>
+                                 </div>
+                                 <div class="group/c">
+                                     <div class="text-amber-500/60 text-[9px] font-mono tracking-[0.2em] mb-1">WECHAT</div>
+                                     <span class="text-sm font-serif text-white select-all border-b border-transparent group-hover/c:border-amber-500 transition-all">Zj_6174</span>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
+                    <!-- 季节 -->
+                    <div id="seasonIndicator" class="header-circle-btn h-11 w-11 text-white/50 cursor-default" title="Winter">
+                         <span id="linkDot" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                     </div>
                     <!-- 登录 -->
-                    <div onclick="GardenOS.ui.toggleLogin(true)" class="header-circle-btn text-white/50 hover:text-amber-500">
+                    <div onclick="GardenOS.ui.toggleLogin(true)" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50 cursor-pointer" title="Login">
                          <i id="lockIcon" class="ri-user-3-line text-lg"></i>
                     </div>
                 </div>
@@ -245,17 +343,17 @@
         </header>
 
         <main class="titan-matrix">
-            <!-- M1: 生命体征 -->
+            <!-- M1 -->
             <div class="glass-cell card-m1 flex flex-col justify-between group h-full">
                 <div>
-                    <span class="precision-tag text-amber-500" id="envStatusText">Neural_Scale_v62.4</span>
-                    <h2 class="text-4xl font-bold font-serif mt-12 mb-8 tracking-wide">生活刻度</h2>
+                    <span class="precision-tag text-amber-500">Neural_Scale_v62.3</span>
+                    <h2 class="text-4xl font-bold font-serif mt-12 mb-8 tracking-wide whitespace-nowrap">生活刻度</h2>
                     <div class="space-y-10">
                         <div>
                             <div class="flex justify-between text-[11px] font-mono opacity-40 mb-3 uppercase tracking-[0.5em]"><span>Entropy_Index</span><span id="valEntropy" class="text-amber-500 font-black">95.00%</span></div>
                             <div class="h-[1px] w-full bg-white/10 relative overflow-hidden"><div class="absolute h-full bg-white w-[95%] shadow-[0_0_20px_white]"></div></div>
                         </div>
-                        <p id="valQuote" class="text-lg italic text-gray-300 font-serif leading-relaxed opacity-90 max-w-sm mt-8">“万物皆有裂痕，那是光进来的地方。”</p>
+                        <p id="valQuote" class="text-lg italic text-gray-300 font-serif leading-relaxed opacity-90 max-w-sm mt-8">"万物皆有裂痕，那是光进来的地方。"</p>
                     </div>
                 </div>
                 <div class="flex gap-20 pt-10 border-t border-white/10">
@@ -264,85 +362,91 @@
                 </div>
             </div>
 
-            <!-- M3: 摄入记录 -->
-            <div class="glass-cell card-m3 flex flex-col justify-between">
+            <!-- M3 -->
+            <div id="ingestCard" class="glass-cell card-m3 flex flex-col justify-between">
                 <div class="flex justify-between items-center mb-8"><span class="precision-tag text-white/40">// Ingest_Record</span><i class="ri-book-read-line text-white/20 text-xl"></i></div>
-                <div class="overflow-y-auto custom-scroll h-full pr-3"><div id="ingestList" class="space-y-6"></div></div>
+                <div id="ingestListContainer" class="overflow-y-auto custom-scroll h-full pr-3"><div id="ingestList" class="space-y-6"></div></div>
             </div>
 
-            <!-- M2: 碎碎念 -->
-            <div class="glass-cell card-m2 flex flex-col justify-start">
+            <!-- M2 -->
+            <div id="memoCard" class="glass-cell card-m2 flex flex-col justify-start">
                 <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/10"><span class="precision-tag text-amber-500/60 tracking-widest">Fragmented_Echoes</span><i class="ri-chat-history-line text-white/20 text-xl"></i></div>
                 <div id="memoList" class="w-full h-full overflow-y-auto custom-scroll pr-3 space-y-6 max-h-[160px]"></div>
             </div>
 
-            <!-- Writing: 归档 -->
+            <!-- Writing -->
             <div id="writingDeck" class="glass-cell card-writing flex flex-col justify-center items-center relative overflow-hidden group cursor-pointer" onclick="GardenOS.ui.toggleWritingDeck()">
                 <div class="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors duration-1000"></div>
-                <div id="writingCover" class="text-center relative z-10">
+                <div id="writingCover" class="text-center relative z-10 transition-all duration-700">
                     <i class="ri-quill-pen-line text-4xl text-amber-500 mb-10 block animate-pulse"></i>
-                    <h3 class="text-3xl font-serif italic text-white mb-8 tracking-[0.2em] leading-loose">“文字是捕获时间的网，<br>打捞沉没的岁月。”</h3>
-                    <span class="precision-tag tracking-[1em] text-white/20">Click to open archive</span>
+                    <h3 class="text-3xl lg:text-3xl font-serif italic text-white mb-8 tracking-[0.2em] leading-loose">"文字是捕获时间的网，<br>打捞沉没的岁月。"</h3>
+                    <span class="precision-tag tracking-[1em] text-white/20 uppercase">Click to open archive</span>
                 </div>
-                <div id="writingList" class="hidden w-full max-w-5xl relative z-10 grid grid-cols-1 md:grid-cols-3 gap-10 p-8">
-                    <!-- Writing content will be injected here -->
+                <div id="writingList" class="hidden w-full max-w-5xl relative z-10 animate-fade-in-pro grid grid-cols-1 md:grid-cols-3 gap-10 p-8">
+                     <a href="https://shade-plant-9cc.notion.site/2cd5c4b326c88025b72fd4fd1574d4c9?source=copy_link" target="_blank" class="bg-[#0c0d11]/90 p-10 rounded-[40px] border border-amber-500/20 hover:border-amber-500 hover:bg-black/90 transition-all group/item shadow-3xl relative block transform hover:-translate-y-2 searchable-item">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-500 rounded-l-[40px]"></div>
+                        <div class="flex justify-between items-center mb-6"><h4 class="text-2xl font-serif italic font-bold text-white group-hover/item:text-amber-500">铜川往事</h4><i class="ri-external-link-line text-white/30 group-hover/item:text-amber-500 text-2xl"></i></div>
+                        <p class="text-sm text-gray-400 font-serif leading-loose opacity-80">被折叠的时间碎片，个体在宏大叙事缝隙中的呼吸。</p>
+                        <div class="mt-8"><span class="text-[10px] border border-white/20 px-3 py-1 rounded-full text-white/40 uppercase tracking-wider">Novel</span></div>
+                    </a>
                     <div id="dynamicWritingContainer" class="contents"></div>
                 </div>
             </div>
 
-            <!-- M5: 感官实验室 (已修复交互) -->
+            <!-- M5 -->
             <div class="glass-cell card-m5">
                 <div class="flex justify-between items-center mb-12"><span class="precision-tag text-white/30 tracking-[4em] uppercase">// Sensory_Laboratory</span><i class="ri-eye-2-line text-white/10 text-2xl"></i></div>
                 <div id="sensoryGrid" class="grid grid-cols-2 md:grid-cols-5 gap-10">
-                    <button onclick="GardenOS.ui.search('Anime')" class="flex flex-col items-center gap-5 group/btn cursor-pointer transition-transform hover:scale-105 active:scale-95"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 shadow-xl transition-colors">⛩️</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100 text-amber-500/80">Anime</span></button>
-                    <button onclick="GardenOS.ui.search('Game')" class="flex flex-col items-center gap-5 group/btn cursor-pointer transition-transform hover:scale-105 active:scale-95"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 shadow-xl transition-colors">🕹️</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100 text-amber-500/80">Game</span></button>
-                    <button onclick="GardenOS.ui.search('Film')" class="flex flex-col items-center gap-5 group/btn cursor-pointer transition-transform hover:scale-105 active:scale-95"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 shadow-xl transition-colors">🎬</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100 text-amber-500/80">Film</span></button>
-                    <button onclick="GardenOS.ui.search('Vista')" class="flex flex-col items-center gap-5 group/btn cursor-pointer transition-transform hover:scale-105 active:scale-95"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 shadow-xl transition-colors">🌲</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100 text-amber-500/80">Vista</span></button>
-                    <button onclick="GardenOS.ui.search('Audio')" class="flex flex-col items-center gap-5 group/btn cursor-pointer transition-transform hover:scale-105 active:scale-95"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 shadow-xl transition-colors">📻</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100 text-amber-500/80">Audio</span></button>
+                    <button class="flex flex-col items-center gap-5 group/btn searchable-item"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 transition-all shadow-xl">⛩️</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100">Anime</span></button>
+                    <button class="flex flex-col items-center gap-5 group/btn searchable-item"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 transition-all shadow-xl">🕹️</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100">Game</span></button>
+                    <button class="flex flex-col items-center gap-5 group/btn searchable-item"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 transition-all shadow-xl">🎬</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100">Film</span></button>
+                    <button class="flex flex-col items-center gap-5 group/btn searchable-item"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 transition-all shadow-xl">🌲</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100">Vista</span></button>
+                    <button class="flex flex-col items-center gap-5 group/btn searchable-item"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 transition-all shadow-xl">📻</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100">Audio</span></button>
                 </div>
             </div>
 
             <!-- M6: 资产终端 -->
-            <div class="glass-cell card-m6 min-h-[500px] overflow-hidden">
-                <div class="flex justify-between items-start mb-12">
+            <div class="glass-cell card-m6 min-h-[440px] overflow-hidden">
+                <div class="flex justify-between items-start mb-14">
                     <span class="precision-tag text-white/30 tracking-[4em] uppercase">Wealth_Pulse</span>
                     <div class="flex items-center gap-3">
-                         <button onclick="GardenOS.ui.switchChart('pie')" id="btnPie" class="text-[10px] text-amber-500 font-bold">DISTRIBUTION</button>
+                         <button onclick="GardenOS.ui.switchChart('pie')" id="btnPie" class="text-[10px] text-amber-500 hover:text-white font-bold transition-colors">DISTRIBUTION</button>
                          <span class="text-white/20">|</span>
-                         <button onclick="GardenOS.ui.switchChart('trend')" id="btnTrend" class="text-[10px] text-white/50 font-bold">TREND</button>
+                         <button onclick="GardenOS.ui.switchChart('trend')" id="btnTrend" class="text-[10px] text-white/50 hover:text-amber-500 font-bold transition-colors">TREND</button>
                     </div>
                 </div>
-                <div class="flex flex-col lg:flex-row gap-12 h-full items-center">
-                    <!-- 左侧：动态资产列表 -->
-                    <div id="assetList" class="w-full lg:w-5/12 flex flex-col gap-3 h-full overflow-y-auto custom-scroll max-h-[300px] pr-2">
-                        <!-- JS 自动填充 -->
+                <div class="flex flex-col lg:flex-row gap-12 h-full">
+                    <!-- 左侧：一列资产 -->
+                    <div id="assetList" class="w-full lg:w-1/3 flex flex-col gap-2 pr-2 h-full">
+                        <!-- JS 填充 -->
                     </div>
                     
-                    <!-- 右侧：可视化核心 -->
-                    <div id="vizContainer" class="w-full lg:w-7/12 bg-black/40 rounded-[48px] border border-white/5 relative overflow-hidden flex flex-col items-center justify-center p-8 min-h-[340px]">
-                        <!-- 动态饼图 -->
-                        <div id="pieChart" class="chart-wrapper">
-                            <div class="pie-chart shadow-2xl"></div>
-                            <div class="absolute text-center z-20 pointer-events-none">
-                                <span class="text-2xl font-mono font-black text-white block tracking-tighter" id="totalAssetValue">0</span>
-                                <span class="text-[9px] text-white/40 uppercase tracking-[0.3em] font-mono">Total_Stubs</span>
+                    <!-- 右侧：可视化区域 -->
+                    <div id="vizContainer" class="w-full lg:w-2/3 bg-black/40 rounded-[48px] border border-white/5 relative overflow-hidden flex flex-col items-center justify-center p-8 shadow-inner">
+                        <!-- 饼图 (默认) -->
+                        <div id="pieChart" class="chart-wrapper w-full h-full flex flex-row items-center justify-center">
+                            <div class="pie-chart"></div>
+                            <div class="pie-label-container absolute">
+                                <span class="text-xl font-mono font-bold text-white mb-1">910</span>
+                                <span class="text-[9px] tracking-widest text-white/50 uppercase">Total</span>
                             </div>
-                            <!-- 悬浮图例 -->
-                            <div class="absolute bottom-[-20px] left-0 w-full flex justify-center gap-4 text-[9px] font-mono opacity-60">
-                                <span class="flex items-center gap-1"><i class="ri-checkbox-blank-fill text-amber-500"></i> FUNDS</span>
-                                <span class="flex items-center gap-1"><i class="ri-checkbox-blank-fill text-purple-500"></i> STOCKS</span>
-                                <span class="flex items-center gap-1"><i class="ri-checkbox-blank-fill text-emerald-500"></i> CRYPTO</span>
-                                <span class="flex items-center gap-1"><i class="ri-checkbox-blank-fill text-blue-500"></i> METAL</span>
+                            <div class="pie-legend absolute bottom-4 flex gap-3 text-[9px] text-white/40 font-mono">
+                                <div class="legend-item"><div class="legend-dot bg-amber-500"></div> FUNDS</div>
+                                <div class="legend-item"><div class="legend-dot bg-green-500"></div> CRYPTO</div>
+                                <div class="legend-item"><div class="legend-dot bg-blue-500"></div> METAL</div>
                             </div>
                         </div>
                         
-                        <!-- 趋势图 -->
+                        <!-- 趋势图 (点击切换) -->
                         <div id="trendChart" class="chart-wrapper hidden w-full h-full p-4 relative">
-                            <svg class="w-full h-full overflow-visible" viewBox="0 0 300 150" id="trendSvg">
-                                <path id="trendArea" fill="rgba(227, 179, 65, 0.05)" d=""/>
-                                <polyline id="trendLine" fill="none" stroke="#e3b341" stroke-width="2" points=""/>
+                            <svg class="trend-chart" viewBox="0 0 300 150">
+                                <defs><linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:rgb(227, 179, 65);stop-opacity:0.2" /><stop offset="100%" style="stop-color:rgb(227, 179, 65);stop-opacity:0" /></linearGradient></defs>
+                                <path class="trend-area" d="M0,150 L0,150 L300,150 Z" fill="url(#grad1)"/>
+                                <polyline class="trend-line" points="" style="fill:none;stroke:#e3b341;stroke-width:2;" />
+                                <!-- JS Will Inject Text Labels -->
                             </svg>
-                            <div id="xAxisLabels" class="absolute bottom-2 left-0 w-full flex justify-between px-2"></div>
+                            <!-- X Axis Labels Container -->
+                            <div id="xAxisLabels" class="absolute bottom-2 left-0 w-full flex justify-between px-2 pointer-events-none"></div>
                         </div>
                     </div>
                 </div>
@@ -353,354 +457,862 @@
         <div id="fabPublish" onclick="GardenOS.ui.toggleWatcher(true)" class="fab-publish"><i class="ri-add-line"></i></div>
     </div>
 
-    <!-- 侧边栏：发布中心 (全字段回归) -->
-    <aside id="watcherDrawer" class="fixed top-0 right-[-100%] h-full bg-[#0c0b0a]/98 backdrop-blur-3xl border-l border-white/10 z-[200] transition-all duration-1000 p-12 flex flex-col shadow-3xl overflow-y-auto w-full md:w-[520px]">
+    <!-- 侧边栏：发布中心 -->
+    <aside id="watcherDrawer" class="fixed top-0 right-[-100%] h-full bg-[#0c0b0a]/98 backdrop-blur-3xl border-l border-white/10 z-[200] transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) p-12 flex flex-col no-scrollbar shadow-3xl overflow-y-auto watcher-drawer-width">
         <div class="flex justify-between items-center mb-12">
-            <h2 class="text-3xl font-serif italic font-black tracking-[0.2em] text-white">COMMAND_CTR</h2>
-            <button onclick="GardenOS.ui.toggleWatcher(false)" class="p-4 text-2xl text-gray-500 hover:text-white">✕</button>
+            <h2 class="text-3xl font-serif italic font-black tracking-[0.2em] uppercase text-white">COMMAND_CTR</h2>
+            <button onclick="GardenOS.ui.toggleWatcher(false)" class="p-4 text-2xl text-gray-500 hover:text-white transition-all hover:rotate-90">✕</button>
         </div>
-        <div id="adminPostArea" class="hidden space-y-6">
-            <p class="precision-tag text-amber-500">// Execute_New_Stub</p>
-            <select id="postTarget" class="w-full bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white focus:border-amber-500 outline-none">
-                <option value="memo">碎碎念</option>
-                <option value="writing">写作区 (需链接)</option>
-                <option value="ingest">摄入区 (需封面)</option>
-                <option value="assets">资产分类 (01-04)</option>
-                <option value="status">生命体征</option>
-            </select>
-            <input type="text" id="postTitle" class="w-full bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white" placeholder="TITLE / CLASSIFICATION (e.g. 01 // FUNDS)">
-            
-            <!-- 恢复的链接字段 -->
-            <div class="grid grid-cols-2 gap-4">
-                <input type="text" id="postLinkText" class="bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white" placeholder="TAG / LABEL">
-                <input type="text" id="postLinkUrl" class="bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white" placeholder="URL (https://...)">
+        <div class="flex-grow flex flex-col">
+            <div id="adminPostArea" class="hidden mb-12 p-8 bg-white/[0.02] border border-amber-500/20 rounded-[48px] space-y-6 animate-fade-in-pro shadow-2xl">
+                <div class="flex justify-between items-center mb-4"><span class="precision-tag text-amber-500 font-black tracking-[0.5em] uppercase">Control_Matrix</span><div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"></div></div>
+                <div class="space-y-5">
+                    <select id="postTarget" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500 cursor-pointer"><option value="memo">碎碎念</option><option value="writing">写作区</option><option value="ingest">摄入区</option><option value="sensory">感官区</option><option value="assets">资产区</option><option value="status">生命体征</option></select>
+                    <input type="text" id="postTitle" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="TITLE / BOOK NAME / WEIGHT">
+                    <div class="grid grid-cols-2 gap-4"><input type="text" id="linkText" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="LABEL / ENTROPY"><input type="text" id="linkUrl" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="URL"></div>
+                    <input type="text" id="postImage" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="IMAGE_URL / VITALITY">
+                    <textarea id="postContent" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-serif italic text-gray-300 outline-none focus:border-amber-500 h-36" placeholder="Content..."></textarea>
+                    <button onclick="GardenOS.cms.createPost()" class="w-full py-5 bg-amber-500 text-black font-black uppercase tracking-[0.8em] text-[10px] rounded-2xl shadow-glow active:scale-95 transition-all">EXECUTE_PUBLISH</button>
+                </div>
             </div>
-
-            <!-- 恢复的图片/数值混合字段 -->
-            <input type="text" id="postValue" class="w-full bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white" placeholder="IMAGE_URL (Cover) OR NUMERIC VALUE (Asset)">
-            
-            <textarea id="postContent" class="w-full bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white h-32" placeholder="DESCRIPTION / CONTENT..."></textarea>
-            <button onclick="GardenOS.cms.createPost()" class="w-full py-5 bg-amber-500 text-black font-black uppercase tracking-[0.8em] text-[10px] rounded-2xl active:scale-95 transition-all">EXECUTE_PUBLISH</button>
+            <div id="aiResponseSide" class="min-h-[120px] font-serif italic text-gray-400 p-8 bg-white/[0.01] rounded-[32px] border-l-4 border-white/10 mb-8 leading-relaxed text-sm"><span class="text-white/20 font-mono">SYSTEM_LOG:</span> 等待发布指令...</div>
         </div>
     </aside>
 
     <div id="loginModal" class="fixed inset-0 bg-black/98 z-[500] hidden items-center justify-center p-6 backdrop-blur-3xl">
-        <div class="bg-[#0c0d11] p-12 rounded-[56px] border border-white/10 w-full max-w-md text-center shadow-3xl">
-            <span class="precision-tag mb-10 block text-amber-500">Root_Identity_Auth</span>
-            <input type="password" id="authKeyInput" class="w-full bg-white/5 border border-white/10 rounded-[32px] p-8 text-center text-2xl font-mono text-white mb-10 outline-none">
-            <div class="flex gap-5"><button onclick="GardenOS.ui.toggleLogin(false)" class="flex-1 text-[10px] uppercase opacity-40">Abort</button><button onclick="GardenOS.auth.verify()" class="flex-1 py-6 bg-white/5 border border-white/10 rounded-[24px] text-amber-500 text-[11px] font-bold">Connect</button></div>
+        <div class="bg-[#0c0d11] p-12 rounded-[56px] border border-white/10 w-full max-w-md text-center shadow-3xl relative overflow-hidden">
+            <span class="precision-tag mb-10 block tracking-[0.6em] text-amber-500 font-black relative z-10">Root_Identity_Auth</span>
+            <input type="password" id="authKeyInput" class="w-full bg-white/5 border border-white/10 rounded-[32px] p-8 text-center text-2xl font-mono text-white mb-10 tracking-[0.5em] focus:border-amber-500 outline-none shadow-inner relative z-10">
+            <div class="flex gap-5 relative z-10"><button onclick="GardenOS.ui.toggleLogin(false)" class="flex-1 precision-tag py-6 hover:text-white transition-all tracking-[0.5em] text-[10px]">Abort</button><button onclick="GardenOS.auth.verify()" class="flex-1 py-6 bg-white/5 border border-white/10 rounded-[24px] font-black text-amber-500 tracking-[1em] text-[11px] hover:bg-white/10 active:scale-95 transition-all shadow-xl">Connect</button></div>
         </div>
     </div>
 
     <script>
-        /* --- 全环境感知引擎配置 --- */
+        // =========================================================
+        // 完整的环境系统配置
+        // =========================================================
         const ASSET_MANIFEST = {
-            spring: { morning: ['1490750967868-88aa4486c946'], noon: ['1500530855697-b586d89ba3ee'], sunset: ['1493244040629-496f6d136cc8'], night: ['1502082553048-f009c37129b9'] },
-            summer: { morning: ['1501004318641-b39e6451bec6'], noon: ['1507525428034-b723cf961d3e'], sunset: ['1501973801540-537f08ccae7b'], night: ['1502082553048-f009c37129b9'] },
-            autumn: { morning: ['1500534314209-a26db0f5b2c1'], noon: ['1476820865390-c52aeebb9891'], sunset: ['1501975558162-0be7c1c2d46a'], night: ['1478144592103-25e218a04891'] },
-            winter: { morning: ['1483921020237-603db42bf712'], noon: ['1517299321609-52c1da131a1f'], sunset: ['1519757609205-09d577484df8'], night: ['1518536862590-b0c6096054d5', '1478131143081-80f7f84ca84d'] }
+            spring: {
+                morning: ['1490750967868-88aa4486c946'],
+                noon: ['1500530855697-b586d89ba3ee'],
+                sunset: ['1493244040629-496f6d136cc8'],
+                night: ['1502082553048-f009c37129b9']
+            },
+            summer: {
+                morning: ['1501004318641-b39e6451bec6'],
+                noon: ['1507525428034-b723cf961d3e'],
+                sunset: ['1501973801540-537f08ccae7b'],
+                night: ['1502082553048-f009c37129b9']
+            },
+            autumn: {
+                morning: ['1500534314209-a26db0f5b2c1'],
+                noon: ['1476820865390-c52aeebb9891'],
+                sunset: ['1501975558162-0be7c1c2d46a'],
+                night: ['1478144592103-25e218a04891']
+            },
+            winter: {
+                morning: ['1483921020237-603db42bf712'],
+                noon: ['1517299321609-52c1da131a1f'],
+                sunset: ['1519757609205-09d577484df8'],
+                night: ['1518536862590-b0c6096054d5', '1478131143081-80f7f84ca84d']
+            }
         };
 
+        // =========================================================
+        // 四季粒子系统
+        // =========================================================
+        const SeasonParticleEngine = {
+            canvas: null, ctx: null, particles: [], season: null,
+
+            init() {
+                this.canvas = document.getElementById('season-particles');
+                if (!this.canvas) return;
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.loop();
+                setInterval(() => this.syncSeason(), 5000);
+            },
+
+            resize() {
+                if (!this.canvas) return;
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            },
+
+            syncSeason() {
+                const currentSeason = GardenOS?.state?.currentSeason || 'winter';
+                if (this.season !== currentSeason) {
+                    this.season = currentSeason;
+                    this.particles = [];
+                    this.spawn();
+                }
+            },
+
+            spawn() {
+                const count = { spring: 60, summer: 40, autumn: 80, winter: 100 }[this.season] || 0;
+                for (let i = 0; i < count; i++) {
+                    this.particles.push(this.create());
+                }
+            },
+
+            create() {
+                const p = {
+                    x: Math.random() * (this.canvas?.width || window.innerWidth),
+                    y: Math.random() * (this.canvas?.height || window.innerHeight),
+                    vy: Math.random() * 0.6 + 0.2,
+                    r: Math.random() * 2 + 1
+                };
+                p.color = {
+                    spring: 'rgba(255,200,220,0.6)',
+                    summer: 'rgba(255,255,200,0.6)',
+                    autumn: 'rgba(200,120,60,0.6)',
+                    winter: 'rgba(255,255,255,0.8)'
+                }[this.season] || 'rgba(255,255,255,0.8)';
+                return p;
+            },
+
+            loop() {
+                if (!this.ctx || !this.canvas) return;
+                
+                requestAnimationFrame(() => this.loop());
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.particles.forEach(p => {
+                    p.y += p.vy;
+                    if (p.y > this.canvas.height) p.y = -10;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+        };
+
+        // =========================================================
+        // 天空/云层系统
+        // =========================================================
+        const SkyEngine = {
+            canvas: null, ctx: null, elements: [], mode: null,
+
+            init() {
+                this.canvas = document.getElementById('sky-layer');
+                if (!this.canvas) return;
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                setInterval(() => this.sync(), 4000);
+                this.loop();
+            },
+
+            resize() {
+                if (!this.canvas) return;
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            },
+
+            sync() {
+                const phase = GardenOS?.state?.currentPhase || 'night';
+                let mode = null;
+                if (phase === 'night') mode = 'stars';
+                else if (phase === 'morning' || phase === 'noon') mode = 'clouds';
+                else mode = 'none';
+
+                if (mode !== this.mode) {
+                    this.mode = mode;
+                    this.elements = [];
+                    this.spawn();
+                }
+            },
+
+            spawn() {
+                if (this.mode === 'stars') {
+                    for (let i = 0; i < 120; i++) {
+                        this.elements.push({
+                            x: Math.random() * (this.canvas?.width || window.innerWidth),
+                            y: Math.random() * (this.canvas?.height || window.innerHeight),
+                            r: Math.random() * 1.2 + 0.3,
+                            a: Math.random(),
+                            da: Math.random() * 0.01 + 0.002
+                        });
+                    }
+                }
+                if (this.mode === 'clouds') {
+                    for (let i = 0; i < 12; i++) {
+                        this.elements.push({
+                            x: Math.random() * (this.canvas?.width || window.innerWidth),
+                            y: Math.random() * (this.canvas?.height || window.innerHeight) * 0.6,
+                            w: Math.random() * 300 + 200,
+                            h: Math.random() * 80 + 40,
+                            vx: Math.random() * 0.15 + 0.05
+                        });
+                    }
+                }
+            },
+
+            loop() {
+                if (!this.ctx || !this.canvas) return;
+                
+                requestAnimationFrame(() => this.loop());
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                if (this.mode === 'stars') {
+                    this.elements.forEach(s => {
+                        s.a += s.da;
+                        if (s.a > 1 || s.a < 0) s.da *= -1;
+                        this.ctx.fillStyle = `rgba(255,255,255,${s.a})`;
+                        this.ctx.beginPath();
+                        this.ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    });
+                }
+
+                if (this.mode === 'clouds') {
+                    this.ctx.fillStyle = 'rgba(255,255,255,0.15)';
+                    this.elements.forEach(c => {
+                        c.x += c.vx;
+                        if (c.x - c.w > this.canvas.width) c.x = -c.w;
+                        this.ctx.beginPath();
+                        this.ctx.ellipse(c.x, c.y, c.w, c.h, 0, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    });
+                }
+            }
+        };
+
+        // =========================================================
+        // 主系统
+        // =========================================================
         const GardenOS = {
-            config: { secret: 'Zjx207661', storageKey: 'garden_v62_4_db' },
-            state: { season: 'winter', phase: 'night', activeLayer: 1, isAuthorized: false },
+            config: { 
+                secret: 'Zjx207661', 
+                storageKey: 'garden_v62_3_db', 
+                deepSeekApiKey: 'sk-437d432e53664e489b60a9349619a879', 
+                dailyLimit: 15 
+            },
             data: {
-                defaultAssets: [
-                    {title: '01 // FUNDS', content: '700.00', val: 700, color: '#e3b341'},
-                    {title: '02 // STOCKS', content: '0.00', val: 0, color: '#a855f7'},
-                    {title: '03 // CRYPTO', content: '150.00', val: 150, color: '#10b981'},
-                    {title: '04 // METAL', content: '60.00 GR', val: 60, color: '#3b82f6'}
-                ],
-                defaultWriting: [
-                    { title: "铜川往事", content: "被折叠的时间碎片，个体在宏大叙事缝隙中的呼吸。", tag: "Novel", url: "#", date: "2024" }
-                ]
+                defaultContent: {
+                    assets: [
+                        {title: '01 // FUNDS', content: '700.00', val: 700},
+                        {title: '02 // STOCKS', content: '0.00', val: 0},
+                        {title: '03 // CRYPTO', content: '150.00', val: 150},
+                        {title: '04 // METAL', content: '60.00 GR', val: 60}
+                    ],
+                    ingest: { title: '《献给阿尔吉侬的花束》', content: '智慧是孤独的解药。' },
+                    memo: '"岁月不语，唯有文字能在大雪中取暖。"'
+                }
+            },
+            state: { 
+                isAuthorized: false, 
+                currentSeason: 'winter', 
+                currentPhase: 'night', 
+                activeBgLayer: 1, 
+                lastLoadedUrl: '' 
             },
 
             boot() {
-                this.environment.init();
                 this.auth.init();
-                this.cms.renderAll();
+                this.environment.sync(true);
                 this.ui.init();
-                document.body.classList.remove('opacity-0');
-            },
-
-            environment: {
-                init() {
-                    this.updateState();
-                    this.syncBackground(true);
+                this.cms.renderAll();
+                
+                // 初始化时钟
+                this.updateClock();
+                setInterval(() => this.updateClock(), 1000);
+                
+                // 环境系统定时更新
+                setInterval(() => this.environment.checkUpdate(), 60000); // 每分钟检查
+                
+                // 初始化粒子系统
+                setTimeout(() => {
                     SeasonParticleEngine.init();
-                    TimeColorEngine.init();
                     SkyEngine.init();
-                    setInterval(() => this.tick(), 1000);
-                    setInterval(() => this.syncBackground(false), 60000);
-                },
-                tick() {
-                    const now = new Date();
-                    document.getElementById('clockDisplay').innerText = now.toLocaleTimeString('zh-CN', { hour12: false });
-                    this.updateState();
-                },
-                updateState() {
-                    const now = new Date();
-                    const m = now.getMonth() + 1;
-                    const h = now.getHours();
-                    let s = (m >= 3 && m <= 5) ? 'spring' : (m >= 6 && m <= 8 ? 'summer' : (m >= 9 && m <= 11 ? 'autumn' : 'winter'));
-                    let p = (h >= 5 && h < 10) ? 'morning' : (h >= 10 && h < 17 ? 'noon' : (h >= 17 && h < 19 ? 'sunset' : 'night'));
-                    if (s !== GardenOS.state.season || p !== GardenOS.state.phase) {
-                        GardenOS.state.season = s; GardenOS.state.phase = p;
-                        document.getElementById('envStatusText').innerText = `${s.toUpperCase()}_CORE_v62.4`;
-                        document.getElementById('seasonIndicator').title = s.toUpperCase();
-                    }
-                },
-                syncBackground(force) {
-                    const pool = ASSET_MANIFEST[GardenOS.state.season][GardenOS.state.phase];
-                    const url = `https://images.unsplash.com/photo-${pool[Math.floor(Math.random() * pool.length)]}?auto=format&fit=crop&w=2400&q=80`;
-                    const next = GardenOS.state.activeLayer === 1 ? 2 : 1;
-                    const nextEl = document.getElementById(`bg-layer-${next}`);
-                    const currentEl = document.getElementById(`bg-layer-${GardenOS.state.activeLayer}`);
-                    const img = new Image(); img.src = url;
-                    img.onload = () => {
-                        nextEl.style.backgroundImage = `url('${url}')`;
-                        nextEl.style.opacity = '1'; currentEl.style.opacity = '0';
-                        GardenOS.state.activeLayer = next;
-                    };
+                }, 1000);
+            },
+
+            updateClock() {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
+                const clockEl = document.getElementById('clockDisplay');
+                if (clockEl) {
+                    clockEl.textContent = timeStr;
                 }
             },
 
-            ui: {
-                init() {},
-                toggleLogin(s) { document.getElementById('loginModal').style.display = s ? 'flex' : 'none'; },
-                toggleWatcher(s) { document.getElementById('watcherDrawer').style.right = s ? '0' : '-100%'; },
-                toggleDropdown(id) { document.getElementById(id).classList.toggle('active'); },
-                toggleWritingDeck() { document.getElementById('writingCover').classList.toggle('hidden'); document.getElementById('writingList').classList.toggle('hidden'); },
-                activateSearch() { document.getElementById('searchPill').style.width = '240px'; document.getElementById('headerSearchInput').classList.remove('hidden'); document.getElementById('headerSearchInput').focus(); },
-                deactivateSearch() { if (!document.getElementById('headerSearchInput').value) { document.getElementById('headerSearchInput').classList.add('hidden'); document.getElementById('searchPill').style.width = '44px'; } },
-                
-                search(v) { 
-                    // 简单的客户端搜索/筛选
-                    const items = document.querySelectorAll('.searchable-item');
-                    items.forEach(el => {
-                        const text = el.innerText.toLowerCase();
-                        if(text.includes(v.toLowerCase())) {
-                            el.style.display = 'block';
-                            el.classList.add('animate-slide-up');
-                        } else {
-                            el.style.display = 'none';
+            api: {
+                getUsage() { 
+                    const today = new Date().toDateString();
+                    const usage = JSON.parse(localStorage.getItem('garden_ai_usage') || '{}'); 
+                    return usage.date !== today ? {date: today, count: 0} : usage; 
+                },
+                updateUsage(c) { 
+                    localStorage.setItem('garden_ai_usage', JSON.stringify({date: new Date().toDateString(), count: c})); 
+                    const usageEl = document.getElementById('aiUsageText');
+                    if (usageEl) usageEl.innerText = `${c}/15`; 
+                },
+                async handleAIInput(e) {
+                    if (e.key === 'Enter') {
+                        const val = e.target.value.trim(); 
+                        if (!val) return;
+                        
+                        const usage = this.getUsage();
+                        if (usage.count >= GardenOS.config.dailyLimit) { 
+                            this.typewriter("Limit reached.", `ai_${Date.now()}`); 
+                            e.target.disabled = true; 
+                            return; 
                         }
-                    });
-                    
-                    // 如果搜索框没打开，打开它并填入值（针对按钮点击）
-                    if(document.getElementById('searchPill').style.width !== '240px' && v !== '') {
-                        this.activateSearch();
-                        document.getElementById('headerSearchInput').value = v;
+                        
+                        const log = document.getElementById('aiChatLog'); 
+                        log.innerHTML += `<div class="mb-2 text-white">> ${val}</div>`; 
+                        e.target.value = '';
+                        
+                        const lid = Date.now(); 
+                        log.innerHTML += `<div id="r_${lid}" class="text-amber-500 mb-4 opacity-50">Thinking...</div>`;
+                        
+                        const res = await this.callDeepSeek(val, "");
+                        document.getElementById(`r_${lid}`).remove();
+                        
+                        const id = Date.now(); 
+                        log.innerHTML += `<div id="res_${id}" class="text-amber-500 mb-4 text-xs font-mono"></div>`;
+                        this.typewriter(res, `res_${id}`);
+                        this.updateUsage(usage.count + 1);
                     }
                 },
-                
-                switchChart(t) {
-                    document.getElementById('pieChart').classList.toggle('hidden', t !== 'pie');
-                    document.getElementById('trendChart').classList.toggle('hidden', t !== 'trend');
-                },
-                drawCharts(assets) {
-                    const pie = document.querySelector('.pie-chart');
-                    const totalVal = assets.reduce((sum, a) => sum + a.val, 0);
-                    document.getElementById('totalAssetValue').innerText = Math.round(totalVal);
-                    
-                    if (pie && totalVal > 0) {
-                        let currentPerc = 0;
-                        const gradientParts = assets.map(a => {
-                            const perc = (a.val / totalVal) * 100;
-                            const start = currentPerc;
-                            currentPerc += perc;
-                            return `${a.color} ${start}% ${currentPerc}%`;
+                async callDeepSeek(p, c) {
+                    if (!GardenOS.config.deepSeekApiKey) return "[OFFLINE]";
+                    try {
+                        const r = await fetch('https://api.deepseek.com/chat/completions', { 
+                            method: 'POST', 
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${GardenOS.config.deepSeekApiKey}`
+                            }, 
+                            body: JSON.stringify({
+                                model: "deepseek-chat",
+                                messages: [
+                                    {role: "system", content: c},
+                                    {role: "user", content: p}
+                                ]
+                            })
                         });
-                        pie.style.background = `conic-gradient(${gradientParts.join(', ')})`;
-                    } else if (pie) {
-                        pie.style.background = '#222';
+                        const d = await r.json(); 
+                        return d.choices?.[0]?.message?.content || "No response";
+                    } catch(e) { 
+                        return "Error: " + e.message; 
                     }
-
-                    // 趋势图模拟
-                    const line = document.getElementById('trendLine');
-                    const area = document.getElementById('trendArea');
-                    const points = [120, 100, 110, 80, 90, 50, 60].map((y, x) => `${x*50},${y}`).join(' ');
-                    if (line) line.setAttribute('points', points);
-                    if (area) area.setAttribute('d', `M0,150 L${points} L300,150 Z`);
-                }
-            },
-
-            cms: {
-                renderAll() {
-                    const d = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
-                    const posts = d.posts || [];
-                    
-                    // 1. 渲染资产
-                    const assetListEl = document.getElementById('assetList');
-                    const userAssets = posts.filter(p => p.target === 'assets');
-                    
-                    const finalAssets = GardenOS.data.defaultAssets.map(def => {
-                        const override = userAssets.find(u => u.title.includes(def.title.split(' // ')[0]));
-                        if (override) {
-                            return { ...def, content: override.value, val: parseFloat(override.value) || 0 };
-                        }
-                        return def;
-                    });
-
-                    assetListEl.innerHTML = finalAssets.map(a => `
-                        <div class="asset-item group searchable-item">
-                            <div class="flex items-center gap-3">
-                                <div class="w-1.5 h-6 rounded-full" style="background:${a.color}"></div>
-                                <span class="precision-tag opacity-40 group-hover:opacity-100 transition-all">${a.title}</span>
-                            </div>
-                            <span class="font-mono text-white/90 group-hover:text-amber-500">${a.content}</span>
-                        </div>
-                    `).join('');
-
-                    GardenOS.ui.drawCharts(finalAssets);
-
-                    // 2. 渲染摄入区 (支持封面)
-                    const ingestEl = document.getElementById('ingestList');
-                    const userIngests = posts.filter(p => p.target === 'ingest');
-                    const defaultIngest = `<div class="flex gap-4 items-start searchable-item"><div class="w-12 h-12 bg-white/10 rounded-xl overflow-hidden"><img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=100" class="w-full h-full object-cover"></div><div><h4 class="text-xs font-bold font-serif">《献给阿尔吉侬的花束》</h4><p class="text-[9px] opacity-50">智慧是孤独的解药。</p></div></div>`;
-                    
-                    ingestEl.innerHTML = userIngests.length ? userIngests.map(p => {
-                        const img = p.value && p.value.startsWith('http') ? `<img src="${p.value}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center font-mono text-[9px] opacity-50">BOOK</div>`;
-                        return `<div class="flex gap-4 items-start searchable-item"><div class="w-12 h-12 bg-white/10 rounded-xl overflow-hidden border border-white/5">${img}</div><div><h4 class="text-xs font-bold">${p.title}</h4><p class="text-[9px] opacity-50">${p.content}</p></div></div>`;
-                    }).join('') : defaultIngest;
-                
-                    // 3. 渲染写作区 (支持链接)
-                    const writingEl = document.getElementById('dynamicWritingContainer');
-                    const userWritings = posts.filter(p => p.target === 'writing');
-                    
-                    let html = '';
-                    
-                    // 默认文章
-                    html += `<a href="#" class="bg-black/90 p-10 rounded-[40px] border border-amber-500/20 hover:border-amber-500 block relative transform hover:-translate-y-2 searchable-item">
-                        <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-500 rounded-l-[40px]"></div>
-                        <h4 class="text-2xl font-serif italic font-bold text-white mb-4">铜川往事</h4>
-                        <p class="text-sm text-gray-400 font-serif leading-loose opacity-80">被折叠的时间碎片，个体的呼吸。</p>
-                        <div class="mt-8"><span class="text-[10px] border border-white/20 px-3 py-1 rounded-full text-white/40">Novel</span></div>
-                    </a>`;
-                    
-                    userWritings.forEach(p => {
-                        html += `<a href="${p.linkUrl || '#'}" target="_blank" class="bg-black/90 p-10 rounded-[40px] border border-white/10 hover:border-amber-500 block relative transform hover:-translate-y-2 transition-all searchable-item">
-                            <div class="absolute top-0 left-0 w-1.5 h-full bg-white/20 rounded-l-[40px] group-hover:bg-amber-500"></div>
-                            <h4 class="text-2xl font-serif italic font-bold text-white mb-4">${p.title}</h4>
-                            <p class="text-sm text-gray-400 font-serif leading-loose opacity-80">${p.content}</p>
-                            <div class="mt-8 flex gap-2">
-                                <span class="text-[10px] border border-white/20 px-3 py-1 rounded-full text-white/40 uppercase">${p.linkText || 'Article'}</span>
-                            </div>
-                        </a>`;
-                    });
-                    
-                    writingEl.innerHTML = html;
-
-                    // 4. 碎碎念
-                    const memoEl = document.getElementById('memoList');
-                    const userMemos = posts.filter(p => p.target === 'memo');
-                    memoEl.innerHTML = userMemos.map(p => `<div class="bg-white/5 p-4 rounded-2xl border border-white/5 searchable-item"><p class="text-[11px] leading-relaxed opacity-70 italic">“${p.content}”</p></div>`).join('') || `<p class="text-[11px] opacity-30 italic text-center">暂无碎片记录</p>`;
                 },
-
-                createPost() {
-                    const target = document.getElementById('postTarget').value;
-                    const title = document.getElementById('postTitle').value.trim();
-                    const value = document.getElementById('postValue').value.trim(); // 既可以做数值，也可以做图片URL
-                    const content = document.getElementById('postContent').value.trim();
-                    const linkText = document.getElementById('postLinkText').value.trim();
-                    const linkUrl = document.getElementById('postLinkUrl').value.trim();
-
-                    if (!title && target === 'assets') return;
-
-                    const d = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
-                    const posts = d.posts || [];
-                    
-                    // 构造统一对象
-                    posts.unshift({ 
-                        id: Date.now(), 
-                        target, 
-                        title, 
-                        value, // 资产数值 OR 图片URL
-                        content, 
-                        linkText, 
-                        linkUrl,
-                        timestamp: new Date().toLocaleString() 
-                    });
-                    
-                    d.posts = posts;
-                    localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(d));
-
-                    // 重置输入
-                    ['postTitle', 'postValue', 'postContent', 'postLinkText', 'postLinkUrl'].forEach(id => document.getElementById(id).value = '');
-                    this.renderAll();
+                typewriter(t, id) { 
+                    const el = document.getElementById(id); 
+                    let i = 0; 
+                    const tm = setInterval(() => { 
+                        if (!el) return clearInterval(tm); 
+                        el.innerText += t.charAt(i++); 
+                        if (i >= t.length) clearInterval(tm); 
+                    }, 20); 
                 }
             },
 
             auth: {
                 init() {
-                    const d = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
-                    if (d.isAuthorized) this.updateUI(true);
-                },
-                verify() {
-                    if (document.getElementById('authKeyInput').value === GardenOS.config.secret) {
-                        const d = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
-                        d.isAuthorized = true; localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(d));
-                        this.updateUI(true); GardenOS.ui.toggleLogin(false);
+                    const stored = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    if (stored.isAuthorized) { 
+                        GardenOS.state.isAuthorized = true; 
+                        GardenOS.ui.updateAuthUI(true); 
                     }
                 },
-                updateUI(auth) {
-                    if (auth) {
+                verify() {
+                    const val = document.getElementById('authKeyInput').value;
+                    if (val === GardenOS.config.secret) {
                         GardenOS.state.isAuthorized = true;
-                        document.getElementById('lockIcon').className = 'ri-shield-user-line text-amber-500';
-                        document.getElementById('adminPostArea').classList.remove('hidden');
-                        document.getElementById('fabPublish').classList.add('visible');
+                        localStorage.setItem(GardenOS.config.storageKey, JSON.stringify({isAuthorized: true}));
+                        GardenOS.ui.toggleLogin(false); 
+                        GardenOS.ui.updateAuthUI(true);
+                    } else {
+                        // 错误反馈
+                        const input = document.getElementById('authKeyInput');
+                        input.style.borderColor = '#ff4757';
+                        setTimeout(() => input.style.borderColor = '', 1000);
                     }
                 }
             },
 
-            api: {
-                async handleAIInput(e) {
-                    if (e.key === 'Enter') {
-                        const log = document.getElementById('aiChatLog');
-                        const val = e.target.value;
-                        log.innerHTML += `<div class="text-white">> ${val}</div>`;
-                        e.target.value = '';
-                        log.innerHTML += `<div class="text-amber-500 opacity-50 font-mono">NEURAL_LINK_STUB: 正在处理信号...</div>`;
+            environment: {
+                getSeason(d = new Date()) {
+                    const m = d.getMonth() + 1;
+                    if (m >= 3 && m <= 5) return 'spring';
+                    if (m >= 6 && m <= 8) return 'summer';
+                    if (m >= 9 && m <= 11) return 'autumn';
+                    return 'winter';
+                },
+
+                getPhase(d = new Date()) {
+                    const h = d.getHours();
+                    if (h >= 5 && h < 10) return 'morning';
+                    if (h >= 10 && h < 17) return 'noon';
+                    if (h >= 17 && h < 19) return 'sunset';
+                    return 'night';
+                },
+
+                sync(force = false) {
+                    const now = new Date();
+                    const s = this.getSeason(now);
+                    const p = this.getPhase(now);
+                    
+                    if (!force && s === GardenOS.state.currentSeason && p === GardenOS.state.currentPhase) return;
+                    
+                    GardenOS.state.currentSeason = s;
+                    GardenOS.state.currentPhase = p;
+                    
+                    // 更新季节指示器
+                    const seasonNames = { spring: '春', summer: '夏', autumn: '秋', winter: '冬' };
+                    const seasonBtn = document.getElementById('seasonIndicator');
+                    if (seasonBtn) {
+                        const seasonChar = seasonNames[s] || '冬';
+                        seasonBtn.setAttribute('title', seasonChar);
+                    }
+                    
+                    // 获取对应图片
+                    const pool = ASSET_MANIFEST[s]?.[p];
+                    if (!pool || pool.length === 0) return;
+                    
+                    const id = pool[Math.floor(Math.random() * pool.length)];
+                    const url = `https://images.unsplash.com/photo-${id}?ixlib=rb-4.0.3&auto=format&fit=crop&q=80&w=2400`;
+                    
+                    // 避免重复加载同一图片
+                    if (!force && url === GardenOS.state.lastLoadedUrl) return;
+                    
+                    // 双图层平滑过渡
+                    const nextLayer = GardenOS.state.activeBgLayer === 1 ? 2 : 1;
+                    const currentLayer = GardenOS.state.activeBgLayer;
+                    
+                    const nextEl = document.getElementById(`bg-layer-${nextLayer}`);
+                    const currentEl = document.getElementById(`bg-layer-${currentLayer}`);
+                    
+                    if (nextEl && currentEl) {
+                        nextEl.style.backgroundImage = `url('${url}')`;
+                        nextEl.style.opacity = '0';
+                        
+                        // 开始过渡
+                        setTimeout(() => {
+                            nextEl.style.opacity = '1';
+                            currentEl.style.opacity = '0';
+                            
+                            // 更新状态
+                            GardenOS.state.activeBgLayer = nextLayer;
+                            GardenOS.state.lastLoadedUrl = url;
+                            
+                            // 根据时段调整视觉效果
+                            this.adjustVisualEffects(p);
+                        }, 100);
+                    }
+                },
+
+                adjustVisualEffects(phase) {
+                    // 调整雪花效果
+                    const snowEl = document.querySelector('.snow-blizzard');
+                    if (snowEl) {
+                        const snowOpacity = (phase === 'night' || phase === 'morning') ? '0.35' : '0';
+                        snowEl.style.opacity = snowOpacity;
+                    }
+                    
+                    // 更新时间色温滤镜
+                    this.updateTimeFilter(phase);
+                },
+
+                updateTimeFilter(phase) {
+                    const filterMap = {
+                        morning: 'rgba(255, 220, 180, 0.25)',
+                        noon: 'rgba(255, 255, 255, 0)',
+                        sunset: 'rgba(255, 160, 120, 0.35)',
+                        night: 'rgba(20, 40, 80, 0.45)'
+                    };
+                    
+                    let filterEl = document.getElementById('time-color-filter');
+                    if (!filterEl) {
+                        filterEl = document.createElement('div');
+                        filterEl.id = 'time-color-filter';
+                        filterEl.style.cssText = `
+                            position: fixed; inset: 0; pointer-events: none; 
+                            z-index: -45; transition: background-color 3s linear;
+                        `;
+                        document.body.appendChild(filterEl);
+                    }
+                    
+                    filterEl.style.backgroundColor = filterMap[phase] || filterMap.night;
+                },
+
+                checkUpdate() {
+                    this.sync(false);
+                }
+            },
+
+            ui: {
+                init() { 
+                    // 关闭所有下拉菜单
+                    document.addEventListener('click', (e) => {
+                        if (!e.target.closest('.header-btn-container')) {
+                            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                                menu.classList.remove('active');
+                            });
+                        }
+                    });
+                },
+                toggleLogin(s) { 
+                    const modal = document.getElementById('loginModal');
+                    if (modal) modal.style.display = s ? 'flex' : 'none'; 
+                    if (s) {
+                        document.getElementById('authKeyInput').focus();
+                        document.getElementById('authKeyInput').value = '';
+                    }
+                },
+                toggleWatcher(s) { 
+                    const drawer = document.getElementById('watcherDrawer');
+                    if (drawer) drawer.style.right = s ? '0' : '-100%'; 
+                },
+                toggleDropdown(id) { 
+                    const el = document.getElementById(id); 
+                    if (!el) return;
+                    
+                    // 关闭其他菜单
+                    ['contactMenu', 'aiMenu'].forEach(mid => { 
+                        if (mid !== id) {
+                            const otherMenu = document.getElementById(mid);
+                            if (otherMenu) otherMenu.classList.remove('active');
+                        }
+                    });
+                    
+                    el.classList.toggle('active'); 
+                },
+                toggleWritingDeck() { 
+                    const cover = document.getElementById('writingCover');
+                    const list = document.getElementById('writingList');
+                    if (cover && list) {
+                        cover.classList.toggle('hidden');
+                        list.classList.toggle('hidden');
+                    }
+                },
+                activateSearch() { 
+                    const searchPill = document.getElementById('searchPill');
+                    const searchInput = document.getElementById('headerSearchInput');
+                    if (searchPill && searchInput) {
+                        searchPill.style.width = '240px';
+                        searchInput.classList.remove('hidden');
+                        searchInput.focus();
+                    }
+                },
+                deactivateSearch() { 
+                    const searchInput = document.getElementById('headerSearchInput');
+                    const searchPill = document.getElementById('searchPill');
+                    if (searchInput && searchPill && !searchInput.value) {
+                        searchInput.classList.add('hidden');
+                        searchPill.style.width = '44px';
+                    }
+                },
+                search(v) { 
+                    document.querySelectorAll('.searchable-item').forEach(el => {
+                        el.style.display = el.innerText.toLowerCase().includes(v.toLowerCase()) ? '' : 'none';
+                    }); 
+                },
+                updateAuthUI(auth) { 
+                    if (auth) { 
+                        const lockIcon = document.getElementById('lockIcon');
+                        if (lockIcon) lockIcon.className = 'ri-shield-user-line text-amber-500';
+                        
+                        const adminArea = document.getElementById('adminPostArea');
+                        if (adminArea) adminArea.classList.remove('hidden');
+                        
+                        const fab = document.getElementById('fabPublish');
+                        if (fab) fab.classList.add('visible');
+                    } 
+                },
+                
+                switchChart(type) { 
+                    const pieChart = document.getElementById('pieChart');
+                    const trendChart = document.getElementById('trendChart');
+                    const btnPie = document.getElementById('btnPie');
+                    const btnTrend = document.getElementById('btnTrend');
+                    
+                    if (pieChart) pieChart.classList.toggle('hidden', type !== 'pie');
+                    if (trendChart) trendChart.classList.toggle('hidden', type !== 'trend');
+                    
+                    if (btnPie) {
+                        btnPie.className = type === 'pie' 
+                            ? 'text-[10px] text-amber-500 font-bold transition-colors' 
+                            : 'text-[10px] text-white/50 hover:text-amber-500 font-bold transition-colors';
+                    }
+                    
+                    if (btnTrend) {
+                        btnTrend.className = type === 'trend' 
+                            ? 'text-[10px] text-amber-500 font-bold transition-colors' 
+                            : 'text-[10px] text-white/50 hover:text-amber-500 font-bold transition-colors';
+                    }
+                },
+                
+                drawCharts(currentTotal) {
+                    // 饼图
+                    const pieEl = document.querySelector('.pie-chart');
+                    if (pieEl) {
+                        const p1 = 77; // 700/910 ≈ 77%
+                        const p2 = 77 + 16; // 150/910 ≈ 16%
+                        pieEl.style.background = `conic-gradient(#e3b341 0% ${p1}%, #10b981 ${p1}% ${p2}%, #3b82f6 ${p2}% 100%)`;
+                        
+                        const labelSpan = document.querySelector('.pie-label-container span.text-xl');
+                        if (labelSpan) labelSpan.innerText = currentTotal;
+                    }
+                    
+                    // 趋势图
+                    const trendData = [];
+                    for (let i = 6; i > 0; i--) {
+                        const variance = 1 + (Math.random() * 0.1 - 0.05);
+                        trendData.push(Math.floor(currentTotal * variance));
+                    }
+                    trendData.push(currentTotal);
+                    
+                    const min = Math.min(...trendData) * 0.95;
+                    const max = Math.max(...trendData) * 1.05;
+                    const range = max - min;
+                    
+                    const points = trendData.map((val, idx) => {
+                        const x = idx * 50; 
+                        const y = 150 - ((val - min) / range * 130 + 10); 
+                        return `${x},${y}`;
+                    }).join(' ');
+                    
+                    const svg = document.querySelector('.trend-chart');
+                    if (svg) {
+                        const area = svg.querySelector('.trend-area');
+                        const line = svg.querySelector('.trend-line');
+                        const axisContainer = document.getElementById('xAxisLabels');
+                        
+                        if (area) area.setAttribute('d', `M0,150 L${points.split(' ').join(' L')} L300,150 Z`);
+                        if (line) line.setAttribute('points', points);
+                        
+                        // 移除旧的点
+                        svg.querySelectorAll('circle').forEach(c => c.remove());
+                        
+                        // 生成新的点和标签
+                        if (axisContainer) axisContainer.innerHTML = '';
+                        const days = [];
+                        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                        
+                        for (let i = 6; i >= 0; i--) {
+                            const d = new Date(); 
+                            d.setDate(d.getDate() - i);
+                            days.push(dayNames[d.getDay()]);
+                        }
+
+                        trendData.forEach((val, idx) => {
+                            const x = idx * 50;
+                            const y = 150 - ((val - min) / range * 130 + 10);
+                            
+                            // 创建点
+                            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            circle.setAttribute("cx", x);
+                            circle.setAttribute("cy", y);
+                            circle.setAttribute("class", "trend-point");
+                            circle.setAttribute("data-value", val);
+                            
+                            const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+                            title.textContent = `${days[idx]}: ${val}`;
+                            circle.appendChild(title);
+                            svg.appendChild(circle);
+                            
+                            // 添加X轴标签
+                            if (axisContainer && idx < days.length) {
+                                const label = document.createElement('div');
+                                label.className = "text-[9px] text-white/30 font-mono absolute bottom-0";
+                                label.style.left = `${(idx/6) * 100}%`;
+                                label.style.transform = "translateX(-50%)";
+                                label.innerText = days[idx];
+                                axisContainer.appendChild(label);
+                            }
+                        });
                     }
                 }
+            },
+
+            cms: {
+                createPost() {
+                    if (!GardenOS.state.isAuthorized) return;
+                    
+                    const target = document.getElementById('postTarget').value;
+                    const title = document.getElementById('postTitle').value.trim();
+                    const content = document.getElementById('postContent').value.trim();
+                    const lText = document.getElementById('linkText').value.trim();
+                    const lUrl = document.getElementById('linkUrl').value.trim();
+                    const img = document.getElementById('postImage').value.trim();
+
+                    if (target === 'status') {
+                        const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                        data.status = { 
+                            weight: title || '55.0', 
+                            vitality: img || '98', 
+                            entropy: lText || '95.00%', 
+                            quote: content || '万物皆有裂痕，那是光进来的地方。' 
+                        };
+                        localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(data));
+                        GardenOS.cms.renderAll(); 
+                        return;
+                    }
+
+                    if (!title || !content) return;
+                    
+                    const post = { 
+                        id: Date.now(), 
+                        target, 
+                        title, 
+                        content, 
+                        link: {text: lText, url: lUrl}, 
+                        image: img, 
+                        timestamp: new Date().toLocaleString('zh-CN') 
+                    };
+                    
+                    const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    const posts = data.posts || []; 
+                    posts.unshift(post); 
+                    data.posts = posts;
+                    
+                    localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(data));
+                    
+                    // 清空表单
+                    ['postTitle', 'postContent', 'linkText', 'linkUrl', 'postImage'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
+                    });
+                    
+                    GardenOS.cms.renderAll();
+                },
+                
+                renderAll() {
+                    const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    
+                    // 更新生命体征
+                    if (data.status) {
+                        const valWeight = document.getElementById('valWeight');
+                        const valVitality = document.getElementById('valVitality');
+                        const valEntropy = document.getElementById('valEntropy');
+                        const valQuote = document.getElementById('valQuote');
+                        
+                        if (valWeight) valWeight.innerText = data.status.weight || '55.0';
+                        if (valVitality) valVitality.innerText = data.status.vitality || '98';
+                        if (valEntropy) valEntropy.innerText = data.status.entropy || '95.00%';
+                        if (valQuote) valQuote.innerText = data.status.quote || '万物皆有裂痕，那是光进来的地方。';
+                    }
+                    
+                    // 获取容器
+                    const memoList = document.getElementById('memoList');
+                    const ingestList = document.getElementById('ingestList');
+                    const assetList = document.getElementById('assetList');
+                    
+                    if (!memoList || !ingestList || !assetList) return;
+                    
+                    // 清空容器
+                    memoList.innerHTML = '';
+                    ingestList.innerHTML = '';
+                    assetList.innerHTML = '';
+                    
+                    const posts = data.posts || [];
+                    
+                    // 渲染资产
+                    const defAssets = GardenOS.data.defaultContent.assets;
+                    const userAssets = posts.filter(p => p.target === 'assets');
+                    let totalValue = 0;
+                    
+                    const assetMix = [...userAssets];
+                    for (let i = userAssets.length; i < 4; i++) { 
+                        if (defAssets[i]) assetMix.push(defAssets[i]); 
+                    }
+                    
+                    assetMix.slice(0, 4).forEach(p => {
+                        const contentStr = p.content || p.val || '0';
+                        let val = parseFloat(contentStr.toString().replace(/[^0-9.-]+/g, ""));
+                        if (!isNaN(val)) totalValue += val;
+                        
+                        assetList.innerHTML += `
+                            <div class="asset-compact-item searchable-item">
+                                <div class="precision-tag text-amber-500/50">${p.title || 'ASSET'}</div>
+                                <div class="text-base font-mono text-white group-hover:text-amber-500 transition-all">${contentStr}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    // 绘制图表
+                    GardenOS.ui.drawCharts(Math.round(totalValue));
+                    
+                    // 渲染摄入记录
+                    if (!posts.some(p => p.target === 'ingest')) {
+                        const defaultIngest = GardenOS.data.defaultContent.ingest;
+                        ingestList.innerHTML = `
+                            <div class="group flex gap-5 items-start cursor-pointer mb-6 border-b border-white/5 pb-4 searchable-item">
+                                <div class="w-14 h-14 bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 border border-white/5">
+                                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=100" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold font-serif group-hover:text-amber-500 transition-colors">${defaultIngest.title}</h4>
+                                    <p class="text-[10px] text-gray-400 mt-1 font-serif">${defaultIngest.content}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // 渲染用户摄入记录
+                    posts.filter(p => p.target === 'ingest').forEach(p => {
+                        ingestList.innerHTML += `
+                            <div class="group flex gap-5 items-start cursor-pointer mb-6 border-b border-white/5 pb-4 last:border-0 searchable-item">
+                                <div class="w-14 h-14 bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 border border-white/5">
+                                    <img src="${p.image || 'https://via.placeholder.com/100'}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/100'">
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold group-hover:text-amber-500 transition-colors">${p.title}</h4>
+                                    <p class="text-[10px] text-gray-400 mt-1">${p.content}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    // 渲染碎碎念
+                    if (!posts.some(p => p.target === 'memo')) {
+                        const defaultMemo = GardenOS.data.defaultContent.memo;
+                        memoList.innerHTML = `
+                            <div class="bg-white/5 p-4 rounded-[20px] border border-white/5 opacity-60 text-center">
+                                <p class="text-xs text-gray-400 font-serif italic">${defaultMemo}</p>
+                            </div>
+                        `;
+                    }
+                    
+                    // 渲染用户碎碎念
+                    posts.filter(p => p.target === 'memo').forEach(p => {
+                        const imgHtml = p.image ? `<img src="${p.image}" class="w-full h-auto object-cover rounded-lg mb-2 opacity-80" onerror="this.style.display='none'">` : '';
+                        memoList.innerHTML += `
+                            <div class="group/item bg-white/5 p-6 rounded-[28px] border border-white/5 mb-4 searchable-item">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="text-sm font-bold">${p.title}</h4>
+                                    <span class="text-[9px] text-white/20">${p.timestamp?.split(' ')[0] || ''}</span>
+                                </div>
+                                <p class="text-xs text-gray-400">${p.content}</p>
+                                ${imgHtml}
+                            </div>
+                        `;
+                    });
+                }
             }
         };
 
-        /* --- 粒子/天空/色温引擎 --- */
-        const SeasonParticleEngine = {
-            canvas: null, ctx: null, particles: [], season: null,
-            init() { this.canvas = document.getElementById('season-particles'); this.ctx = this.canvas.getContext('2d'); this.resize(); window.addEventListener('resize', () => this.resize()); this.loop(); },
-            resize() { this.canvas.width = innerWidth; this.canvas.height = innerHeight; },
-            loop() {
-                requestAnimationFrame(() => this.loop());
-                if (this.season !== GardenOS.state.season) {
-                    this.season = GardenOS.state.season; this.particles = [];
-                    const count = { spring: 30, summer: 20, autumn: 40, winter: 60 }[this.season] || 20;
-                    for (let i = 0; i < count; i++) this.particles.push({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, vy: Math.random() * 0.6 + 0.2, r: Math.random() * 2 + 1, c: { spring: 'rgba(255,200,220,0.4)', summer: 'rgba(255,255,200,0.3)', autumn: 'rgba(200,120,60,0.4)', winter: 'rgba(255,255,255,0.6)' }[this.season] });
+        // =========================================================
+        // 初始化
+        // =========================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            GardenOS.boot();
+            
+            // 点击页面其他地方关闭下拉菜单
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.header-btn-container')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                        menu.classList.remove('active');
+                    });
                 }
-                this.ctx.clearRect(0, 0, innerWidth, innerHeight);
-                this.particles.forEach(p => { p.y += p.vy; if (p.y > innerHeight) p.y = -10; this.ctx.fillStyle = p.c; this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.r, 0, 7); this.ctx.fill(); });
-            }
-        };
-        const TimeColorEngine = { el: null, map: { morning: 'rgba(255,200,100,0.1)', noon: 'rgba(255,255,255,0)', sunset: 'rgba(255,100,0,0.15)', night: 'rgba(0,20,100,0.25)' }, init() { this.el = document.getElementById('time-color-filter'); setInterval(() => this.el.style.backgroundColor = this.map[GardenOS.state.phase], 5000); } };
-        const SkyEngine = {
-            canvas: null, ctx: null, mode: null, elements: [],
-            init() { this.canvas = document.getElementById('sky-layer'); this.ctx = this.canvas.getContext('2d'); this.resize(); this.loop(); },
-            resize() { this.canvas.width = innerWidth; this.canvas.height = innerHeight; },
-            loop() {
-                requestAnimationFrame(() => this.loop());
-                const m = (GardenOS.state.phase === 'night') ? 'stars' : (['morning', 'noon'].includes(GardenOS.state.phase) ? 'clouds' : 'none');
-                if (m !== this.mode) {
-                    this.mode = m; this.elements = [];
-                    if (m === 'stars') for (let i = 0; i < 60; i++) this.elements.push({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, r: Math.random() * 1.2, a: Math.random(), da: 0.01 });
-                }
-                this.ctx.clearRect(0, 0, innerWidth, innerHeight);
-                if (this.mode === 'stars') this.elements.forEach(s => { s.a += s.da; if (s.a > 1 || s.a < 0) s.da *= -1; this.ctx.fillStyle = `rgba(255,255,255,${Math.abs(s.a)})`; this.ctx.beginPath(); this.ctx.arc(s.x, s.y, s.r, 0, 7); this.ctx.fill(); });
-            }
-        };
-
-        window.onload = () => GardenOS.boot();
+            });
+        });
     </script>
 </body>
 </html>
