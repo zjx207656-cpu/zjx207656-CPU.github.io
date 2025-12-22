@@ -1,931 +1,706 @@
 <!DOCTYPE html>
 <html lang="zh-CN" class="antialiased scroll-smooth">
 <head>
-    <!--
-      ===============================================================================================
-      [ PROJECT METADATA ]
-      ===============================================================================================
-      项目名称: 流光存根 (DIGITAL GARDEN)
-      版本编号: V46.6 (LEVIATHAN_MAXIMA_RELEASE)
-      设计理念: 赛博人文主义 (Cyber-Humanism)
-      技术细节: Tailwind CSS / Vanilla JS / CSS Grid / Real-time Temporal Engine
-      版权声明: LEVIATHAN CORE - 核心逻辑资产锁定
-      ===============================================================================================
-      [ CHANGE LOG ]
-      V46.6: 
-      - 全量恢复并扩充了 ASSET_MANIFEST 矩阵，代码行数提升至 1000+。
-      - 修复并加固了 M2 模块的“封面-内容”二级交互逻辑。
-      - 严格锁定 M5 感官实验室(5块)与 M6 资产终端(4块)的填充内容。
-      - 增强了背景渲染引擎的平滑度与噪点叠加深度。
-      ===============================================================================================
-    -->
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>流光存根 | Digital Garden v46.6</title>
+    <title>流光存根 | Digital Garden v62.4 RESTORED</title>
     
-    <!-- 核心依赖注入 -->
+    <!-- 核心 CSS 引擎 -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script>
-        /**
-         * TAILWIND 配置扩展
-         * 这里定义了利维坦系统的核心视觉语言
-         */
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         leviathan: {
-                            bg: '#0f0e0d',
-                            surface: 'rgba(30, 26, 23, 0.96)',
-                            border: 'rgba(227, 179, 65, 0.15)',
+                            bg: '#0c0b0a',
+                            surface: 'var(--surface-color)',
+                            border: 'var(--border-color)',
                             accent: '#e3b341',
-                            amber: {
-                                50: '#fffbeb',
-                                100: '#fef3c7',
-                                200: '#fde68a',
-                                300: '#fcd34d',
-                                400: '#fbbf24',
-                                500: '#f59e0b',
-                                600: '#d97706',
-                                700: '#b45309',
-                                800: '#92400e',
-                                900: '#78350f'
-                            }
                         }
                     },
                     fontFamily: {
                         serif: ['"Noto Serif SC"', 'serif'],
                         mono: ['"JetBrains Mono"', 'monospace'],
-                        script: ['"Dancing Script"', 'cursive']
-                    },
-                    boxShadow: {
-                        '3xl': '0 35px 60px -15px rgba(0, 0, 0, 0.6)',
-                        'amber-glow': '0 0 20px rgba(227, 179, 65, 0.3)',
                     },
                     animation: {
-                        'pulse-slow': 'pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'fade-in': 'fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'scanline': 'scanline 10s linear infinite',
-                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in-pro': 'fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'dash': 'dash 2.5s ease-out forwards',
                     },
                     keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        scanline: {
-                            '0%': { transform: 'translateY(-100%)' },
-                            '100%': { transform: 'translateY(100%)' }
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-15px)' }
-                        }
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(15px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        dash: { from: { strokeDashoffset: '1000' }, to: { strokeDashoffset: '0' } }
                     }
                 }
             }
         }
     </script>
     
-    <!-- 外部资源导入 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400;500;600;700;900&family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;400;700&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     
     <style>
-        /* -----------------------------------------------------------------------------------------------
-           [ CSS VARIABLE SYSTEM ]
-           ----------------------------------------------------------------------------------------------- */
         :root {
-            --app-max-width: 1550px; 
-            --bg-physical-fallback: #161412; 
-            --glass-base: rgba(26, 23, 20, 0.88); 
-            --glass-hover: rgba(30, 26, 22, 0.96);
-            --border-base: rgba(255, 255, 255, 0.05);
-            --border-active: rgba(227, 179, 65, 0.25);
+            --glass-blur: 16px; 
             --amber-primary: #e3b341;
-            --text-primary: #f1f1f2;
-            --text-secondary: #9ca3af;
-            --card-radius: 40px;
-            --transition-smooth: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            --surface-color: rgba(20, 25, 30, 0.65);
+            --border-color: rgba(255, 255, 255, 0.08);
         }
 
-        /* 基础样式复位 */
-        body {
-            background-color: transparent; 
-            color: var(--text-primary);
-            font-family: 'Noto Serif SC', serif;
-            margin: 0; padding: 0;
-            overflow-x: hidden;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
+        html { background-color: #0c0b0a; margin: 0; overflow-x: hidden; }
+        
+        body { 
+            background: #020617; 
+            color: #ffffff; min-height: 100vh; font-family: "Noto Serif SC", serif;
         }
 
-        /* -----------------------------------------------------------------------------------------------
-           [ BACKGROUND VISUAL ENGINE ]
-           ----------------------------------------------------------------------------------------------- */
-        #static-bg-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -2; 
-            background-color: var(--bg-physical-fallback);
-            background-size: cover;
-            background-position: center center;
-            transition: background-image 3s cubic-bezier(0.4, 0, 0.2, 1), filter 4s ease;
-            filter: brightness(0.8) contrast(1.05);
+        /* 背景层 */
+        .bg-layer {
+            position: fixed; inset: 0; 
+            background-size: cover; background-position: center;
+            background-repeat: no-repeat;
+            transition: opacity 3s ease-in-out;
             pointer-events: none;
-            will-change: background-image;
+            z-index: -50;
+            filter: brightness(0.7) contrast(1.1) saturate(0.8);
+        }
+        
+        #time-color-filter {
+            position: fixed; inset: 0; pointer-events: none; z-index: -45;
+            transition: background-color 5s ease;
         }
 
-        .noise-overlay {
-            position: fixed; inset: 0; z-index: -1; 
-            background: url('https://grainy-gradients.vercel.app/noise.svg'); 
-            opacity: 0.05; pointer-events: none;
+        canvas {
+            position: fixed; inset: 0; pointer-events: none; z-index: -40;
         }
 
-        /* 点阵网格装饰层 */
-        .grid-pattern-layer {
-            position: fixed; inset: 0; z-index: -1;
-            background-image: radial-gradient(rgba(227, 179, 65, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
+        .vignette {
+            position: fixed; inset: 0; z-index: -35;
+            background: radial-gradient(circle at center, rgba(0,0,0,0) 20%, rgba(2, 6, 23, 0.7) 100%);
             pointer-events: none;
         }
 
-        /* -----------------------------------------------------------------------------------------------
-           [ LAYOUT SYSTEM: TITAN GRID ]
-           ----------------------------------------------------------------------------------------------- */
         .layout-container {
-            width: 100%;
-            max-width: var(--app-max-width);
-            margin: 0 auto;
-            padding: 3rem 2.5rem;
-            position: relative;
-            z-index: 10;
+            max-width: 1440px; margin: 0 auto; padding: 5rem 2rem;
+            position: relative; z-index: 10;
         }
 
-        .titan-grid {
-            display: grid;
-            gap: 2rem;
-            width: 100%;
-            grid-template-columns: 1fr;
+        /* 玻璃拟态 */
+        .glass-cell {
+            background: rgba(20, 25, 30, 0.6); 
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px; padding: 2rem;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative; overflow: hidden;
+        }
+        .glass-cell:hover {
+            border-color: rgba(227, 179, 65, 0.4);
+            transform: translateY(-2px);
+            background: rgba(30, 40, 55, 0.75);
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.7);
+        }
+
+        .titan-matrix {
+            display: grid; gap: 1.5rem; grid-template-columns: repeat(1, 1fr);
         }
 
         @media (min-width: 1024px) {
-            .titan-grid {
+            .titan-matrix {
                 grid-template-columns: repeat(4, 1fr);
-                grid-auto-rows: minmax(230px, auto); 
-                gap: 2.25rem;
-                padding-bottom: 10rem;
+                grid-template-rows: 240px 240px auto auto auto; 
+                padding-bottom: 8rem;
             }
-            /* 顶部核心交互布局 */
             .card-m1 { grid-column: 1 / span 2; grid-row: 1 / span 2; }
             .card-m3 { grid-column: 3 / span 2; grid-row: 1; }
-            .card-m7 { grid-column: 3 / span 2; grid-row: 2; }
-            
-            /* 全宽长条堆叠模块: 复原核心资产 */
-            .card-m2 { grid-column: 1 / span 4; } 
-            .card-m5 { grid-column: 1 / span 4; } 
-            .card-m6 { grid-column: 1 / span 4; } 
+            .card-m2 { grid-column: 3 / span 2; grid-row: 2; }
+            .card-writing { grid-column: 1 / span 4; grid-row: 3; min-height: 380px; }
+            .card-m5 { grid-column: 1 / span 4; grid-row: 4; }
+            .card-m6 { grid-column: 1 / span 4; grid-row: 5; }
         }
 
-        /* -----------------------------------------------------------------------------------------------
-           [ COMPONENT STYLES ]
-           ----------------------------------------------------------------------------------------------- */
-        .bento-card {
-            background: var(--glass-base);
-            backdrop-filter: blur(60px); -webkit-backdrop-filter: blur(60px);
-            border: 1px solid var(--border-base);
-            border-radius: var(--card-radius);
-            padding: 3rem;
-            display: flex; flex-direction: column;
-            position: relative; overflow: hidden;
-            transition: var(--transition-smooth);
-            box-shadow: 0 35px 70px -15px rgba(0,0,0,0.6);
+        .precision-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; text-transform: uppercase;
+            letter-spacing: 0.3em; color: rgba(255, 255, 255, 0.4); font-weight: 700;
         }
 
-        .bento-card:hover {
-            border-color: var(--border-active);
-            transform: translateY(-8px);
-            background: var(--glass-hover);
-            box-shadow: 0 45px 90px -20px rgba(0,0,0,0.8);
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+
+        .header-circle-btn {
+            width: 44px; height: 44px; border-radius: 9999px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .header-circle-btn:hover { border-color: rgba(227, 179, 65, 0.5); color: #e3b341; }
+
+        .dropdown-menu {
+            opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute; top: 3.5rem; right: 0;
+            background: rgba(12, 13, 17, 0.95); border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(24px); border-radius: 20px; padding: 1.5rem; z-index: 50; min-width: 280px;
+        }
+        .dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+
+        /* 图表样式 */
+        .chart-wrapper { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .pie-chart {
+            width: 160px; height: 160px; border-radius: 50%;
+            position: relative; flex-shrink: 0;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pie-chart::after { 
+            content: ''; position: absolute; inset: 45px; 
+            background: #111418; border-radius: 50%; 
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
 
-        /* 文字标签系统 */
-        .text-label { 
-            font-family: 'JetBrains Mono', monospace; 
-            font-size: 10px; text-transform: uppercase; 
-            letter-spacing: 0.4em; color: var(--text-secondary); 
-            font-weight: 700;
-        }
-
-        /* 自定义输入框 */
-        .admin-input-titan {
-            width: 100%; background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;
-            padding: 14px 20px; font-family: 'JetBrains Mono', monospace;
-            font-size: 13px !important; color: #f3f4f6; outline: none;
+        .asset-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 1.5rem; background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 16px;
             transition: all 0.3s ease;
         }
-        .admin-input-titan:focus {
-            border-color: var(--amber-primary);
-            background: rgba(255, 255, 255, 0.05);
+        .asset-item:hover {
+            transform: translateX(6px); background: rgba(227, 179, 65, 0.08);
+            border-color: rgba(227, 179, 65, 0.3);
         }
 
-        /* 滚动条隐藏 */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* 详情层动画 */
-        .detail-overlay {
-            position: absolute; inset: 0; background: #0f0e0d; 
-            z-index: 100; border-radius: var(--card-radius); padding: 3rem; 
-            display: none; flex-direction: column;
-            animation: overlay-fade 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        .fab-publish {
+            position: fixed; bottom: 40px; right: 40px;
+            width: 64px; height: 64px; background: var(--amber-primary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 30px rgba(227, 179, 65, 0.3); color: #000; font-size: 24px;
+            cursor: pointer; z-index: 100; transition: all 0.3s;
+            opacity: 0; pointer-events: none; transform: scale(0.8);
         }
-        @keyframes overlay-fade { 
-            from { opacity: 0; transform: translateY(20px) scale(0.98); } 
-            to { opacity: 1; transform: translateY(0) scale(1); } 
-        }
-        .detail-overlay.active { display: flex; }
-
-        /* -----------------------------------------------------------------------------------------------
-           [ DECORATIVE ELEMENTS ]
-           ----------------------------------------------------------------------------------------------- */
-        .amber-dot {
-            width: 12px; height: 12px; border-radius: 50%;
-            background: var(--amber-primary);
-            box-shadow: 0 0 20px var(--amber-primary);
-        }
+        .fab-publish.visible { opacity: 1; pointer-events: auto; transform: scale(1); }
     </style>
 </head>
-<body>
+<body class="opacity-0 animate-fade-in-pro">
 
-    <!-- 视觉分层底层 -->
-    <div id="static-bg-layer"></div>
-    <div class="noise-overlay"></div>
-    <div class="grid-pattern-layer"></div>
+    <!-- 环境感知背景系统 -->
+    <div id="bg-layer-1" class="bg-layer"></div>
+    <div id="bg-layer-2" class="bg-layer" style="opacity:0"></div>
+    <div id="time-color-filter"></div>
+    <canvas id="sky-layer"></canvas>
+    <canvas id="season-particles"></canvas>
+    <div class="vignette"></div>
 
     <div class="layout-container">
-        
-        <!-- -----------------------------------------------------------------------------------------------
-             [ SITE HEADER ]
-             ----------------------------------------------------------------------------------------------- -->
-        <header class="flex flex-col lg:flex-row justify-between items-center gap-12 mb-20 lg:mb-32 animate-fade-in">
-            <div class="text-center lg:text-left">
-                <h1 class="text-6xl lg:text-7xl font-black text-white mb-6 tracking-[0.15em] serif cursor-default hover:text-amber-500/90 transition-all duration-1000">流光存根</h1>
-                <p class="text-lg lg:text-2xl text-gray-500 font-light italic serif opacity-50 tracking-[0.3em] leading-relaxed">
-                    “具体的生活，是抵御虚无的最后一道防线。”
+        <!-- 头部导航 -->
+        <header class="flex flex-col lg:flex-row justify-between items-end gap-10 mb-20">
+            <div class="w-full">
+                <h1 class="text-5xl lg:text-7xl font-black tracking-[0.2em] font-serif mb-8 hover:text-amber-500 transition-all duration-1000 cursor-pointer" onclick="GardenOS.ui.search('')">流光存根</h1>
+                <div class="h-px w-64 bg-gradient-to-r from-amber-500/60 to-transparent mb-5"></div>
+                <p class="text-xs lg:text-sm text-gray-400 italic font-serif opacity-80 tracking-[0.25em] leading-loose">
+                    具体的生活，是抵御虚无的最后一道防线。
                 </p>
             </div>
             
-            <div class="flex flex-col items-center lg:items-end gap-8">
-                <!-- 状态终端 -->
-                <div class="flex items-center gap-10 bg-white/[0.03] px-12 py-6 rounded-full border border-white/5 backdrop-blur-3xl shadow-3xl">
-                    <div class="flex items-center gap-5 cursor-pointer" onclick="window.location.reload()">
-                        <span class="amber-dot animate-pulse-slow"></span>
-                        <span id="statusText" class="font-mono text-[12px] text-white/50 tracking-[0.4em] uppercase">Status: Core_Stable</span>
+            <div class="flex flex-col items-end gap-5">
+                <div id="clockDisplay" class="font-mono text-[14px] text-amber-500 font-bold tracking-[0.4em] mb-1">00:00:00</div>
+                
+                <div class="flex items-center gap-4 relative">
+                    <!-- 搜索 -->
+                    <div id="searchPill" class="header-circle-btn overflow-hidden w-11" onclick="GardenOS.ui.activateSearch()">
+                        <i class="ri-search-line text-lg text-white/50"></i>
+                        <input type="text" id="headerSearchInput" onkeyup="GardenOS.ui.search(this.value)" onblur="GardenOS.ui.deactivateSearch()" class="hidden w-full bg-transparent border-0 outline-none text-xs font-mono text-white ml-2" placeholder="SEARCH...">
                     </div>
-                    <div class="w-px h-6 bg-white/10"></div>
-                    <div id="clockDisplay" class="font-mono text-[12px] text-amber-500 font-bold tracking-[0.5em] drop-shadow-lg">00:00:00</div>
-                </div>
-                <!-- 操作控制台 -->
-                <div class="flex items-center gap-6">
-                    <button id="searchTrigger" class="w-16 h-16 rounded-full bg-white/5 hover:bg-amber-500 border border-white/5 flex items-center justify-center transition-all duration-500 text-white/50 hover:text-black shadow-2xl group">
-                        <svg class="w-7 h-7 transform group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </button>
-                    <button id="adminLockTrigger" onclick="toggleLogin(true)" class="w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all duration-500 text-white/50 hover:text-white shadow-2xl">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    </button>
+                    <!-- AI -->
+                    <div class="relative">
+                        <div onclick="GardenOS.ui.toggleDropdown('aiMenu')" class="header-circle-btn text-white/50 hover:text-amber-500">
+                             <i class="ri-brain-line text-lg"></i>
+                        </div>
+                        <div id="aiMenu" class="dropdown-menu">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                <span class="text-[10px] font-mono text-amber-500">DEEPSEEK_ONLINE</span>
+                                <span id="aiUsageText" class="text-[9px] text-gray-500 ml-auto">0/15</span>
+                            </div>
+                            <div id="aiChatLog" class="h-48 overflow-y-auto custom-scroll mb-4 border border-white/5 rounded-xl p-3 bg-black/20 text-xs text-gray-300 font-serif leading-relaxed">
+                                <span class="opacity-50">神经链路已连接。就绪。</span>
+                            </div>
+                            <input type="text" id="aiHeaderInput" onkeypress="GardenOS.api.handleAIInput(event)" class="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-xs font-mono text-white outline-none" placeholder="Ask AI...">
+                        </div>
+                    </div>
+                    <!-- 季节指示器 -->
+                    <div class="header-circle-btn text-white/50 cursor-default" id="seasonIndicator">
+                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    </div>
+                    <!-- 登录 -->
+                    <div onclick="GardenOS.ui.toggleLogin(true)" class="header-circle-btn text-white/50 hover:text-amber-500">
+                         <i id="lockIcon" class="ri-user-3-line text-lg"></i>
+                    </div>
                 </div>
             </div>
         </header>
 
-        <!-- -----------------------------------------------------------------------------------------------
-             [ TITAN GRID SYSTEM ]
-             ----------------------------------------------------------------------------------------------- -->
-        <div class="titan-grid">
-            
-            <!-- M1: 生物刻度 (核心生命体征) -->
-            <div class="bento-card card-m1 justify-between group">
-                <div class="relative z-10">
-                    <div class="flex items-center gap-5 mb-12">
-                        <div class="w-3 h-3 rounded-full bg-amber-500 shadow-[0_0_25px_#e3b341] animate-pulse"></div>
-                        <span class="text-label text-amber-500 font-bold tracking-[0.5em] uppercase">Biometric_Neural_Link</span>
-                    </div>
-                    <h2 class="text-4xl font-bold text-white mb-12 tracking-tight font-serif leading-tight">生活刻度</h2>
-                    <div class="space-y-16">
-                        <div class="relative">
-                            <div class="flex justify-between items-baseline mb-5 text-[11px] font-mono opacity-60 uppercase tracking-widest">
-                                <span>Creation_Entropy_Matrix</span>
-                                <span class="text-amber-500 font-black">95.00%</span>
-                            </div>
-                            <div class="h-[2px] w-full bg-white/5 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-amber-500/20 to-white/60 w-[95%] shadow-[0_0_40px_white]"></div>
-                            </div>
-                            <p class="text-lg mt-14 italic text-gray-400 serif leading-relaxed opacity-80 max-w-sm">
-                                “在具体的纹理中，重拾被遗忘的温度。万物皆有裂痕，那是光进来的地方。”
-                            </p>
+        <main class="titan-matrix">
+            <!-- M1: 生命体征 -->
+            <div class="glass-cell card-m1 flex flex-col justify-between group h-full">
+                <div>
+                    <span class="precision-tag text-amber-500" id="envStatusText">Neural_Scale_v62.4</span>
+                    <h2 class="text-4xl font-bold font-serif mt-12 mb-8 tracking-wide">生活刻度</h2>
+                    <div class="space-y-10">
+                        <div>
+                            <div class="flex justify-between text-[11px] font-mono opacity-40 mb-3 uppercase tracking-[0.5em]"><span>Entropy_Index</span><span id="valEntropy" class="text-amber-500 font-black">95.00%</span></div>
+                            <div class="h-[1px] w-full bg-white/10 relative overflow-hidden"><div class="absolute h-full bg-white w-[95%] shadow-[0_0_20px_white]"></div></div>
                         </div>
+                        <p id="valQuote" class="text-lg italic text-gray-300 font-serif leading-relaxed opacity-90 max-w-sm mt-8">“万物皆有裂痕，那是光进来的地方。”</p>
                     </div>
                 </div>
-                <div class="pt-12 border-t border-white/5 flex gap-20 relative z-10">
-                    <div>
-                        <div class="text-5xl text-white font-mono font-light tracking-tighter">55.0<span class="text-[14px] ml-3 opacity-20 uppercase tracking-normal">Kg</span></div>
-                        <div class="text-label mt-3 opacity-40">Physical_Mass_Index</div>
-                    </div>
-                    <div>
-                        <div class="text-5xl text-white font-mono font-light tracking-tighter">95<span class="text-[14px] ml-3 opacity-20 uppercase tracking-normal">En</span></div>
-                        <div class="text-label mt-3 opacity-40">Neural_Vitality_Core</div>
-                    </div>
+                <div class="flex gap-20 pt-10 border-t border-white/10">
+                    <div><div class="text-3xl font-mono font-light tracking-tighter"><span id="valWeight">55.0</span> <span class="text-[10px] opacity-30 uppercase font-black">Kg</span></div><div class="precision-tag mt-3 opacity-50">Mass</div></div>
+                    <div><div class="text-3xl font-mono font-light tracking-tighter"><span id="valVitality">98</span> <span class="text-[10px] opacity-30 uppercase font-black">En</span></div><div class="precision-tag mt-3 opacity-50">Vitality</div></div>
                 </div>
             </div>
 
-            <!-- M3: 摄入流 (外部信息输入) -->
-            <div class="bento-card card-m3">
-                <div class="flex justify-between items-center mb-12">
-                    <h3 class="text-label tracking-[0.5em] font-bold opacity-40 uppercase font-mono">// Ingesting_Feed_Chain</h3>
-                    <span class="text-[11px] text-amber-500/60 font-black uppercase tracking-[0.2em] animate-pulse">Active</span>
+            <!-- M3: 摄入记录 -->
+            <div class="glass-cell card-m3 flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-8"><span class="precision-tag text-white/40">// Ingest_Record</span><i class="ri-book-read-line text-white/20 text-xl"></i></div>
+                <div class="overflow-y-auto custom-scroll h-full pr-3"><div id="ingestList" class="space-y-6"></div></div>
+            </div>
+
+            <!-- M2: 碎碎念 -->
+            <div class="glass-cell card-m2 flex flex-col justify-start">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/10"><span class="precision-tag text-amber-500/60 tracking-widest">Fragmented_Echoes</span><i class="ri-chat-history-line text-white/20 text-xl"></i></div>
+                <div id="memoList" class="w-full h-full overflow-y-auto custom-scroll pr-3 space-y-6 max-h-[160px]"></div>
+            </div>
+
+            <!-- Writing: 归档 -->
+            <div id="writingDeck" class="glass-cell card-writing flex flex-col justify-center items-center relative overflow-hidden group cursor-pointer" onclick="GardenOS.ui.toggleWritingDeck()">
+                <div class="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors duration-1000"></div>
+                <div id="writingCover" class="text-center relative z-10">
+                    <i class="ri-quill-pen-line text-4xl text-amber-500 mb-10 block animate-pulse"></i>
+                    <h3 class="text-3xl font-serif italic text-white mb-8 tracking-[0.2em] leading-loose">“文字是捕获时间的网，<br>打捞沉没的岁月。”</h3>
+                    <span class="precision-tag tracking-[1em] text-white/20">Click to open archive</span>
                 </div>
-                <div class="space-y-10 flex-grow">
-                    <!-- 摄入项 A -->
-                    <div class="flex gap-10 items-start group/item cursor-pointer">
-                        <div class="relative">
-                            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=200" class="w-24 h-24 object-cover rounded-[32px] border border-white/10 shadow-2xl transition-all duration-700 group-hover/item:border-amber-500/50 group-hover/item:scale-105">
-                            <div class="absolute inset-0 bg-amber-500/10 opacity-0 group-hover/item:opacity-100 rounded-[32px] transition duration-700"></div>
-                        </div>
-                        <div class="flex-grow pt-2">
-                            <span class="block text-xl font-bold text-gray-200 group-hover/item:text-amber-500 transition-colors serif italic">《献给阿尔吉侬的花束》</span>
-                            <p class="text-sm text-gray-500 italic mt-3 line-clamp-2 serif tracking-wide leading-relaxed">
-                                关于智慧与孤独最残忍的寓言。当潮水退去，我们终将回到黑暗的怀抱。
-                            </p>
-                        </div>
-                    </div>
-                    <!-- 摄入项 B -->
-                    <div class="flex gap-10 items-start group/item cursor-pointer">
-                        <div class="relative">
-                            <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=200" class="w-24 h-24 object-cover rounded-[32px] border border-white/10 shadow-2xl transition-all duration-700 group-hover/item:border-amber-500/50 group-hover/item:scale-105">
-                        </div>
-                        <div class="flex-grow pt-2">
-                            <span class="block text-xl font-bold text-gray-200 group-hover/item:text-amber-500 transition-colors serif italic">《金钱心理学》</span>
-                            <p class="text-sm text-gray-500 italic mt-3 line-clamp-2 serif tracking-wide leading-relaxed">
-                                理财，本质上是对人性的终极管理。在波动中寻找不变量。
-                            </p>
-                        </div>
-                    </div>
+                <div id="writingList" class="hidden w-full max-w-5xl relative z-10 grid grid-cols-1 md:grid-cols-3 gap-10 p-8">
+                    <!-- Writing content will be injected here -->
+                    <div id="dynamicWritingContainer" class="contents"></div>
                 </div>
             </div>
 
-            <!-- M7: 时间回响 (短念存根) -->
-            <div class="bento-card card-m7 relative justify-between">
+            <!-- M5: 感官实验室 (已修复交互) -->
+            <div class="glass-cell card-m5">
+                <div class="flex justify-between items-center mb-12"><span class="precision-tag text-white/30 tracking-[4em] uppercase">// Sensory_Laboratory</span><i class="ri-eye-2-line text-white/10 text-2xl"></i></div>
+                <div id="sensoryGrid" class="grid grid-cols-2 md:grid-cols-5 gap-10">
+                    <button onclick="GardenOS.ui.search('Anime')" class="flex flex-col items-center gap-5 group/btn cursor-pointer transition-transform hover:scale-105 active:scale-95"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 shadow-xl transition-colors">⛩️</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100 text-amber-500/80">Anime</span></button>
+                    <button onclick="GardenOS.ui.search('Game')" class="flex flex-col items-center gap-5 group/btn cursor-pointer transition-transform hover:scale-105 active:scale-95"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 shadow-xl transition-colors">🕹️</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100 text-amber-500/80">Game</span></button>
+                    <button onclick="GardenOS.ui.search('Film')" class="flex flex-col items-center gap-5 group/btn cursor-pointer transition-transform hover:scale-105 active:scale-95"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 shadow-xl transition-colors">🎬</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100 text-amber-500/80">Film</span></button>
+                    <button onclick="GardenOS.ui.search('Vista')" class="flex flex-col items-center gap-5 group/btn cursor-pointer transition-transform hover:scale-105 active:scale-95"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 shadow-xl transition-colors">🌲</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100 text-amber-500/80">Vista</span></button>
+                    <button onclick="GardenOS.ui.search('Audio')" class="flex flex-col items-center gap-5 group/btn cursor-pointer transition-transform hover:scale-105 active:scale-95"><div class="w-16 h-16 bg-white/[0.04] rounded-[24px] flex items-center justify-center text-4xl border border-white/5 group-hover/btn:bg-amber-500/20 shadow-xl transition-colors">📻</div><span class="precision-tag opacity-40 group-hover/btn:opacity-100 text-amber-500/80">Audio</span></button>
+                </div>
+            </div>
+
+            <!-- M6: 资产终端 -->
+            <div class="glass-cell card-m6 min-h-[500px] overflow-hidden">
                 <div class="flex justify-between items-start mb-12">
-                    <span class="text-label text-white/20 tracking-[0.8em] font-bold uppercase">Temporal_Signal_Echoes</span>
-                </div>
-                <div id="latestEcho" class="p-12 bg-white/[0.02] border-l-[6px] border-amber-500/20 rounded-r-[56px] flex-grow flex items-center group/echo transition-all hover:bg-white/[0.04]">
-                    <p class="text-3xl leading-snug text-gray-300 font-light italic serif tracking-wider">
-                        “每一段被写下的文字，都是对流逝岁月的温柔存根。在这个碎片化的时代，书写是唯一的救赎。”
-                    </p>
-                </div>
-                <div class="mt-8 flex justify-end">
-                    <span class="text-[10px] font-mono opacity-20 uppercase tracking-[0.5em]">Synchronized // 12.0s ago</span>
-                </div>
-            </div>
-
-            <!-- M2: 书写档案 (横板全宽 - 封面交互层) -->
-            <div id="narrativeCard" class="bento-card card-m2 group/narr min-h-[250px] cursor-pointer">
-                <!-- 封面视图: 优美句子 -->
-                <div id="narrativeCover" class="flex flex-col h-full justify-center text-center py-16 animate-fade-in">
-                    <div class="text-label text-amber-500/30 mb-10 tracking-[1em] uppercase font-black">Manuscript_Neural_Portal</div>
-                    <p class="text-4xl md:text-5xl leading-tight text-gray-200 font-extralight italic serif px-32 group-hover/narr:text-amber-500 transition-all duration-1000">
-                        “字迹是时间的尸骸，而书写是唯一的复活术。”
-                    </p>
-                    <div class="mt-14 text-[12px] mono opacity-10 uppercase tracking-[1em] group-hover/narr:opacity-60 transition-all duration-700">Access_Restricted_Archives</div>
-                    <div class="mt-4 flex justify-center gap-2 opacity-5">
-                        <div class="w-1 h-1 bg-white rounded-full"></div><div class="w-1 h-1 bg-white rounded-full"></div><div class="w-1 h-1 bg-white rounded-full"></div>
+                    <span class="precision-tag text-white/30 tracking-[4em] uppercase">Wealth_Pulse</span>
+                    <div class="flex items-center gap-3">
+                         <button onclick="GardenOS.ui.switchChart('pie')" id="btnPie" class="text-[10px] text-amber-500 font-bold">DISTRIBUTION</button>
+                         <span class="text-white/20">|</span>
+                         <button onclick="GardenOS.ui.switchChart('trend')" id="btnTrend" class="text-[10px] text-white/50 font-bold">TREND</button>
                     </div>
                 </div>
-
-                <!-- 内容视图: 小说与档案 (初始隐藏) -->
-                <div id="narrativeList" class="hidden h-full flex-col animate-fade-in">
-                    <div class="flex justify-between items-center mb-14 border-b border-white/5 pb-8">
-                        <div class="flex items-center gap-6">
-                            <h4 class="text-label text-amber-500 font-black uppercase tracking-[1.2em]">Archives // Narrative_Data</h4>
-                            <span class="text-[10px] px-4 py-1 bg-amber-500/10 text-amber-500 rounded-full font-bold">LOCKED</span>
-                        </div>
-                        <button id="closeNarrativeBtn" class="text-white/20 hover:text-white p-4 transition-transform hover:rotate-90">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
+                <div class="flex flex-col lg:flex-row gap-12 h-full items-center">
+                    <!-- 左侧：动态资产列表 -->
+                    <div id="assetList" class="w-full lg:w-5/12 flex flex-col gap-3 h-full overflow-y-auto custom-scroll max-h-[300px] pr-2">
+                        <!-- JS 自动填充 -->
                     </div>
-                    <div class="space-y-12">
-                        <!-- 核心小说项 -->
-                        <div class="border-b border-white/[0.04] pb-12 hover:border-amber-500/30 transition-all group/archive">
-                            <a href="https://www.notion.so/Tongchuan-Past-Snippet" target="_blank" class="block text-3xl text-gray-100 group-hover/archive:text-amber-500 transition-colors serif italic mb-6">
-                                铜川往事：被折叠的时间碎片
-                            </a>
-                            <div class="flex justify-between items-end">
-                                <p class="text-lg text-gray-500 leading-relaxed serif max-w-4xl">
-                                    关于封闭小区、物资车与核酸队伍的冬日纪事。个体在宏大叙事缝隙中的呼吸，笔触冷静而克制。
-                                </p>
-                                <div class="flex items-center gap-6">
-                                    <span class="text-label opacity-40 group-hover/archive:opacity-100 tracking-[0.4em] border border-white/10 px-6 py-2.5 rounded-2xl transition-all uppercase">Notion_Link</span>
-                                    <svg class="w-6 h-6 text-amber-500 opacity-0 group-hover/archive:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                                </div>
+                    
+                    <!-- 右侧：可视化核心 -->
+                    <div id="vizContainer" class="w-full lg:w-7/12 bg-black/40 rounded-[48px] border border-white/5 relative overflow-hidden flex flex-col items-center justify-center p-8 min-h-[340px]">
+                        <!-- 动态饼图 -->
+                        <div id="pieChart" class="chart-wrapper">
+                            <div class="pie-chart shadow-2xl"></div>
+                            <div class="absolute text-center z-20 pointer-events-none">
+                                <span class="text-2xl font-mono font-black text-white block tracking-tighter" id="totalAssetValue">0</span>
+                                <span class="text-[9px] text-white/40 uppercase tracking-[0.3em] font-mono">Total_Stubs</span>
+                            </div>
+                            <!-- 悬浮图例 -->
+                            <div class="absolute bottom-[-20px] left-0 w-full flex justify-center gap-4 text-[9px] font-mono opacity-60">
+                                <span class="flex items-center gap-1"><i class="ri-checkbox-blank-fill text-amber-500"></i> FUNDS</span>
+                                <span class="flex items-center gap-1"><i class="ri-checkbox-blank-fill text-purple-500"></i> STOCKS</span>
+                                <span class="flex items-center gap-1"><i class="ri-checkbox-blank-fill text-emerald-500"></i> CRYPTO</span>
+                                <span class="flex items-center gap-1"><i class="ri-checkbox-blank-fill text-blue-500"></i> METAL</span>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- M5: 感官实验室 (横板全宽 - 5大分类) -->
-            <div class="bento-card card-m5 min-h-[220px]">
-                <div class="flex justify-between items-center mb-12">
-                    <h3 class="text-label text-white/30 tracking-[1.5em] font-black uppercase">// Sensory_Synapse_Matrix</h3>
-                    <span class="text-[11px] mono text-amber-500/30 font-bold uppercase tracking-[0.4em]">Core_Archive_v46.6</span>
-                </div>
-                <!-- 5个分类块 -->
-                <div class="grid grid-cols-5 gap-10 mt-6">
-                    <!-- 分类 1: 动漫 -->
-                    <div class="flex flex-col items-center gap-6 group/btn cursor-pointer">
-                        <div class="w-24 h-24 rounded-[40px] bg-white/[0.03] border border-white/5 flex items-center justify-center text-4xl group-hover/btn:border-amber-500/50 group-hover/btn:bg-amber-500/5 transition-all duration-500 shadow-inner">⛩️</div>
-                        <span class="text-label opacity-40 group-hover/btn:opacity-100 transition-opacity uppercase tracking-[0.6em]">Anime</span>
-                    </div>
-                    <!-- 分类 2: 游戏 -->
-                    <div class="flex flex-col items-center gap-6 group/btn cursor-pointer">
-                        <div class="w-24 h-24 rounded-[40px] bg-white/[0.03] border border-white/5 flex items-center justify-center text-4xl group-hover/btn:border-amber-500/50 group-hover/btn:bg-amber-500/5 transition-all duration-500 shadow-inner">🕹️</div>
-                        <span class="text-label opacity-40 group-hover/btn:opacity-100 transition-opacity uppercase tracking-[0.6em]">Game</span>
-                    </div>
-                    <!-- 分类 3: 电影 -->
-                    <div class="flex flex-col items-center gap-6 group/btn cursor-pointer">
-                        <div class="w-24 h-24 rounded-[40px] bg-white/[0.03] border border-white/5 flex items-center justify-center text-4xl group-hover/btn:border-amber-500/50 group-hover/btn:bg-amber-500/5 transition-all duration-500 shadow-inner">🎬</div>
-                        <span class="text-label opacity-40 group-hover/btn:opacity-100 transition-opacity uppercase tracking-[0.6em]">Film</span>
-                    </div>
-                    <!-- 分类 4: 风景 -->
-                    <div class="flex flex-col items-center gap-6 group/btn cursor-pointer">
-                        <div class="w-24 h-24 rounded-[40px] bg-white/[0.03] border border-white/5 flex items-center justify-center text-4xl group-hover/btn:border-amber-500/50 group-hover/btn:bg-amber-500/5 transition-all duration-500 shadow-inner">🌲</div>
-                        <span class="text-label opacity-40 group-hover/btn:opacity-100 transition-opacity uppercase tracking-[0.6em]">Vista</span>
-                    </div>
-                    <!-- 分类 5: 音乐 -->
-                    <div class="flex flex-col items-center gap-6 group/btn cursor-pointer">
-                        <div class="w-24 h-24 rounded-[40px] bg-white/[0.03] border border-white/5 flex items-center justify-center text-4xl group-hover/btn:border-amber-500/50 group-hover/btn:bg-amber-500/5 transition-all duration-500 shadow-inner">📻</div>
-                        <span class="text-label opacity-40 group-hover/btn:opacity-100 transition-opacity uppercase tracking-[0.6em]">Audio</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- M6: 资产终端 (横板全宽 - 4大资产 + 动态可视化) -->
-            <div class="bento-card card-m6 min-h-[550px] group/wealth overflow-hidden">
-                <div class="flex justify-between items-start mb-14">
-                    <span class="text-label text-white/30 tracking-[1.8em] font-black uppercase font-mono">Wealth_Pulse_Command_Console</span>
-                    <span class="text-label text-amber-500/50 font-black tracking-[0.8em] uppercase font-mono animate-pulse">Sync_Active</span>
-                </div>
-                
-                <div class="flex flex-col lg:flex-row gap-16 h-full relative z-10">
-                    <!-- 左侧: 4个资产块 -->
-                    <div class="w-full lg:w-1/3 flex flex-col gap-6">
-                        <div class="bg-white/[0.02] border border-white/5 rounded-[36px] p-8 hover:border-amber-500/30 transition-all cursor-pointer group/asset hover:bg-white/[0.04]">
-                            <div class="text-[11px] font-mono text-amber-500/50 mb-3 tracking-widest uppercase font-bold">01 // Mutual_Fund</div>
-                            <div class="text-3xl text-white/20 font-mono tracking-tighter transition-colors group-hover/asset:text-white">---,---.--</div>
-                            <div class="h-1 w-full bg-white/5 mt-6 rounded-full overflow-hidden"><div class="h-full bg-amber-500/30 w-1/4"></div></div>
-                        </div>
-                        <div class="bg-white/[0.02] border border-white/5 rounded-[36px] p-8 hover:border-amber-500/30 transition-all cursor-pointer group/asset hover:bg-white/[0.04]">
-                            <div class="text-[11px] font-mono text-amber-500/50 mb-3 tracking-widest uppercase font-bold">02 // Equity_Stock</div>
-                            <div class="text-3xl text-white/20 font-mono tracking-tighter transition-colors group-hover/asset:text-white">---,---.--</div>
-                        </div>
-                        <div class="bg-white/[0.02] border border-white/5 rounded-[36px] p-8 hover:border-amber-500/30 transition-all cursor-pointer group/asset hover:bg-white/[0.04]">
-                            <div class="text-[11px] font-mono text-amber-500/50 mb-3 tracking-widest uppercase font-bold">03 // Digital_Crypto</div>
-                            <div class="text-3xl text-white/20 font-mono tracking-tighter transition-colors group-hover/asset:text-white">-.---- <span class="text-sm ml-2">BTC</span></div>
-                        </div>
-                        <div class="bg-white/[0.02] border border-white/5 rounded-[36px] p-8 hover:border-amber-500/30 transition-all cursor-pointer group/asset hover:bg-white/[0.04]">
-                            <div class="text-[11px] font-mono text-amber-500/50 mb-3 tracking-widest uppercase font-bold">04 // Precious_Metal</div>
-                            <div class="text-3xl text-white/20 font-mono tracking-tighter transition-colors group-hover/asset:text-white">---.-- <span class="text-sm ml-2">GR</span></div>
-                        </div>
-                    </div>
-
-                    <!-- 右侧: 全宽趋势图/可视化区域 -->
-                    <div class="w-full lg:w-2/3 border border-white/[0.03] rounded-[56px] relative overflow-hidden flex flex-col p-12 bg-black/30 group/viz shadow-inner">
-                        <!-- 扫描线动效 -->
-                        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/5 to-transparent h-24 w-full animate-scanline opacity-0 group-hover/viz:opacity-100 transition-opacity pointer-events-none"></div>
                         
-                        <div class="flex justify-between items-center mb-10">
-                            <div class="flex items-center gap-6">
-                                <span class="text-label opacity-40 uppercase tracking-[1em] font-mono">Global_Wealth_Distribution_Analysis</span>
-                                <div class="w-12 h-[1px] bg-white/10"></div>
-                            </div>
-                            <span class="text-[11px] font-mono opacity-30 uppercase tracking-[0.5em]">Frame_046 // Latency: 12ms</span>
-                        </div>
-                        
-                        <!-- 可视化占位 -->
-                        <div class="flex-grow flex items-center justify-center border-b border-white/5 mb-12 relative">
-                            <div class="font-mono text-4xl tracking-[1.5em] uppercase opacity-5 select-none font-black">Digital_Matrix</div>
-                            <!-- 背景网格修饰 -->
-                            <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle, #e3b341 1px, transparent 1px); background-size: 40px 40px;"></div>
-                            <!-- 虚假增长曲线 SVG -->
-                            <svg class="absolute inset-0 w-full h-full opacity-10" preserveAspectRatio="none">
-                                <path d="M0,150 Q150,130 300,140 T600,100 T900,120" stroke="#e3b341" fill="none" stroke-width="2" stroke-dasharray="10 5" />
+                        <!-- 趋势图 -->
+                        <div id="trendChart" class="chart-wrapper hidden w-full h-full p-4 relative">
+                            <svg class="w-full h-full overflow-visible" viewBox="0 0 300 150" id="trendSvg">
+                                <path id="trendArea" fill="rgba(227, 179, 65, 0.05)" d=""/>
+                                <polyline id="trendLine" fill="none" stroke="#e3b341" stroke-width="2" points=""/>
                             </svg>
-                        </div>
-                        
-                        <div class="h-32 opacity-30 italic text-[12px] flex flex-col items-center justify-center text-center leading-loose">
-                            <p class="tracking-[0.5em] uppercase font-mono mb-4 text-amber-500 font-bold">Establishing_Secure_Neural_Link...</p>
-                            <p class="max-w-md opacity-60">
-                                正在等待深度金融链接建立。加密算法版本 v4.9.0 校验中。
-                                请确保持有有效的身份锚定令牌。
-                            </p>
+                            <div id="xAxisLabels" class="absolute bottom-2 left-0 w-full flex justify-between px-2"></div>
                         </div>
                     </div>
                 </div>
             </div>
-
-        </div>
+        </main>
+        
+        <!-- FAB -->
+        <div id="fabPublish" onclick="GardenOS.ui.toggleWatcher(true)" class="fab-publish"><i class="ri-add-line"></i></div>
     </div>
 
-    <!-- -----------------------------------------------------------------------------------------------
-         [ SYSTEM OVERLAYS ]
-         ----------------------------------------------------------------------------------------------- -->
-
-    <!-- AI 守望者抽屉 (Neural Watcher) -->
-    <aside id="watcherDrawer" class="fixed top-0 right-[-100%] w-full md:w-[520px] h-full bg-[#12100e]/98 backdrop-blur-2xl border-l border-white/5 z-[200] transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) p-16 flex flex-col shadow-amber-glow no-scrollbar overflow-y-auto">
-        <div class="flex justify-between items-center mb-20">
-            <div class="flex flex-col gap-2">
-                <h2 class="text-4xl font-black italic serif text-white tracking-widest uppercase">守望者</h2>
-                <span class="text-label opacity-20 tracking-widest font-mono">Neural_Observation_Unit_7</span>
-            </div>
-            <button id="closeDrawer" class="p-4 text-3xl text-gray-500 hover:text-white transition-all duration-500 hover:rotate-90">✕</button>
+    <!-- 侧边栏：发布中心 (全字段回归) -->
+    <aside id="watcherDrawer" class="fixed top-0 right-[-100%] h-full bg-[#0c0b0a]/98 backdrop-blur-3xl border-l border-white/10 z-[200] transition-all duration-1000 p-12 flex flex-col shadow-3xl overflow-y-auto w-full md:w-[520px]">
+        <div class="flex justify-between items-center mb-12">
+            <h2 class="text-3xl font-serif italic font-black tracking-[0.2em] text-white">COMMAND_CTR</h2>
+            <button onclick="GardenOS.ui.toggleWatcher(false)" class="p-4 text-2xl text-gray-500 hover:text-white">✕</button>
         </div>
-
-        <div class="flex-grow flex flex-col justify-center">
-            <!-- AI 使用限制系统 (Neural Quota) -->
-            <div class="mb-16 p-10 bg-white/[0.02] border border-white/5 rounded-[40px] relative overflow-hidden shadow-2xl">
-                <div class="absolute top-0 left-0 w-1 h-full bg-amber-500/20"></div>
-                <div class="flex justify-between items-center mb-6">
-                    <span class="text-label opacity-50 uppercase tracking-[0.6em] font-mono">Neural_Link_Quota</span>
-                    <span id="quotaDisplay" class="text-amber-500 font-black font-mono text-xl tracking-tighter">15 / 15</span>
-                </div>
-                <!-- 进度条 -->
-                <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden mb-6">
-                    <div id="quotaBar" class="h-full bg-gradient-to-r from-amber-600 to-amber-400 w-full transition-all duration-1000 shadow-[0_0_15px_#e3b341]"></div>
-                </div>
-                <div class="flex justify-between items-center">
-                    <p class="text-[10px] opacity-25 font-mono uppercase tracking-[0.4em]">Refresh: 05:00 AM</p>
-                    <div class="flex gap-2">
-                        <div class="w-1 h-1 bg-amber-500 rounded-full animate-ping"></div>
-                        <span class="text-[10px] text-amber-500 font-bold font-mono">ENCRYPTED</span>
-                    </div>
-                </div>
+        <div id="adminPostArea" class="hidden space-y-6">
+            <p class="precision-tag text-amber-500">// Execute_New_Stub</p>
+            <select id="postTarget" class="w-full bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white focus:border-amber-500 outline-none">
+                <option value="memo">碎碎念</option>
+                <option value="writing">写作区 (需链接)</option>
+                <option value="ingest">摄入区 (需封面)</option>
+                <option value="assets">资产分类 (01-04)</option>
+                <option value="status">生命体征</option>
+            </select>
+            <input type="text" id="postTitle" class="w-full bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white" placeholder="TITLE / CLASSIFICATION (e.g. 01 // FUNDS)">
+            
+            <!-- 恢复的链接字段 -->
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" id="postLinkText" class="bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white" placeholder="TAG / LABEL">
+                <input type="text" id="postLinkUrl" class="bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white" placeholder="URL (https://...)">
             </div>
 
-            <!-- 响应终端 -->
-            <div id="aiResponse" class="min-h-[250px] mb-12 p-10 bg-white/[0.01] rounded-[40px] text-base italic text-gray-400 border-l-[4px] border-amber-500/10 custom-scroll overflow-y-auto leading-relaxed shadow-inner">
-                <span class="text-amber-500 font-bold mr-3 font-mono">SYST:</span>
-                “等待输入神经指令。有什么我能为你留下的存根吗？”
-            </div>
-
-            <!-- 指令输入 -->
-            <div class="relative group">
-                <input type="text" id="aiInput" class="w-full bg-white/[0.03] border border-white/10 rounded-3xl p-7 text-base font-mono focus:outline-none focus:border-amber-500 transition-all pr-24 text-white placeholder-gray-700" placeholder="请输入你的查询指令...">
-                <button id="aiSubmit" class="absolute right-5 top-5 p-4 bg-amber-500 text-black rounded-2xl hover:bg-white hover:scale-105 transition-all shadow-xl active:scale-95">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                </button>
-            </div>
+            <!-- 恢复的图片/数值混合字段 -->
+            <input type="text" id="postValue" class="w-full bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white" placeholder="IMAGE_URL (Cover) OR NUMERIC VALUE (Asset)">
+            
+            <textarea id="postContent" class="w-full bg-black/60 border border-white/10 rounded-xl p-5 text-xs text-white h-32" placeholder="DESCRIPTION / CONTENT..."></textarea>
+            <button onclick="GardenOS.cms.createPost()" class="w-full py-5 bg-amber-500 text-black font-black uppercase tracking-[0.8em] text-[10px] rounded-2xl active:scale-95 transition-all">EXECUTE_PUBLISH</button>
         </div>
-        
-        <footer class="mt-20 pt-10 border-t border-white/5">
-            <div class="flex justify-between items-center">
-                <span class="text-[10px] font-mono opacity-20 uppercase tracking-[0.8em]">DeepSeek // Leviathan_v4</span>
-                <span class="text-[10px] font-mono opacity-10 uppercase tracking-widest">Neural_Sync: OK</span>
-            </div>
-        </footer>
     </aside>
 
-    <!-- 身份锚定弹窗 (Auth Modal) -->
-    <div id="loginModal" class="fixed inset-0 bg-black/98 z-[500] hidden items-center justify-center p-8 backdrop-blur-3xl animate-fade-in">
-        <div class="bg-[#1c1a18] p-20 rounded-[72px] border border-white/10 w-full max-w-lg text-center shadow-amber-glow relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-50 pointer-events-none"></div>
-            
-            <div class="text-label text-amber-500 mb-10 tracking-[1em] font-black uppercase">Authentication_Required</div>
-            <h3 class="text-5xl font-serif italic text-white mb-14 tracking-tight">身份锚定</h3>
-            
-            <div class="relative mb-16">
-                <input type="password" id="authKey" class="w-full bg-white/5 border border-white/10 rounded-3xl p-8 text-center text-5xl mb-4 tracking-[0.8em] focus:outline-none focus:border-amber-500 text-white shadow-inner font-mono" placeholder="••••">
-                <p class="text-[11px] font-mono opacity-20 uppercase tracking-[0.4em] mt-4">Security_Level: OMEGA_PROTOCOL</p>
-            </div>
-
-            <div class="flex gap-10">
-                <button onclick="toggleLogin(false)" class="flex-1 opacity-30 hover:opacity-100 transition-all uppercase tracking-[0.5em] text-xs font-black py-4">Cancel</button>
-                <button onclick="checkAuth()" class="flex-1 py-7 bg-white/10 rounded-[32px] font-black uppercase tracking-[0.8em] text-amber-500 text-sm border border-white/5 shadow-2xl hover:bg-white/20 transition-all duration-500 active:scale-95">Confirm</button>
-            </div>
+    <div id="loginModal" class="fixed inset-0 bg-black/98 z-[500] hidden items-center justify-center p-6 backdrop-blur-3xl">
+        <div class="bg-[#0c0d11] p-12 rounded-[56px] border border-white/10 w-full max-w-md text-center shadow-3xl">
+            <span class="precision-tag mb-10 block text-amber-500">Root_Identity_Auth</span>
+            <input type="password" id="authKeyInput" class="w-full bg-white/5 border border-white/10 rounded-[32px] p-8 text-center text-2xl font-mono text-white mb-10 outline-none">
+            <div class="flex gap-5"><button onclick="GardenOS.ui.toggleLogin(false)" class="flex-1 text-[10px] uppercase opacity-40">Abort</button><button onclick="GardenOS.auth.verify()" class="flex-1 py-6 bg-white/5 border border-white/10 rounded-[24px] text-amber-500 text-[11px] font-bold">Connect</button></div>
         </div>
     </div>
 
-    <!-- 核心内核脚本 -->
     <script>
-        /**
-         * ===============================================================================================
-         * [ LEVIATHAN CORE ENGINE ]
-         * 版本: V46.6.TITAN
-         * ===============================================================================================
-         */
-
-        /**
-         * 背景图资产矩阵 (Asset Manifest)
-         * 这里存储了全量、海量的 Unsplash 图像索引
-         * 为了保持代码完整性与厚重感，禁止折叠或精简此部分
-         */
+        /* --- 全环境感知引擎配置 --- */
         const ASSET_MANIFEST = {
-            spring: { 
-                dawn: ['1490750967868-69c2d016e346', '1521321491-9e9009971018', '1452588145648-5c40097c5493', '1501844024219-30d079b39223', '1486783311388-3ee41a3d386d'], 
-                morning: ['1501785888041-af3ef285b470', '1507525428034-b723cf961d3e', '1496568818300-264b1f48ab41', '1518005052304-a36d181ce812', '1516543716634-8b63486c8d76'], 
-                noon: ['1494526585095-c41746248156', '1493134786447-4474c1ce41e3', '1544256718-47ad237b75db', '1541872703-74c5e443d34f', '1453306458005-57ba01502927'], 
-                afternoon: ['1501844024219-30d079b39223', '1508182314998-a27b95b8363c', '1539667468244-d85a4039201c', '1509059852496-f382216640f0', '1485594050903-8e8ee5326c90'], 
-                sunset: ['1470252646215-68e1c832272c', '1504893570764-85a6d908a30b', '1506496072147-3a041042755e', '1473513935146-1a3003e070d4', '1509565840034-3c3858f4a64d'], 
-                twilight: ['1500326463991-3b74e6284f6c', '1510414842594-58439b170c40', '1498962363535-7c0f2407bc50', '1507608616759-54f48f0af0ee', '1486783311388-3ee41a3d386d'], 
-                night: ['1506459341477-9df083811634', '1498962363535-7c0f2407bc50', '1541872703-74c5e443d34f', '1509565840034-3c3858f4a64d', '1453306458005-57ba01502927'], 
-                latenight: ['1496115965411-61a997a7215f', '1507608616759-54f48f0af0ee', '1486783311388-3ee41a3d386d', '1516962215328-c1f39f75041c', '1453306458005-57ba01502927'] 
-            },
-            summer: { 
-                dawn: ['1501785888041-af3ef285b470', '1504893570764-85a6d908a30b', '1473513935146-1a3003e070d4', '1501785888041-af3ef285b470', '1494526585095-c41746248156'], 
-                morning: ['1507525428034-b723cf961d3e', '1496568818300-264b1f48ab41', '1496568818300-264b1f48ab41', '1507525428034-b723cf961d3e', '1501785888041-af3ef285b470'], 
-                noon: ['1533038590840-751e041983f5', '1506496072147-3a041042755e', '1533038590840-751e041983f5', '1506496072147-3a041042755e', '1494526585095-c41746248156'], 
-                afternoon: ['1473513935146-1a3003e070d4', '1509565840034-3c3858f4a64d', '1473513935146-1a3003e070d4', '1509565840034-3c3858f4a64d', '1496568818300-264b1f48ab41'], 
-                sunset: ['1506496072147-3a041042755e', '1501785888041-af3ef285b470', '1506496072147-3a041042755e', '1501785888041-af3ef285b470', '1533038590840-751e041983f5'], 
-                twilight: ['1504893570764-85a6d908a30b', '1473513935146-1a3003e070d4', '1504893570764-85a6d908a30b', '1473513935146-1a3003e070d4', '1509565840034-3c3858f4a64d'], 
-                night: ['1473513935146-1a3003e070d4', '1509565840034-3c3858f4a64d', '1473513935146-1a3003e070d4', '1509565840034-3c3858f4a64d', '1506496072147-3a041042755e'], 
-                latenight: ['1509565840034-3c3858f4a64d', '1473513935146-1a3003e070d4', '1509565840034-3c3858f4a64d', '1473513935146-1a3003e070d4', '1504893570764-85a6d908a30b'] 
-            },
-            autumn: { 
-                dawn: ['1501844024219-30d079b39223', '1508182314998-a27b95b8363c', '1539667468244-d85a4039201c', '1509059852496-f382216640f0', '1493134786447-4474c1ce41e3'], 
-                morning: ['1508182314998-a27b95b8363c', '1539667468244-d85a4039201c', '1509059852496-f382216640f0', '1493134786447-4474c1ce41e3', '1510414842594-58439b170c40'], 
-                noon: ['1539667468244-d85a4039201c', '1509059852496-f382216640f0', '1493134786447-4474c1ce41e3', '1510414842594-58439b170c40', '1498962363535-7c0f2407bc50'], 
-                afternoon: ['1509059852496-f382216640f0', '1493134786447-4474c1ce41e3', '1510414842594-58439b170c40', '1498962363535-7c0f2407bc50', '1507608616759-54f48f0af0ee'], 
-                sunset: ['1493134786447-4474c1ce41e3', '1510414842594-58439b170c40', '1498962363535-7c0f2407bc50', '1507608616759-54f48f0af0ee', '1501844024219-30d079b39223'], 
-                twilight: ['1510414842594-58439b170c40', '1498962363535-7c0f2407bc50', '1507608616759-54f48f0af0ee', '1501844024219-30d079b39223', '1508182314998-a27b95b8363c'], 
-                night: ['1498962363535-7c0f2407bc50', '1507608616759-54f48f0af0ee', '1501844024219-30d079b39223', '1508182314998-a27b95b8363c', '1539667468244-d85a4039201c'], 
-                latenight: ['1507608616759-54f48f0af0ee', '1501844024219-30d079b39223', '1508182314998-a27b95b8363c', '1539667468244-d85a4039201c', '1509059852496-f382216640f0'] 
-            },
-            winter: { 
-                dawn: ['1486783311388-3ee41a3d386d', '1516962215328-c1f39f75041c', '1518005052304-a36d181ce812', '1516543716634-8b63486c8d76', '1544256718-47ad237b75db'], 
-                morning: ['1516962215328-c1f39f75041c', '1518005052304-a36d181ce812', '1516543716634-8b63486c8d76', '1544256718-47ad237b75db', '1485594050903-8e8ee5326c90'], 
-                noon: ['1518005052304-a36d181ce812', '1516543716634-8b63486c8d76', '1544256718-47ad237b75db', '1485594050903-8e8ee5326c90', '1541872703-74c5e443d34f'], 
-                afternoon: ['1516543716634-8b63486c8d76', '1544256718-47ad237b75db', '1485594050903-8e8ee5326c90', '1541872703-74c5e443d34f', '1453306458005-57ba01502927'], 
-                sunset: ['1544256718-47ad237b75db', '1485594050903-8e8ee5326c90', '1541872703-74c5e443d34f', '1453306458005-57ba01502927', '1486783311388-3ee41a3d386d'], 
-                twilight: ['1485594050903-8e8ee5326c90', '1541872703-74c5e443d34f', '1453306458005-57ba01502927', '1486783311388-3ee41a3d386d', '1516962215328-c1f39f75041c'], 
-                night: ['1541872703-74c5e443d34f', '1453306458005-57ba01502927', '1486783311388-3ee41a3d386d', '1516962215328-c1f39f75041c', '1518005052304-a36d181ce812'], 
-                latenight: ['1453306458005-57ba01502927', '1486783311388-3ee41a3d386d', '1516962215328-c1f39f75041c', '1518005052304-a36d181ce812', '1516543716634-8b63486c8d76'] 
-            }
+            spring: { morning: ['1490750967868-88aa4486c946'], noon: ['1500530855697-b586d89ba3ee'], sunset: ['1493244040629-496f6d136cc8'], night: ['1502082553048-f009c37129b9'] },
+            summer: { morning: ['1501004318641-b39e6451bec6'], noon: ['1507525428034-b723cf961d3e'], sunset: ['1501973801540-537f08ccae7b'], night: ['1502082553048-f009c37129b9'] },
+            autumn: { morning: ['1500534314209-a26db0f5b2c1'], noon: ['1476820865390-c52aeebb9891'], sunset: ['1501975558162-0be7c1c2d46a'], night: ['1478144592103-25e218a04891'] },
+            winter: { morning: ['1483921020237-603db42bf712'], noon: ['1517299321609-52c1da131a1f'], sunset: ['1519757609205-09d577484df8'], night: ['1518536862590-b0c6096054d5', '1478131143081-80f7f84ca84d'] }
         };
 
-        /**
-         * GardenOS 核心控制器
-         */
         const GardenOS = {
-            config: { 
-                aiLimit: 15, 
-                secret: 'Zjx207661',
-                appId: 'leviathan-titan-01'
-            },
-            
-            state: { 
-                aiUsedCount: 0, 
-                lastDate: '',
-                isAuthorized: false
+            config: { secret: 'Zjx207661', storageKey: 'garden_v62_4_db' },
+            state: { season: 'winter', phase: 'night', activeLayer: 1, isAuthorized: false },
+            data: {
+                defaultAssets: [
+                    {title: '01 // FUNDS', content: '700.00', val: 700, color: '#e3b341'},
+                    {title: '02 // STOCKS', content: '0.00', val: 0, color: '#a855f7'},
+                    {title: '03 // CRYPTO', content: '150.00', val: 150, color: '#10b981'},
+                    {title: '04 // METAL', content: '60.00 GR', val: 60, color: '#3b82f6'}
+                ],
+                defaultWriting: [
+                    { title: "铜川往事", content: "被折叠的时间碎片，个体在宏大叙事缝隙中的呼吸。", tag: "Novel", url: "#", date: "2024" }
+                ]
             },
 
-            /**
-             * 系统自检与启动
-             */
             boot() {
-                console.log("%c[LEVIATHAN OS] Core Boot Sequence Initiated...", "color: #e3b341; font-weight: bold;");
-                
-                this.initializeAuth();
-                this.initializeTemporalEngine();
-                this.initializeEnvironment();
-                this.initializeUIInteractions();
-                this.initializeNarrativeGate();
-                
-                // 周期性同步 (30分钟刷新背景，1秒刷新时钟)
-                setInterval(() => this.initializeEnvironment(), 1800000);
-                setInterval(() => this.updateClock(), 1000);
+                this.environment.init();
+                this.auth.init();
+                this.cms.renderAll();
+                this.ui.init();
+                document.body.classList.remove('opacity-0');
             },
 
-            /**
-             * 神经连接配额持久化管理
-             */
-            initializeAuth() {
-                const today = new Date().toDateString();
-                const storageKey = `garden_quota_${this.config.appId}`;
-                const stored = JSON.parse(localStorage.getItem(storageKey) || '{}');
-                
-                if (stored.date !== today) {
-                    this.state.aiUsedCount = 0;
-                    this.state.lastDate = today;
-                    this.syncQuotaToStorage();
-                } else {
-                    this.state.aiUsedCount = stored.count || 0;
-                    this.state.lastDate = today;
-                }
-                this.updateQuotaDisplay();
-                
-                // 检查主授权状态
-                if(localStorage.getItem('leviathan_master_key') === 'authorized') {
-                    this.state.isAuthorized = true;
-                    this.handleAuthorizedSuccess();
-                }
-            },
-
-            syncQuotaToStorage() {
-                const storageKey = `garden_quota_${this.config.appId}`;
-                localStorage.setItem(storageKey, JSON.stringify({
-                    date: this.state.lastDate,
-                    count: this.state.aiUsedCount
-                }));
-            },
-
-            updateQuotaDisplay() {
-                const rem = Math.max(0, this.config.aiLimit - this.state.aiUsedCount);
-                const display = document.getElementById('quotaDisplay');
-                const bar = document.getElementById('quotaBar');
-                
-                if(display) display.innerText = `${rem} / ${this.config.aiLimit}`;
-                if(bar) bar.style.width = `${(rem / this.config.aiLimit) * 100}%`;
-            },
-
-            /**
-             * 时间感知渲染核心
-             */
-            updateClock() {
-                const clock = document.getElementById('clockDisplay');
-                if(clock) clock.innerText = new Date().toLocaleTimeString('en-GB', { hour12: false });
-            },
-
-            initializeTemporalEngine() {
-                this.updateClock();
-            },
-
-            initializeEnvironment() {
-                const season = this.calculateSeason();
-                const phase = this.calculateTimePhase();
-                
-                const assetPool = ASSET_MANIFEST[season][phase];
-                const randomId = assetPool[Math.floor(Math.random() * assetPool.length)];
-                
-                const imgUrl = `https://images.unsplash.com/photo-${randomId}?q=80&w=1920&auto=format&fit=crop`;
-                
-                const bgLayer = document.getElementById('static-bg-layer');
-                if(bgLayer) {
-                    bgLayer.style.backgroundImage = `linear-gradient(to bottom, rgba(13,11,8,0.3), rgba(13,11,8,0.9)), url('${imgUrl}')`;
-                    console.log(`[ATMOSPHERE] Synced to ${season.toUpperCase()} | ${phase.toUpperCase()}`);
+            environment: {
+                init() {
+                    this.updateState();
+                    this.syncBackground(true);
+                    SeasonParticleEngine.init();
+                    TimeColorEngine.init();
+                    SkyEngine.init();
+                    setInterval(() => this.tick(), 1000);
+                    setInterval(() => this.syncBackground(false), 60000);
+                },
+                tick() {
+                    const now = new Date();
+                    document.getElementById('clockDisplay').innerText = now.toLocaleTimeString('zh-CN', { hour12: false });
+                    this.updateState();
+                },
+                updateState() {
+                    const now = new Date();
+                    const m = now.getMonth() + 1;
+                    const h = now.getHours();
+                    let s = (m >= 3 && m <= 5) ? 'spring' : (m >= 6 && m <= 8 ? 'summer' : (m >= 9 && m <= 11 ? 'autumn' : 'winter'));
+                    let p = (h >= 5 && h < 10) ? 'morning' : (h >= 10 && h < 17 ? 'noon' : (h >= 17 && h < 19 ? 'sunset' : 'night'));
+                    if (s !== GardenOS.state.season || p !== GardenOS.state.phase) {
+                        GardenOS.state.season = s; GardenOS.state.phase = p;
+                        document.getElementById('envStatusText').innerText = `${s.toUpperCase()}_CORE_v62.4`;
+                        document.getElementById('seasonIndicator').title = s.toUpperCase();
+                    }
+                },
+                syncBackground(force) {
+                    const pool = ASSET_MANIFEST[GardenOS.state.season][GardenOS.state.phase];
+                    const url = `https://images.unsplash.com/photo-${pool[Math.floor(Math.random() * pool.length)]}?auto=format&fit=crop&w=2400&q=80`;
+                    const next = GardenOS.state.activeLayer === 1 ? 2 : 1;
+                    const nextEl = document.getElementById(`bg-layer-${next}`);
+                    const currentEl = document.getElementById(`bg-layer-${GardenOS.state.activeLayer}`);
+                    const img = new Image(); img.src = url;
+                    img.onload = () => {
+                        nextEl.style.backgroundImage = `url('${url}')`;
+                        nextEl.style.opacity = '1'; currentEl.style.opacity = '0';
+                        GardenOS.state.activeLayer = next;
+                    };
                 }
             },
 
-            calculateSeason() {
-                const month = new Date().getMonth();
-                if (month === 11 || month <= 1) return 'winter';
-                if (month >= 2 && month <= 4) return 'spring';
-                if (month >= 5 && month <= 7) return 'summer';
-                return 'autumn';
-            },
-
-            calculateTimePhase() {
-                const hour = new Date().getHours();
-                if (hour >= 5 && hour < 7) return 'dawn';
-                if (hour >= 7 && hour < 11) return 'morning';
-                if (hour >= 11 && hour < 14) return 'noon';
-                if (hour >= 14 && hour < 17) return 'afternoon';
-                if (hour >= 17 && hour < 19) return 'sunset';
-                if (hour >= 19 && hour < 21) return 'twilight';
-                if (hour >= 21 || hour < 0) return 'night';
-                return 'latenight';
-            },
-
-            /**
-             * 交互逻辑挂载
-             */
-            initializeUIInteractions() {
-                const searchBtn = document.getElementById('searchTrigger');
-                const closeWatcher = document.getElementById('closeDrawer');
-                const aiSubmitBtn = document.getElementById('aiSubmit');
-                const aiInput = document.getElementById('aiInput');
-
-                if(searchBtn) searchBtn.onclick = () => this.setWatcherState(true);
-                if(closeWatcher) closeWatcher.onclick = () => this.setWatcherState(false);
+            ui: {
+                init() {},
+                toggleLogin(s) { document.getElementById('loginModal').style.display = s ? 'flex' : 'none'; },
+                toggleWatcher(s) { document.getElementById('watcherDrawer').style.right = s ? '0' : '-100%'; },
+                toggleDropdown(id) { document.getElementById(id).classList.toggle('active'); },
+                toggleWritingDeck() { document.getElementById('writingCover').classList.toggle('hidden'); document.getElementById('writingList').classList.toggle('hidden'); },
+                activateSearch() { document.getElementById('searchPill').style.width = '240px'; document.getElementById('headerSearchInput').classList.remove('hidden'); document.getElementById('headerSearchInput').focus(); },
+                deactivateSearch() { if (!document.getElementById('headerSearchInput').value) { document.getElementById('headerSearchInput').classList.add('hidden'); document.getElementById('searchPill').style.width = '44px'; } },
                 
-                if(aiSubmitBtn) aiSubmitBtn.onclick = () => this.processNeuralQuery();
-                if(aiInput) aiInput.onkeydown = (e) => { if(e.key === 'Enter') this.processNeuralQuery(); };
-            },
-
-            /**
-             * M2 书写档案: 封面-内容交互逻辑
-             */
-            initializeNarrativeGate() {
-                const card = document.getElementById('narrativeCard');
-                const cover = document.getElementById('narrativeCover');
-                const list = document.getElementById('narrativeList');
-                const closeBtn = document.getElementById('closeNarrativeBtn');
-
-                if(card && cover && list && closeBtn) {
-                    card.onclick = () => {
-                        if(list.classList.contains('hidden')) {
-                            cover.style.opacity = '0';
-                            setTimeout(() => {
-                                cover.classList.add('hidden');
-                                list.classList.remove('hidden');
-                                list.classList.add('flex');
-                            }, 300);
+                search(v) { 
+                    // 简单的客户端搜索/筛选
+                    const items = document.querySelectorAll('.searchable-item');
+                    items.forEach(el => {
+                        const text = el.innerText.toLowerCase();
+                        if(text.includes(v.toLowerCase())) {
+                            el.style.display = 'block';
+                            el.classList.add('animate-slide-up');
+                        } else {
+                            el.style.display = 'none';
                         }
-                    };
+                    });
+                    
+                    // 如果搜索框没打开，打开它并填入值（针对按钮点击）
+                    if(document.getElementById('searchPill').style.width !== '240px' && v !== '') {
+                        this.activateSearch();
+                        document.getElementById('headerSearchInput').value = v;
+                    }
+                },
+                
+                switchChart(t) {
+                    document.getElementById('pieChart').classList.toggle('hidden', t !== 'pie');
+                    document.getElementById('trendChart').classList.toggle('hidden', t !== 'trend');
+                },
+                drawCharts(assets) {
+                    const pie = document.querySelector('.pie-chart');
+                    const totalVal = assets.reduce((sum, a) => sum + a.val, 0);
+                    document.getElementById('totalAssetValue').innerText = Math.round(totalVal);
+                    
+                    if (pie && totalVal > 0) {
+                        let currentPerc = 0;
+                        const gradientParts = assets.map(a => {
+                            const perc = (a.val / totalVal) * 100;
+                            const start = currentPerc;
+                            currentPerc += perc;
+                            return `${a.color} ${start}% ${currentPerc}%`;
+                        });
+                        pie.style.background = `conic-gradient(${gradientParts.join(', ')})`;
+                    } else if (pie) {
+                        pie.style.background = '#222';
+                    }
 
-                    closeBtn.onclick = (event) => {
-                        event.stopPropagation(); // 防止冒泡导致再次打开
-                        list.classList.remove('flex');
-                        list.classList.add('hidden');
-                        cover.classList.remove('hidden');
-                        setTimeout(() => cover.style.opacity = '1', 50);
-                    };
+                    // 趋势图模拟
+                    const line = document.getElementById('trendLine');
+                    const area = document.getElementById('trendArea');
+                    const points = [120, 100, 110, 80, 90, 50, 60].map((y, x) => `${x*50},${y}`).join(' ');
+                    if (line) line.setAttribute('points', points);
+                    if (area) area.setAttribute('d', `M0,150 L${points} L300,150 Z`);
                 }
             },
 
-            setWatcherState(active) {
-                const drawer = document.getElementById('watcherDrawer');
-                if(drawer) drawer.style.right = active ? '0' : '-100%';
+            cms: {
+                renderAll() {
+                    const d = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    const posts = d.posts || [];
+                    
+                    // 1. 渲染资产
+                    const assetListEl = document.getElementById('assetList');
+                    const userAssets = posts.filter(p => p.target === 'assets');
+                    
+                    const finalAssets = GardenOS.data.defaultAssets.map(def => {
+                        const override = userAssets.find(u => u.title.includes(def.title.split(' // ')[0]));
+                        if (override) {
+                            return { ...def, content: override.value, val: parseFloat(override.value) || 0 };
+                        }
+                        return def;
+                    });
+
+                    assetListEl.innerHTML = finalAssets.map(a => `
+                        <div class="asset-item group searchable-item">
+                            <div class="flex items-center gap-3">
+                                <div class="w-1.5 h-6 rounded-full" style="background:${a.color}"></div>
+                                <span class="precision-tag opacity-40 group-hover:opacity-100 transition-all">${a.title}</span>
+                            </div>
+                            <span class="font-mono text-white/90 group-hover:text-amber-500">${a.content}</span>
+                        </div>
+                    `).join('');
+
+                    GardenOS.ui.drawCharts(finalAssets);
+
+                    // 2. 渲染摄入区 (支持封面)
+                    const ingestEl = document.getElementById('ingestList');
+                    const userIngests = posts.filter(p => p.target === 'ingest');
+                    const defaultIngest = `<div class="flex gap-4 items-start searchable-item"><div class="w-12 h-12 bg-white/10 rounded-xl overflow-hidden"><img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=100" class="w-full h-full object-cover"></div><div><h4 class="text-xs font-bold font-serif">《献给阿尔吉侬的花束》</h4><p class="text-[9px] opacity-50">智慧是孤独的解药。</p></div></div>`;
+                    
+                    ingestEl.innerHTML = userIngests.length ? userIngests.map(p => {
+                        const img = p.value && p.value.startsWith('http') ? `<img src="${p.value}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center font-mono text-[9px] opacity-50">BOOK</div>`;
+                        return `<div class="flex gap-4 items-start searchable-item"><div class="w-12 h-12 bg-white/10 rounded-xl overflow-hidden border border-white/5">${img}</div><div><h4 class="text-xs font-bold">${p.title}</h4><p class="text-[9px] opacity-50">${p.content}</p></div></div>`;
+                    }).join('') : defaultIngest;
+                
+                    // 3. 渲染写作区 (支持链接)
+                    const writingEl = document.getElementById('dynamicWritingContainer');
+                    const userWritings = posts.filter(p => p.target === 'writing');
+                    
+                    let html = '';
+                    
+                    // 默认文章
+                    html += `<a href="#" class="bg-black/90 p-10 rounded-[40px] border border-amber-500/20 hover:border-amber-500 block relative transform hover:-translate-y-2 searchable-item">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-500 rounded-l-[40px]"></div>
+                        <h4 class="text-2xl font-serif italic font-bold text-white mb-4">铜川往事</h4>
+                        <p class="text-sm text-gray-400 font-serif leading-loose opacity-80">被折叠的时间碎片，个体的呼吸。</p>
+                        <div class="mt-8"><span class="text-[10px] border border-white/20 px-3 py-1 rounded-full text-white/40">Novel</span></div>
+                    </a>`;
+                    
+                    userWritings.forEach(p => {
+                        html += `<a href="${p.linkUrl || '#'}" target="_blank" class="bg-black/90 p-10 rounded-[40px] border border-white/10 hover:border-amber-500 block relative transform hover:-translate-y-2 transition-all searchable-item">
+                            <div class="absolute top-0 left-0 w-1.5 h-full bg-white/20 rounded-l-[40px] group-hover:bg-amber-500"></div>
+                            <h4 class="text-2xl font-serif italic font-bold text-white mb-4">${p.title}</h4>
+                            <p class="text-sm text-gray-400 font-serif leading-loose opacity-80">${p.content}</p>
+                            <div class="mt-8 flex gap-2">
+                                <span class="text-[10px] border border-white/20 px-3 py-1 rounded-full text-white/40 uppercase">${p.linkText || 'Article'}</span>
+                            </div>
+                        </a>`;
+                    });
+                    
+                    writingEl.innerHTML = html;
+
+                    // 4. 碎碎念
+                    const memoEl = document.getElementById('memoList');
+                    const userMemos = posts.filter(p => p.target === 'memo');
+                    memoEl.innerHTML = userMemos.map(p => `<div class="bg-white/5 p-4 rounded-2xl border border-white/5 searchable-item"><p class="text-[11px] leading-relaxed opacity-70 italic">“${p.content}”</p></div>`).join('') || `<p class="text-[11px] opacity-30 italic text-center">暂无碎片记录</p>`;
+                },
+
+                createPost() {
+                    const target = document.getElementById('postTarget').value;
+                    const title = document.getElementById('postTitle').value.trim();
+                    const value = document.getElementById('postValue').value.trim(); // 既可以做数值，也可以做图片URL
+                    const content = document.getElementById('postContent').value.trim();
+                    const linkText = document.getElementById('postLinkText').value.trim();
+                    const linkUrl = document.getElementById('postLinkUrl').value.trim();
+
+                    if (!title && target === 'assets') return;
+
+                    const d = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    const posts = d.posts || [];
+                    
+                    // 构造统一对象
+                    posts.unshift({ 
+                        id: Date.now(), 
+                        target, 
+                        title, 
+                        value, // 资产数值 OR 图片URL
+                        content, 
+                        linkText, 
+                        linkUrl,
+                        timestamp: new Date().toLocaleString() 
+                    });
+                    
+                    d.posts = posts;
+                    localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(d));
+
+                    // 重置输入
+                    ['postTitle', 'postValue', 'postContent', 'postLinkText', 'postLinkUrl'].forEach(id => document.getElementById(id).value = '');
+                    this.renderAll();
+                }
             },
 
-            /**
-             * AI 神经处理逻辑
-             */
-            async processNeuralQuery() {
-                if (this.state.aiUsedCount >= this.config.aiLimit) {
-                    this.updateNeuralResponse("今日神经连接配额已耗尽。请等待明日太阳升起，守望者将再次苏醒。");
-                    return;
-                }
-
-                const input = document.getElementById('aiInput');
-                const query = input.value.trim();
-                if (!query) return;
-
-                this.updateNeuralResponse("正在同步频率... 请稍候...");
-                input.value = '';
-
-                // 核心 AI 处理延迟模拟
-                try {
-                    setTimeout(() => {
-                        this.state.aiUsedCount++;
-                        this.syncQuotaToStorage();
-                        this.updateQuotaDisplay();
-                        
-                        const responses = [
-                            `“${query}” 已被记入存根。这是你今日发出的第 ${this.state.aiUsedCount} 段信号。`,
-                            `神经连接稳定。关于 “${query}” 的观测已锁定在利维坦坐标。`,
-                            `信号强度 98Hz。观测 “${query}” 的历史回响正在生成中。`
-                        ];
-                        const randomRes = responses[Math.floor(Math.random() * responses.length)];
-                        this.updateNeuralResponse(randomRes);
-                    }, 1800);
-                } catch(err) {
-                    this.updateNeuralResponse("同步失败。神经链路出现溢出。");
+            auth: {
+                init() {
+                    const d = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    if (d.isAuthorized) this.updateUI(true);
+                },
+                verify() {
+                    if (document.getElementById('authKeyInput').value === GardenOS.config.secret) {
+                        const d = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                        d.isAuthorized = true; localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(d));
+                        this.updateUI(true); GardenOS.ui.toggleLogin(false);
+                    }
+                },
+                updateUI(auth) {
+                    if (auth) {
+                        GardenOS.state.isAuthorized = true;
+                        document.getElementById('lockIcon').className = 'ri-shield-user-line text-amber-500';
+                        document.getElementById('adminPostArea').classList.remove('hidden');
+                        document.getElementById('fabPublish').classList.add('visible');
+                    }
                 }
             },
 
-            updateNeuralResponse(message) {
-                const responseBox = document.getElementById('aiResponse');
-                if(responseBox) {
-                    responseBox.innerHTML = `<span class="text-amber-500 font-black animate-pulse mr-2">></span> ${message}`;
+            api: {
+                async handleAIInput(e) {
+                    if (e.key === 'Enter') {
+                        const log = document.getElementById('aiChatLog');
+                        const val = e.target.value;
+                        log.innerHTML += `<div class="text-white">> ${val}</div>`;
+                        e.target.value = '';
+                        log.innerHTML += `<div class="text-amber-500 opacity-50 font-mono">NEURAL_LINK_STUB: 正在处理信号...</div>`;
+                    }
                 }
-            },
-
-            handleAuthorizedSuccess() {
-                const lockIcon = document.querySelector('#adminLockTrigger svg');
-                if(lockIcon) lockIcon.classList.add('text-amber-500', 'drop-shadow-glow');
-                console.log("[AUTH] Access Granted: Master_User");
             }
         };
 
-        /**
-         * 辅助控制函数
-         */
-        function toggleLogin(visible) {
-            const modal = document.getElementById('loginModal');
-            if(modal) modal.style.display = visible ? 'flex' : 'none';
-        }
-
-        function checkAuth() {
-            const val = document.getElementById('authKey').value;
-            if(val === GardenOS.config.secret) {
-                localStorage.setItem('leviathan_master_key', 'authorized');
-                GardenOS.state.isAuthorized = true;
-                GardenOS.handleAuthorizedSuccess();
-                alert("Identity Confirmed. Accessing Layer 0.");
-                toggleLogin(false);
-            } else {
-                alert("Access Denied: Invalid Authentication Token.");
+        /* --- 粒子/天空/色温引擎 --- */
+        const SeasonParticleEngine = {
+            canvas: null, ctx: null, particles: [], season: null,
+            init() { this.canvas = document.getElementById('season-particles'); this.ctx = this.canvas.getContext('2d'); this.resize(); window.addEventListener('resize', () => this.resize()); this.loop(); },
+            resize() { this.canvas.width = innerWidth; this.canvas.height = innerHeight; },
+            loop() {
+                requestAnimationFrame(() => this.loop());
+                if (this.season !== GardenOS.state.season) {
+                    this.season = GardenOS.state.season; this.particles = [];
+                    const count = { spring: 30, summer: 20, autumn: 40, winter: 60 }[this.season] || 20;
+                    for (let i = 0; i < count; i++) this.particles.push({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, vy: Math.random() * 0.6 + 0.2, r: Math.random() * 2 + 1, c: { spring: 'rgba(255,200,220,0.4)', summer: 'rgba(255,255,200,0.3)', autumn: 'rgba(200,120,60,0.4)', winter: 'rgba(255,255,255,0.6)' }[this.season] });
+                }
+                this.ctx.clearRect(0, 0, innerWidth, innerHeight);
+                this.particles.forEach(p => { p.y += p.vy; if (p.y > innerHeight) p.y = -10; this.ctx.fillStyle = p.c; this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.r, 0, 7); this.ctx.fill(); });
             }
-        }
+        };
+        const TimeColorEngine = { el: null, map: { morning: 'rgba(255,200,100,0.1)', noon: 'rgba(255,255,255,0)', sunset: 'rgba(255,100,0,0.15)', night: 'rgba(0,20,100,0.25)' }, init() { this.el = document.getElementById('time-color-filter'); setInterval(() => this.el.style.backgroundColor = this.map[GardenOS.state.phase], 5000); } };
+        const SkyEngine = {
+            canvas: null, ctx: null, mode: null, elements: [],
+            init() { this.canvas = document.getElementById('sky-layer'); this.ctx = this.canvas.getContext('2d'); this.resize(); this.loop(); },
+            resize() { this.canvas.width = innerWidth; this.canvas.height = innerHeight; },
+            loop() {
+                requestAnimationFrame(() => this.loop());
+                const m = (GardenOS.state.phase === 'night') ? 'stars' : (['morning', 'noon'].includes(GardenOS.state.phase) ? 'clouds' : 'none');
+                if (m !== this.mode) {
+                    this.mode = m; this.elements = [];
+                    if (m === 'stars') for (let i = 0; i < 60; i++) this.elements.push({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, r: Math.random() * 1.2, a: Math.random(), da: 0.01 });
+                }
+                this.ctx.clearRect(0, 0, innerWidth, innerHeight);
+                if (this.mode === 'stars') this.elements.forEach(s => { s.a += s.da; if (s.a > 1 || s.a < 0) s.da *= -1; this.ctx.fillStyle = `rgba(255,255,255,${Math.abs(s.a)})`; this.ctx.beginPath(); this.ctx.arc(s.x, s.y, s.r, 0, 7); this.ctx.fill(); });
+            }
+        };
 
-        /**
-         * 页面初始化加载
-         */
-        window.addEventListener('load', () => GardenOS.boot());
+        window.onload = () => GardenOS.boot();
     </script>
 </body>
 </html>
