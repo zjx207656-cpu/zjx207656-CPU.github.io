@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>流光存根 | Digital Garden v63.1 VISUAL_PERFECTION</title>
+    <title>流光存根 | Digital Garden v65.6 LAYOUT_FINAL</title>
     
     <!-- 核心 CSS 引擎 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -61,7 +61,7 @@
         html { background-color: #0c0b0a; margin: 0; overflow-x: hidden; }
         
         body { 
-            background: #000;
+            background: #101214;
             color: #ffffff; min-height: 100vh; font-family: "Noto Serif SC", serif;
         }
 
@@ -70,28 +70,66 @@
             position: fixed; inset: 0; 
             background-size: cover; background-position: center;
             background-repeat: no-repeat;
-            transition: opacity var(--transition-speed) ease-in-out;
+            transition: filter 3s ease-in-out; 
             pointer-events: none;
             z-index: -50;
             background-image: url('https://images.pexels.com/photos/35030856/pexels-photo-35030856.jpeg');
             filter: brightness(0.85) contrast(1.15) sepia(0.05) saturate(0.8);
         }
-        
-        .snow-blizzard {
+
+        /* 季节特效 */
+        .seasonal-layer {
             position: fixed; inset: 0; pointer-events: none; z-index: -45;
-            background-image: 
-                radial-gradient(3px 3px at 100px 50px, rgba(255,255,255,0.8), transparent),
-                radial-gradient(4px 4px at 200px 150px, rgba(255,255,255,0.7), transparent),
-                radial-gradient(2px 2px at 300px 250px, rgba(255,255,255,0.6), transparent);
-            background-size: 500px 500px, 400px 400px, 300px 300px;
-            animation: blizzard 30s linear infinite;
-            opacity: 0.35;
+            opacity: 0; transition: opacity 2s ease;
             mix-blend-mode: screen;
+        }
+        .seasonal-layer.active { opacity: 1; }
+
+        @keyframes blizzard {
+            0% { background-position: 0 0, 0 0, 0 0; }
+            100% { background-position: 400px 1200px, 200px 600px, 100px 400px; }
+        }
+        .effect-winter {
+            background-image: 
+                radial-gradient(3px 3px at 100px 50px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(5px 5px at 200px 150px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(2px 2px at 300px 250px, rgba(255,255,255,0.8), transparent);
+            background-size: 500px 500px, 400px 400px, 300px 300px;
+            animation: blizzard 20s linear infinite;
+        }
+        @keyframes petal-fall {
+            0% { background-position: 0 0, 0 0; transform: translateY(0) rotate(0deg); }
+            100% { background-position: 100px 800px, -50px 600px; transform: translateY(20px) rotate(360deg); }
+        }
+        .effect-spring {
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(255, 192, 203, 0.6), transparent 80%),
+                radial-gradient(circle at 20% 80%, rgba(255, 240, 245, 0.5), transparent 70%);
+            background-size: 300px 300px, 500px 500px;
+            animation: petal-fall 30s linear infinite;
+        }
+        @keyframes firefly {
+            0%, 100% { opacity: 0.2; transform: translate(0, 0); }
+            50% { opacity: 1; transform: translate(10px, -20px); }
+        }
+        .effect-summer {
+            background-image: radial-gradient(2px 2px at 50% 50%, #e3b341, transparent);
+            background-size: 200px 200px;
+            animation: firefly 8s ease-in-out infinite alternate;
+        }
+        @keyframes leaf-fall {
+            0% { background-position: 0 0; }
+            100% { background-position: 100px 1000px; }
+        }
+        .effect-autumn {
+            background-image: linear-gradient(45deg, rgba(217, 119, 6, 0.4) 25%, transparent 25%);
+            background-size: 400px 400px;
+            animation: leaf-fall 40s linear infinite;
         }
         
         .vignette {
             position: fixed; inset: 0; z-index: -40;
-            background: radial-gradient(circle at center, rgba(0,0,0,0) 20%, rgba(2, 6, 23, 0.7) 100%);
+            background: radial-gradient(circle at center, rgba(0,0,0,0) 20%, rgba(5, 8, 16, 0.6) 100%);
             pointer-events: none;
         }
 
@@ -100,7 +138,7 @@
             position: relative; z-index: 10;
         }
 
-        /* 布局 */
+        /* --- 布局矩阵 --- */
         .titan-matrix {
             display: grid; gap: 1.5rem; grid-template-columns: repeat(1, 1fr);
         }
@@ -108,7 +146,8 @@
         @media (min-width: 1024px) {
             .titan-matrix {
                 grid-template-columns: repeat(4, 1fr);
-                grid-template-rows: 240px 240px auto auto auto; 
+                /* FIX: 增加最后一行高度 (520px) */
+                grid-template-rows: 240px 240px auto auto minmax(520px, auto); 
                 padding-bottom: 8rem;
             }
             .card-m1 { grid-column: 1 / span 2; grid-row: 1 / span 2; }
@@ -126,7 +165,8 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 32px; padding: 2rem;
             transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative; overflow: hidden;
+            position: relative; 
+            overflow: visible; /* 允许溢出 */
         }
         .glass-cell:hover {
             border-color: rgba(227, 179, 65, 0.4);
@@ -148,7 +188,6 @@
         @media (min-width: 768px) { .watcher-drawer-width { width: 520px; } }
 
         .auth-glow { color: var(--amber-primary) !important; filter: drop-shadow(0 0 12px var(--amber-primary)); }
-        
         .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; transform: translateY(15px); }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
@@ -166,10 +205,7 @@
         .header-circle-btn:hover { border-color: rgba(227, 179, 65, 0.5); color: #e3b341; }
         
         .search-pill-expanded {
-            width: 240px !important;
-            border-radius: 9999px !important;
-            padding-left: 1rem;
-            justify-content: flex-start !important;
+            width: 240px !important; padding-left: 1rem; justify-content: flex-start !important;
         }
 
         .dropdown-menu {
@@ -197,20 +233,18 @@
         }
         .asset-compact-item:hover { background: rgba(227, 179, 65, 0.1); border-color: rgba(227, 179, 65, 0.3); transform: translateX(4px); }
 
-        /* 图表布局优化：左右分栏 */
-        .chart-wrapper { 
-            position: relative; width: 100%; height: 100%; 
-            display: flex; align-items: center; 
-        }
+        .chart-wrapper { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         .pie-layout {
-            display: flex; width: 100%; height: 100%;
-            align-items: center; justify-content: space-between;
+            display: flex; flex-direction: row; flex-wrap: nowrap; 
+            width: 100%; height: 100%;
+            align-items: center; justify-content: space-between; 
+            gap: 1.5rem;
         }
         .pie-chart {
             width: 140px; height: 140px; border-radius: 50%;
             position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            flex-shrink: 0;
-            background: #222; /* 初始底色 */
+            flex-shrink: 0; 
+            background: #222;
         }
         .pie-chart::after {
             content: ''; position: absolute; inset: 40px; background: #15181e; border-radius: 50%;
@@ -218,18 +252,18 @@
         .pie-label-container { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; z-index: 10; }
         
         .pie-legend { 
-            display: flex; flex-direction: column; gap: 0.6rem; 
-            padding-left: 1.5rem; border-left: 1px solid rgba(255,255,255,0.05);
-            flex-grow: 1;
+            display: flex; flex-direction: column; gap: 0.8rem; justify-content: center; 
+            padding-left: 1.5rem; border-left: 1px solid rgba(255,255,255,0.05); 
+            flex-grow: 1; min-width: 120px; flex-shrink: 0;
         }
         .legend-item { 
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between; 
             font-family: 'JetBrains Mono'; font-size: 11px; color: rgba(255,255,255,0.7); 
-            width: 100%;
+            width: 100%; white-space: nowrap; 
         }
         .legend-key { display: flex; align-items: center; gap: 0.5rem; }
-        .legend-dot { width: 6px; height: 6px; border-radius: 2px; }
-        .legend-val { color: #fff; opacity: 0.9; }
+        .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+        .legend-val { color: #fff; opacity: 0.9; font-weight: bold; margin-left: auto; }
 
         svg.trend-chart { width: 100%; height: 100%; overflow: visible; }
         .trend-line { 
@@ -261,8 +295,16 @@
 </head>
 <body class="opacity-0 animate-fade-in-pro">
 
+    <!-- 1. 静态背景层 (LOCKED) -->
     <div id="bg-layer-1" class="bg-layer"></div>
-    <div class="snow-blizzard"></div>
+    
+    <!-- 2. 四季特效层 -->
+    <div id="fx-spring" class="seasonal-layer effect-spring"></div>
+    <div id="fx-summer" class="seasonal-layer effect-summer"></div>
+    <div id="fx-autumn" class="seasonal-layer effect-autumn"></div>
+    <!-- 默认开启冬季特效 -->
+    <div id="fx-winter" class="seasonal-layer effect-winter active"></div>
+
     <div class="vignette"></div>
 
     <div class="layout-container">
@@ -277,7 +319,8 @@
             </div>
             
             <div class="flex flex-col items-end gap-5">
-                <div id="clockDisplay" class="font-mono text-[14px] text-amber-500 font-bold tracking-[0.4em] mb-1 drop-shadow-glow">00:00:00</div>
+                <!-- 3. 时间显示 (包含日期, z-50 确保不被遮挡) -->
+                <div id="clockDisplay" class="font-mono text-[14px] text-amber-500 font-bold tracking-[0.2em] mb-1 drop-shadow-md relative z-50">0000.00.00 00:00:00</div>
                 
                 <div class="flex items-center gap-4 relative">
                     <!-- 1. 搜索 -->
@@ -325,8 +368,8 @@
                              </div>
                         </div>
                     </div>
-                    <!-- 4. 季节 -->
-                    <div class="header-circle-btn h-11 w-11 text-white/50 cursor-default" title="Winter">
+                    <!-- 4. 季节 (非交互，仅状态) -->
+                    <div class="header-circle-btn h-11 w-11 text-white/50 cursor-default" title="Auto Season">
                          <span id="linkDot" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                     </div>
                     <!-- 5. 登录 -->
@@ -341,7 +384,7 @@
             <!-- M1 -->
             <div class="glass-cell card-m1 flex flex-col justify-between group h-full">
                 <div>
-                    <span class="precision-tag text-amber-500">Neural_Scale_v63.1</span>
+                    <span class="precision-tag text-amber-500">Neural_Scale_v65.6</span>
                     <h2 class="text-4xl font-bold font-serif mt-12 mb-8 tracking-wide whitespace-nowrap">生活刻度</h2>
                     <div class="space-y-10">
                         <div>
@@ -400,8 +443,8 @@
                 </div>
             </div>
 
-            <!-- M6: 资产终端 (修复布局) -->
-            <div class="glass-cell card-m6 min-h-[440px] overflow-hidden">
+            <!-- M6: 资产终端 (修复：布局高度、溢出、内边距) -->
+            <div class="glass-cell card-m6 min-h-[440px] pb-16 overflow-visible"> <!-- FIX: pb-16 + overflow-visible -->
                 <div class="flex justify-between items-start mb-14">
                     <span class="precision-tag text-white/30 tracking-[4em] uppercase">Wealth_Pulse</span>
                     <div class="flex items-center gap-3">
@@ -416,12 +459,11 @@
                         <!-- JS 填充 -->
                     </div>
                     
-                    <!-- 右侧：可视化区域 (左右布局) -->
-                    <div id="vizContainer" class="w-full lg:w-2/3 bg-black/40 rounded-[48px] border border-white/5 relative overflow-hidden flex flex-col items-center justify-center p-8 shadow-inner">
-                        <!-- 饼图 (默认) -->
+                    <!-- 右侧：可视化区域 (修复：增加内边距与圆角裁剪) -->
+                    <div id="vizContainer" class="w-full lg:w-2/3 bg-black/40 rounded-[48px] border border-white/5 relative overflow-hidden flex flex-col items-center justify-center p-8 shadow-inner h-full min-h-[320px]">
+                        <!-- 饼图 (左右布局) -->
                         <div id="pieChart" class="chart-wrapper w-full h-full">
                              <div class="pie-layout">
-                                <!-- Chart -->
                                 <div class="relative flex-shrink-0">
                                     <div class="pie-chart"></div>
                                     <div class="pie-label-container absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
@@ -429,7 +471,6 @@
                                         <span class="text-[9px] tracking-widest text-white/50 uppercase">Total</span>
                                     </div>
                                 </div>
-                                <!-- Legend (Right Side) -->
                                 <div class="pie-legend">
                                     <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#e3b341]"></div> FUNDS</div> <span id="legFundsVal" class="legend-val">0</span></div>
                                     <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#10b981]"></div> STOCKS</div> <span id="legStocksVal" class="legend-val">0</span></div>
@@ -488,7 +529,7 @@
 
     <script>
         const GardenOS = {
-            config: { secret: 'Zjx207661', storageKey: 'garden_v63_1_db', deepSeekApiKey: 'sk-437d432e53664e489b60a9349619a879', dailyLimit: 15 },
+            config: { secret: 'Zjx207661', storageKey: 'garden_v65_6_db', deepSeekApiKey: 'sk-437d432e53664e489b60a9349619a879', dailyLimit: 15 },
             data: {
                 defaultContent: {
                     assets: [
@@ -501,17 +542,18 @@
                     memo: '“岁月不语，唯有文字能在大雪中取暖。”'
                 }
             },
-            state: { isAuthorized: false, currentSeason: 'winter', currentPhase: 'night' },
+            state: { isAuthorized: false, currentSeason: 'winter', currentPhase: 'night', activeBgLayer: 1, lastLoadedUrl: '' },
 
             boot() {
                 this.auth.init();
-                this.temporal.init();
+                this.environment.updateAtmosphere();
+                setInterval(() => this.environment.updateAtmosphere(), 60000);
                 this.ui.init();
                 this.cms.renderAll();
-                setTimeout(() => this.ui.activateAnimations(), 500); // 延时激活入场动画
+                setTimeout(() => this.ui.activateAnimations(), 500); 
             },
 
-            // --- API (DEEPSEEK) ---
+            // --- API ---
             api: {
                 getUsage() { const t=new Date().toDateString(), u=JSON.parse(localStorage.getItem('garden_ai_usage')||'{}'); return u.date!==t?{date:t,count:0}:u; },
                 updateUsage(c) { localStorage.setItem('garden_ai_usage', JSON.stringify({date:new Date().toDateString(),count:c})); document.getElementById('aiUsageText').innerText=`${c}/15`; },
@@ -554,14 +596,34 @@
                 }
             },
 
-            temporal: {
-                init() { this.tick(); setInterval(() => this.tick(), 1000); },
-                tick() { const clock = document.getElementById('clockDisplay'); if(clock) clock.innerText = new Date().toLocaleTimeString('en-GB', { hour12: false }); }
+            environment: {
+                updateAtmosphere() {
+                    // Update Clock
+                    setInterval(() => { 
+                        const d = new Date();
+                        // 修复：格式化为 YYYY.MM.DD HH:MM:SS
+                        const dateStr = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
+                        const timeStr = d.toLocaleTimeString('en-GB', { hour12: false });
+                        document.getElementById('clockDisplay').innerText = `${dateStr} ${timeStr}`;
+                    }, 1000);
+                    
+                    // Simple Season Check based on month
+                    const m = new Date().getMonth() + 1;
+                    let s = 'winter';
+                    if (m>=3 && m<=5) s='spring';
+                    else if(m>=6 && m<=8) s='summer';
+                    else if(m>=9 && m<=11) s='autumn';
+                    
+                    // Toggle seasonal layer
+                    document.querySelectorAll('.seasonal-layer').forEach(l => l.classList.remove('active'));
+                    const fx = document.getElementById(`fx-${s}`);
+                    if(fx) fx.classList.add('active');
+                }
             },
 
             ui: {
                 init() { 
-                    // 修复：确保ID存在后再操作，或什么都不做等待renderAll
+                    // Safe init
                 },
                 activateAnimations() {
                     document.querySelector('.layout-container').classList.add('opacity-100');
@@ -589,9 +651,7 @@
                     const p1 = (breakdown.funds/total)*100 || 0;
                     const p2 = p1 + (breakdown.stocks/total)*100 || 0;
                     const p3 = p2 + (breakdown.crypto/total)*100 || 0;
-                    const p4 = p3 + (breakdown.metal/total)*100 || 0; // Should approach 100
 
-                    // 模拟动态加载：0ms后应用渐变
                     setTimeout(() => {
                         pieEl.style.background = `conic-gradient(
                             #e3b341 0% ${p1}%, 
@@ -603,13 +663,11 @@
                     
                     document.getElementById('totalAssetVal').innerText = total;
 
-                    // 更新图例数值
                     document.getElementById('legFundsVal').innerText = `${breakdown.funds} (${Math.round(p1)}%)`;
                     document.getElementById('legStocksVal').innerText = `${breakdown.stocks} (${Math.round(p2-p1)}%)`;
                     document.getElementById('legCryptoVal').innerText = `${breakdown.crypto} (${Math.round(p3-p2)}%)`;
                     document.getElementById('legMetalVal').innerText = `${breakdown.metal} (${Math.round(100-p3)}%)`;
 
-                    // Trend
                     const trendData = [];
                     for(let i=6; i>0; i--) { trendData.push(Math.floor(total * (1 + (Math.random()*0.1-0.05)))); }
                     trendData.push(total);
@@ -706,24 +764,17 @@
                     let breakdown = { funds: 0, stocks: 0, crypto: 0, metal: 0 };
                     
                     const assetMix = [];
-                    // User posts first (newest)
                     userAssets.forEach(p => assetMix.push(p));
-                    // Defaults filler
                     for(let i=0; i<4; i++) {
-                         // We always want to show the defaults if user hasn't overridden them with *new* posts in that 'slot'.
-                         // But users just add posts to a list.
-                         // Strategy: If user has < 4 posts, fill rest with defaults.
-                         if(assetMix.length < 4) assetMix.push(defAssets[i]); 
+                        if(assetMix.length < 4 && defAssets[i]) assetMix.push(defAssets[i]); 
                     }
                     
-                    // Calc Breakdown & Render List
                     assetMix.slice(0,4).forEach((p, idx) => {
                         let valStr = (p.content || p.val || '0').toString().replace(/,/g,'').replace(/[^0-9.]/g, '');
                         let v = parseFloat(valStr);
                         if(isNaN(v)) v = 0;
                         totalValue += v;
                         
-                        // Map index to category for visualization (Approximation)
                         if(idx === 0) breakdown.funds = v;
                         if(idx === 1) breakdown.stocks = v;
                         if(idx === 2) breakdown.crypto = v;
