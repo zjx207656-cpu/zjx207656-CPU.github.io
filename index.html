@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>流光存根 | Digital Garden v71.2 STYLE_FIX</title>
+    <title>流光存根 | Digital Garden v71.7 FULL_RESTORE</title>
     
     <!-- 核心 CSS 引擎 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,7 +27,10 @@
                     animation: {
                         'fade-in-pro': 'fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'scan-line': 'scanline 8s linear infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'blizzard': 'blizzard 30s linear infinite',
+                        'dash': 'dash 2s ease-out forwards',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
@@ -35,7 +38,8 @@
                         blizzard: {
                             '0%': { backgroundPosition: '0 0, 0 0, 0 0' },
                             '100%': { backgroundPosition: '400px 1200px, 200px 600px, 100px 400px' }
-                        }
+                        },
+                        dash: { from: { strokeDashoffset: '1000' }, to: { strokeDashoffset: '0' } }
                     }
                 }
             }
@@ -59,20 +63,24 @@
         body { 
             background: #101214;
             color: #ffffff; min-height: 100vh; font-family: "Noto Serif SC", serif;
+            position: relative;
+            transform: translateZ(0); /* 强制 GPU 层 */
         }
 
-        /* 背景层：CSS 强锁 */
-        .bg-layer {
+        /* 1. 背景层：CSS 强锁 (防黑屏) */
+        body::before {
+            content: "";
             position: fixed; inset: 0; 
             background-size: cover; background-position: center;
             background-repeat: no-repeat;
-            z-index: -50;
-            background-image: url('https://images.pexels.com/photos/35030856/pexels-photo-35030856.jpeg') !important;
+            z-index: -100;
+            background-image: url('https://images.pexels.com/photos/35030856/pexels-photo-35030856.jpeg');
             filter: brightness(0.85) contrast(1.15) sepia(0.05) saturate(0.8);
             transform: translateZ(0); 
-            opacity: 1 !important;
+            pointer-events: none;
         }
 
+        /* 2. 四季特效层 */
         .seasonal-layer {
             position: fixed; inset: 0; pointer-events: none; z-index: -45;
             opacity: 0; transition: opacity 2s ease; mix-blend-mode: screen;
@@ -90,6 +98,38 @@
                 radial-gradient(2px 2px at 300px 250px, rgba(255,255,255,0.8), transparent);
             background-size: 500px 500px, 400px 400px, 300px 300px;
             animation: blizzard 20s linear infinite;
+        }
+
+        @keyframes petal-fall {
+            0% { background-position: 0 0, 0 0; transform: translateY(0) rotate(0deg); }
+            100% { background-position: 100px 800px, -50px 600px; transform: translateY(20px) rotate(360deg); }
+        }
+        .effect-spring {
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(255, 192, 203, 0.6), transparent 80%),
+                radial-gradient(circle at 20% 80%, rgba(255, 240, 245, 0.5), transparent 70%);
+            background-size: 300px 300px, 500px 500px;
+            animation: petal-fall 30s linear infinite;
+        }
+
+        @keyframes firefly {
+            0%, 100% { opacity: 0.2; transform: translate(0, 0); }
+            50% { opacity: 1; transform: translate(10px, -20px); }
+        }
+        .effect-summer {
+            background-image: radial-gradient(2px 2px at 50% 50%, #e3b341, transparent);
+            background-size: 200px 200px;
+            animation: firefly 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes leaf-fall {
+            0% { background-position: 0 0; }
+            100% { background-position: 100px 1000px; }
+        }
+        .effect-autumn {
+            background-image: linear-gradient(45deg, rgba(217, 119, 6, 0.4) 25%, transparent 25%);
+            background-size: 400px 400px;
+            animation: leaf-fall 40s linear infinite;
         }
         
         .vignette {
@@ -110,7 +150,7 @@
         @media (min-width: 1024px) {
             .titan-matrix {
                 grid-template-columns: repeat(4, 1fr);
-                grid-template-rows: auto auto auto auto minmax(440px, auto); 
+                grid-template-rows: 240px 240px auto auto minmax(480px, auto); 
                 padding-bottom: 8rem;
             }
             .card-m1 { grid-column: 1 / span 2; grid-row: 1 / span 2; }
@@ -149,7 +189,11 @@
         @media (min-width: 768px) { .watcher-drawer-width { width: 520px; } }
 
         .auth-glow { color: var(--amber-primary) !important; filter: drop-shadow(0 0 12px var(--amber-primary)); }
-        
+        .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; transform: translateY(15px); }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* FIX: 找回丢失的按钮样式 */
+        .header-btn-container { position: relative; }
         .header-circle-btn {
             width: 44px; height: 44px; border-radius: 9999px;
             background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
@@ -158,6 +202,10 @@
         }
         .header-circle-btn:hover { border-color: rgba(227, 179, 65, 0.5); color: #e3b341; }
         
+        .search-pill-expanded {
+            width: 240px !important; padding-left: 1rem; justify-content: flex-start !important;
+        }
+
         .dropdown-menu {
             opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.95);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -193,9 +241,10 @@
         .grid-line { stroke: rgba(255,255,255,0.05); stroke-width: 1; }
         .trend-point { fill: #0c0b0a; stroke: var(--amber-primary); stroke-width: 2; r: 0; transition: all 0.2s; cursor: pointer; animation: popIn 0.5s ease-out forwards; animation-delay: 2s; }
         .trend-point:hover { r: 6; fill: white; }
+        @keyframes popIn { to { r: 3; } }
 
         .fab-publish {
-            position: fixed; bottom: 40px; right: 40px; width: 64px; height: 64px; background: var(--amber-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(227, 179, 65, 0.3); color: #000; font-size: 24px; cursor: pointer; z-index: 100; transition: transform 0.3s opacity 0.3s; opacity: 0; pointer-events: none; transform: scale(0.8);
+            position: fixed; bottom: 40px; right: 40px; width: 64px; height: 64px; background: var(--amber-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(227, 179, 65, 0.3); color: #000; font-size: 24px; cursor: pointer; z-index: 100; transition: transform 0.3s; opacity: 0; pointer-events: none; transform: scale(0.8);
         }
         .fab-publish.visible { opacity: 1; pointer-events: auto; transform: scale(1); }
         .fab-publish:hover { transform: scale(1.1) rotate(90deg); }
@@ -218,7 +267,7 @@
         <!-- 头部 -->
         <header class="flex flex-col lg:flex-row justify-between items-end gap-10 mb-20">
             <div class="w-full">
-                <h1 class="text-5xl lg:text-7xl font-black tracking-[0.2em] font-serif mb-8 hover:text-amber-500 transition-all duration-1000 text-white">流光存根</h1>
+                <h1 class="text-5xl lg:text-7xl font-black tracking-[0.2em] font-serif mb-8 hover:text-amber-500 transition-all duration-1000">流光存根</h1>
                 <div class="h-px w-64 bg-gradient-to-r from-amber-500/60 to-transparent mb-5"></div>
                 <p class="text-xs lg:text-sm text-gray-400 italic font-serif opacity-80 tracking-[0.25em] leading-loose">
                     具体的生活，是抵御虚无的最后一道防线。
@@ -230,14 +279,14 @@
                 
                 <div class="flex items-center gap-4 relative">
                     <!-- Search -->
-                    <div class="relative">
+                    <div class="header-btn-container relative">
                         <div id="searchPill" class="header-circle-btn overflow-hidden w-11 h-11" onclick="GardenOS.ui.activateSearch()">
                             <i id="searchIcon" class="ri-search-line text-lg text-white/50"></i>
-                            <input type="text" id="headerSearchInput" onkeyup="GardenOS.ui.search(this.value)" onblur="GardenOS.ui.deactivateSearch()" class="hidden w-full bg-transparent border-0 outline-none text-xs font-mono text-white placeholder-white/30 h-full ml-2" placeholder="搜索内容...">
+                            <input type="text" id="headerSearchInput" onkeyup="GardenOS.ui.search(this.value)" onblur="GardenOS.ui.deactivateSearch()" class="hidden w-full bg-transparent border-0 outline-none text-xs font-mono text-white placeholder-white/30 h-full ml-2" placeholder="SEARCH...">
                         </div>
                     </div>
                     <!-- AI -->
-                    <div class="relative">
+                    <div class="header-btn-container relative">
                         <div id="aiBtn" onclick="GardenOS.ui.toggleDropdown('aiMenu')" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50">
                              <i class="ri-brain-line text-lg"></i>
                         </div>
@@ -257,7 +306,7 @@
                         </div>
                     </div>
                     <!-- Contact -->
-                    <div class="relative">
+                    <div class="header-btn-container relative">
                         <div id="contactBtn" onclick="GardenOS.ui.toggleDropdown('contactMenu')" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50">
                              <i class="ri-signal-tower-line text-lg"></i>
                         </div>
@@ -268,8 +317,12 @@
                              </div>
                         </div>
                     </div>
+                    <!-- Season -->
+                    <div class="header-circle-btn h-11 w-11 text-white/50 cursor-default" title="Auto Season">
+                         <span id="linkDot" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    </div>
                     <!-- Login -->
-                    <div onclick="GardenOS.ui.toggleLogin(true)" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50 cursor-pointer">
+                    <div onclick="GardenOS.ui.toggleLogin(true)" class="header-circle-btn h-11 w-11 text-white/50 hover:text-amber-500 hover:border-amber-500/50 cursor-pointer" title="Login">
                          <i id="lockIcon" class="ri-user-3-line text-lg"></i>
                     </div>
                 </div>
@@ -280,12 +333,12 @@
             <!-- M1: 生活刻度 -->
             <div class="glass-cell card-m1 flex flex-col justify-between group h-full relative">
                 <div class="absolute top-8 right-8 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onclick="GardenOS.ui.openHistory('status')" class="text-white/20 hover:text-amber-500 transition-colors"><i class="ri-history-line text-xl"></i></button>
-                    <button onclick="GardenOS.ui.openQuickEdit()" class="text-white/20 hover:text-amber-500 transition-colors"><i class="ri-edit-line text-xl"></i></button>
+                    <button onclick="GardenOS.ui.openHistory('status')" class="text-white/20 hover:text-amber-500 transition-colors" title="历史记录"><i class="ri-history-line text-xl"></i></button>
+                    <button onclick="GardenOS.ui.openQuickEdit()" class="text-white/20 hover:text-amber-500 transition-colors" title="快速编辑"><i class="ri-edit-line text-xl"></i></button>
                 </div>
                 
                 <div class="flex-grow">
-                    <!-- FIX: 小字恢复英文防止间距过大 -->
+                    <!-- FIX: 恢复英文标签 -->
                     <span class="precision-tag text-amber-500">LIFE_METRICS</span>
                     <h2 class="text-4xl font-bold font-serif mt-4 mb-8 tracking-wide whitespace-nowrap text-white">生活刻度</h2>
                     <div class="space-y-8">
@@ -294,6 +347,7 @@
                             <div class="h-[1px] w-full bg-white/10 relative overflow-hidden"><div class="absolute h-full bg-white w-[95%] shadow-[0_0_20px_white]"></div></div>
                         </div>
                         
+                        <!-- 生活记录显示区 -->
                         <div id="lifeLogContainer" class="hidden border-l border-amber-500/20 pl-4 py-2">
                             <span class="precision-tag text-[8px] opacity-40 block mb-3">REC_LIFE_TRACE</span>
                             <div id="lifeLogList" class="space-y-3 max-h-[140px] overflow-y-auto custom-scroll pr-2"></div>
@@ -304,8 +358,8 @@
                 </div>
                 
                 <div class="flex gap-20 pt-10 border-t border-white/10 mt-6">
-                    <div><div class="text-3xl font-mono font-light tracking-tighter text-white"><span id="valWeight">55.0</span> <span class="text-[10px] opacity-30 uppercase font-black">Kg</span></div><div class="precision-tag mt-3 opacity-50">Mass</div></div>
-                    <div><div class="text-3xl font-mono font-light tracking-tighter text-white"><span id="valVitality">98</span> <span class="text-[10px] opacity-30 uppercase font-black">En</span></div><div class="precision-tag mt-3 opacity-50">Vitality</div></div>
+                    <div><div class="text-3xl font-mono font-light tracking-tighter"><span id="valWeight">55.0</span> <span class="text-[10px] opacity-30 uppercase font-black">Kg</span></div><div class="precision-tag mt-3 opacity-50">Mass</div></div>
+                    <div><div class="text-3xl font-mono font-light tracking-tighter"><span id="valVitality">98</span> <span class="text-[10px] opacity-30 uppercase font-black">En</span></div><div class="precision-tag mt-3 opacity-50">Vitality</div></div>
                 </div>
             </div>
 
@@ -313,7 +367,7 @@
             <div id="ingestCard" class="glass-cell card-m3 flex flex-col justify-between">
                 <div class="flex justify-between items-center mb-8">
                     <span class="precision-tag text-white/40">// INGEST_RECORD</span>
-                    <button onclick="GardenOS.ui.openHistory('ingest')" class="text-white/20 hover:text-amber-500 transition-colors"><i class="ri-history-line text-xl"></i></button>
+                    <button onclick="GardenOS.ui.openHistory('ingest')" class="text-white/20 hover:text-amber-500 transition-colors" title="View History"><i class="ri-history-line text-xl"></i></button>
                 </div>
                 <div id="ingestListContainer" class="overflow-y-auto custom-scroll h-full pr-3"><div id="ingestList" class="space-y-6"></div></div>
             </div>
@@ -322,7 +376,7 @@
             <div id="memoCard" class="glass-cell card-m2 flex flex-col justify-start">
                 <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
                     <span class="precision-tag text-amber-500/60 tracking-widest uppercase">Fragmented_Echoes</span>
-                    <button onclick="GardenOS.ui.openHistory('memo')" class="text-white/20 hover:text-amber-500 transition-colors"><i class="ri-history-line text-xl"></i></button>
+                    <button onclick="GardenOS.ui.openHistory('memo')" class="text-white/20 hover:text-amber-500 transition-colors" title="View History"><i class="ri-history-line text-xl"></i></button>
                 </div>
                 <div id="memoList" class="w-full h-full overflow-y-auto custom-scroll pr-3 space-y-6 max-h-[160px]"></div>
             </div>
@@ -361,30 +415,38 @@
                 </div>
             </div>
 
-            <!-- M6: 财富脉搏 -->
+            <!-- M6: 资产终端 (修复：布局不截断) -->
             <div class="glass-cell card-m6 min-h-[440px] pb-16 overflow-visible">
                 <div class="flex justify-between items-start mb-14">
                     <span class="precision-tag text-white/30 tracking-[4em] uppercase">WEALTH_PULSE</span>
                     <div class="flex items-center gap-3">
-                         <button onclick="GardenOS.ui.switchChart('pie')" id="btnPie" class="text-[10px] text-amber-500 hover:text-white font-bold transition-colors uppercase">Distribution</button>
+                         <button onclick="GardenOS.ui.switchChart('pie')" id="btnPie" class="text-[10px] text-amber-500 hover:text-white font-bold transition-colors">DISTRIBUTION</button>
                          <span class="text-white/20">|</span>
-                         <button onclick="GardenOS.ui.switchChart('trend')" id="btnTrend" class="text-[10px] text-white/50 hover:text-amber-500 font-bold transition-colors uppercase">Trend</button>
+                         <button onclick="GardenOS.ui.switchChart('trend')" id="btnTrend" class="text-[10px] text-white/50 hover:text-amber-500 font-bold transition-colors">TREND</button>
                     </div>
                 </div>
                 <div class="flex flex-col lg:flex-row gap-12 h-full">
-                    <div id="assetList" class="w-full lg:w-1/3 flex flex-col gap-2 pr-2 h-full"></div>
-                    <div id="vizContainer" class="w-full lg:w-2/3 bg-black/40 rounded-[48px] border border-white/5 relative overflow-hidden flex flex-col items-center justify-center p-8 shadow-inner h-full min-h-[300px] m6-inner-clip">
+                    <!-- 左侧：一列资产 -->
+                    <div id="assetList" class="w-full lg:w-1/3 flex flex-col gap-2 pr-2 h-full">
+                        <!-- JS 填充 -->
+                    </div>
+                    
+                    <!-- 右侧：可视化区域 -->
+                    <div id="vizContainer" class="w-full lg:w-2/3 bg-black/40 rounded-[48px] border border-white/5 relative overflow-hidden flex flex-col items-center justify-center p-8 shadow-inner h-full min-h-[300px]">
+                        <!-- 饼图 (左右布局) -->
                         <div id="pieChart" class="chart-wrapper w-full h-full">
                              <div class="pie-layout">
                                 <div class="relative flex-shrink-0"><div class="pie-chart"></div><div class="pie-label-container absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><span class="text-xl font-mono font-bold text-white mb-1" id="totalAssetVal">910</span><span class="text-[9px] tracking-widest text-white/50 uppercase">Total</span></div></div>
                                 <div class="pie-legend">
-                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#e3b341]"></div> FUNDS</div> <span id="legFundsVal" class="legend-val text-white">0</span></div>
-                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#10b981]"></div> STOCKS</div> <span id="legStocksVal" class="legend-val text-white">0</span></div>
-                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#3b82f6]"></div> CRYPTO</div> <span id="legCryptoVal" class="legend-val text-white">0</span></div>
-                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#a8a29e]"></div> METAL</div> <span id="legMetalVal" class="legend-val text-white">0</span></div>
+                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#e3b341]"></div> FUNDS</div> <span id="legFundsVal" class="legend-val">0</span></div>
+                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#10b981]"></div> STOCKS</div> <span id="legStocksVal" class="legend-val">0</span></div>
+                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#3b82f6]"></div> CRYPTO</div> <span id="legCryptoVal" class="legend-val">0</span></div>
+                                    <div class="legend-item"><div class="legend-key"><div class="legend-dot bg-[#a8a29e]"></div> METAL</div> <span id="legMetalVal" class="legend-val">0</span></div>
                                 </div>
                              </div>
                         </div>
+                        
+                        <!-- 趋势图 -->
                         <div id="trendChart" class="chart-wrapper hidden w-full h-full relative p-4">
                             <svg class="trend-chart" viewBox="0 0 300 150">
                                 <defs><linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:rgb(227, 179, 65);stop-opacity:0.2" /><stop offset="100%" style="stop-color:rgb(227, 179, 65);stop-opacity:0" /></linearGradient></defs>
@@ -401,7 +463,7 @@
         <div id="fabPublish" onclick="GardenOS.ui.toggleWatcher(true)" class="fab-publish"><i class="ri-add-line"></i></div>
     </div>
 
-    <!-- 侧边栏: 发布中心 (全汉化) -->
+    <!-- 侧边栏：发布中心 -->
     <aside id="watcherDrawer" class="fixed top-0 right-[-100%] h-full bg-[#0c0b0a]/98 backdrop-blur-3xl border-l border-white/10 z-[200] transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) p-12 flex flex-col no-scrollbar shadow-3xl overflow-y-auto watcher-drawer-width">
         <div class="flex justify-between items-center mb-12">
             <h2 class="text-3xl font-serif italic font-black tracking-[0.2em] uppercase text-white">发布中心</h2>
@@ -414,20 +476,39 @@
                     <select id="postTarget" onchange="GardenOS.ui.updateInputLabels()" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500 cursor-pointer">
                         <option value="memo">碎碎念</option><option value="writing">写作区</option><option value="ingest">摄入记录</option><option value="sensory">感官区</option><option value="assets">资产变动</option><option value="status">生命体征</option><option value="life">生活记录</option>
                     </select>
-                    <div class="relative"><label id="lblTitle" class="absolute -top-2 left-4 text-[9px] text-amber-500 bg-[#151618] px-1 hidden uppercase">Title/Amount</label><input type="text" id="postTitle" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="标题 / 书名 / 金额"></div>
-                    <div class="grid grid-cols-2 gap-4"><input type="text" id="linkText" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="分类 / 标签"><input type="text" id="linkUrl" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="URL 链接"></div>
+                    
+                    <div class="relative">
+                        <label id="lblTitle" class="absolute -top-2 left-4 text-[9px] text-amber-500 bg-[#151618] px-1 hidden">AMOUNT</label>
+                        <input type="text" id="postTitle" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="标题 / 书名 / 金额">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="linkText" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="分类 / 标签">
+                        <input type="text" id="linkUrl" class="bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="URL 链接">
+                    </div>
+
                     <input type="text" id="postImage" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-mono text-white outline-none focus:border-amber-500" placeholder="图片 URL / 数值">
-                    <div class="relative"><label id="lblContent" class="absolute -top-2 left-4 text-[9px] text-amber-500 bg-[#151618] px-1 hidden uppercase">Content</label><textarea id="postContent" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-serif italic text-gray-300 outline-none focus:border-amber-500 h-36" placeholder="感悟 / 详情..."></textarea></div>
-                    <div class="flex items-center gap-3 px-1"><input type="checkbox" id="postPrivate" class="w-4 h-4 accent-amber-500 bg-black/50 border-white/10 rounded cursor-pointer"><label for="postPrivate" class="text-[10px] font-mono text-gray-400 tracking-wider cursor-pointer select-none">🔒 完全隐私</label></div>
-                    <button onclick="GardenOS.cms.createPost()" class="w-full py-5 bg-amber-500 text-black font-black uppercase tracking-[0.8em] text-[10px] rounded-2xl shadow-glow active:scale-95 transition-all">确认发布</button>
+                    
+                    <div class="relative">
+                        <label id="lblContent" class="absolute -top-2 left-4 text-[9px] text-amber-500 bg-[#151618] px-1 hidden">SENTIMENT</label>
+                        <textarea id="postContent" class="w-full bg-black/70 border border-white/10 rounded-xl p-5 text-xs font-serif italic text-gray-300 outline-none focus:border-amber-500 h-36" placeholder="感悟 / 详情..."></textarea>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 px-1">
+                        <input type="checkbox" id="postPrivate" class="w-4 h-4 accent-amber-500 bg-black/50 border-white/10 rounded cursor-pointer">
+                        <label for="postPrivate" class="text-[10px] font-mono text-gray-400 tracking-wider cursor-pointer select-none">🔒 完全隐私</label>
+                    </div>
+
+                    <button onclick="GardenOS.cms.createPost()" class="w-full py-5 bg-amber-500 text-black font-black uppercase tracking-[0.8em] text-[10px] rounded-2xl shadow-glow active:scale-95 transition-all">执行发布</button>
                 </div>
             </div>
-            <div id="aiResponseSide" class="min-h-[120px] font-serif italic text-gray-400 p-8 bg-white/[0.01] rounded-[32px] border-l-4 border-white/10 mb-8 leading-relaxed text-sm"><span class="text-white/20 font-mono uppercase">System Log:</span> 等待发布指令...</div>
+            <div id="aiResponseSide" class="min-h-[120px] font-serif italic text-gray-400 p-8 bg-white/[0.01] rounded-[32px] border-l-4 border-white/10 mb-8 leading-relaxed text-sm"><span class="text-white/20 font-mono uppercase text-[10px]">System Log:</span> 等待发布指令...</div>
         </div>
     </aside>
 
-    <div id="detailModal" class="fixed inset-0 hidden items-center justify-center p-6" onclick="GardenOS.ui.closeDetail()">
-        <div class="detail-card w-full max-w-5xl h-[85vh] p-12 relative shadow-2xl flex flex-col" onclick="event.stopPropagation()">
+    <!-- Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-6" onclick="GardenOS.ui.closeDetail()">
+        <div class="detail-card w-full max-w-5xl h-[85vh] bg-[#151618] border border-white/10 rounded-[32px] p-12 relative shadow-2xl flex flex-col" onclick="event.stopPropagation()">
             <button onclick="GardenOS.ui.closeDetail()" class="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors z-20"><i class="ri-close-line text-3xl"></i></button>
             <div id="detailContent" class="flex-grow space-y-6 overflow-y-auto custom-scroll pr-4"></div>
         </div>
@@ -443,8 +524,9 @@
 
     <script>
         const GardenOS = {
-            config: { secret: 'Zjx207661', storageKey: 'garden_v71_2_db', deepSeekApiKey: 'sk-437d432e53664e489b60a9349619a879', dailyLimit: 15, visitorLimit: 5 },
+            config: { secret: 'Zjx207661', storageKey: 'garden_v71_7_db', deepSeekApiKey: 'sk-437d432e53664e489b60a9349619a879', dailyLimit: 15, visitorLimit: 5 },
             data: {
+                // 恢复默认结构
                 defaultContent: {
                     assets: [
                         {title: '01 // FUNDS', content: '700.00', val: 700},
@@ -456,14 +538,19 @@
                     memo: '“岁月不语，唯有文字能在大雪中取暖。”'
                 }
             },
-            state: { isAuthorized: false, currentSeason: 'winter' },
+            state: { isAuthorized: false, currentSeason: 'winter', currentPhase: 'night' },
 
             boot() {
+                // FIX: Force Clear BG JS Control
+                const bg = document.getElementById('bg-layer-1');
+                if(bg) bg.style.cssText = ""; 
+
                 this.auth.init();
-                this.environment.init();
+                this.environment.init(); // 包含时间更新
                 this.ui.init();
                 this.cms.renderAll();
                 setTimeout(() => this.ui.activateAnimations(), 500); 
+                
                 const inp = document.getElementById('authKeyInput');
                 if(inp) inp.value = '';
             },
@@ -477,9 +564,9 @@
                         const usage = this.getUsage();
                         if (usage.count >= GardenOS.config.dailyLimit) { this.typewriter("Limit reached.", `ai_${Date.now()}`); e.target.disabled = true; return; }
                         const log = document.getElementById('aiChatLog'); log.innerHTML+=`<div class="mb-2 text-white">> ${val}</div>`; e.target.value='';
-                        const lid = Date.now(); log.innerHTML+=`<div id="r_${lid}" class="text-amber-500 mb-4 opacity-50">thinking...</div>`;
+                        const lid = Date.now(); log.innerHTML+=`<div id="r_${lid}" class="text-amber-500 mb-4 opacity-50">Thinking...</div>`;
                         
-                        // AI 全站感知上下文
+                        // AI 全站感知
                         const siteData = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
                         const posts = siteData.posts || [];
                         const recentPosts = posts.slice(0, 5).map(p => `[${p.target}] ${p.title}: ${p.content}`).join('\n');
@@ -493,6 +580,7 @@
                     }
                 },
                 async callDeepSeek(p, c) {
+                    if(!GardenOS.config.deepSeekApiKey) return "[OFFLINE]";
                     try {
                         const r = await fetch('https://api.deepseek.com/chat/completions', { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${GardenOS.config.deepSeekApiKey}`}, body:JSON.stringify({model:"deepseek-chat",messages:[{role:"system",content:c},{role:"user",content:p}]})});
                         const d = await r.json(); return d.choices[0].message.content;
@@ -513,7 +601,7 @@
                         localStorage.setItem(GardenOS.config.storageKey, JSON.stringify({isAuthorized:true}));
                         GardenOS.ui.toggleLogin(false); GardenOS.ui.updateAuthUI(true);
                         GardenOS.cms.renderAll();
-                    }
+                    } else { /* Error visual */ }
                 }
             },
 
@@ -521,14 +609,17 @@
                 init() {
                     setInterval(() => { 
                         const d = new Date();
-                        const ds = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
-                        document.getElementById('clockDisplay').innerText = `${ds} ${d.toLocaleTimeString('en-GB', { hour12: false })}`;
+                        const dateStr = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
+                        const timeStr = d.toLocaleTimeString('en-GB', { hour12: false });
+                        document.getElementById('clockDisplay').innerText = `${dateStr} ${timeStr}`;
                     }, 1000);
                 }
             },
 
             ui: {
-                init() { document.getElementById('writingList').classList.add('hidden'); },
+                init() { 
+                   document.getElementById('writingList').classList.add('hidden'); 
+                },
                 activateAnimations() { document.querySelector('.layout-container').classList.add('opacity-100'); },
                 toggleLogin(s) { document.getElementById('loginModal').style.display=s?'flex':'none'; },
                 toggleWatcher(s) { document.getElementById('watcherDrawer').style.right=s?'0':'-100%'; },
@@ -540,12 +631,6 @@
                 updateAuthUI(auth) { if(auth) { document.getElementById('lockIcon').className='ri-shield-user-line text-amber-500'; document.getElementById('adminPostArea').classList.remove('hidden'); document.getElementById('fabPublish').classList.add('visible'); } },
                 switchChart(t) { document.getElementById('pieChart').classList.toggle('hidden', t!=='pie'); document.getElementById('trendChart').classList.toggle('hidden', t!=='trend'); },
                 
-                openQuickEdit() {
-                    this.toggleWatcher(true);
-                    document.getElementById('postTarget').value = 'status';
-                    this.updateInputLabels();
-                },
-
                 updateInputLabels() {
                     const target = document.getElementById('postTarget').value;
                     const titleInput = document.getElementById('postTitle');
@@ -553,36 +638,71 @@
                     const lblTitle = document.getElementById('lblTitle');
                     const lblContent = document.getElementById('lblContent');
                     
-                    lblTitle.classList.remove('hidden'); lblContent.classList.remove('hidden');
-
                     if (target === 'assets') {
+                        titleInput.placeholder = "金额 (e.g. 1000.00)";
+                        contentInput.placeholder = "感悟 / 备注...";
                         lblTitle.innerText = "AMOUNT"; lblContent.innerText = "SENTIMENT";
-                        titleInput.placeholder = "金额 (如: 1000.00)"; contentInput.placeholder = "这笔钱背后的心情...";
+                        lblTitle.classList.remove('hidden'); lblContent.classList.remove('hidden');
+                        document.getElementById('linkText').placeholder = "CATEGORY (Funds/Crypto/etc)"; 
                     } else if (target === 'status') {
+                        titleInput.placeholder = "体重 (e.g. 55.0)";
+                        contentInput.placeholder = "语录...";
                         lblTitle.innerText = "WEIGHT"; lblContent.innerText = "QUOTE";
-                        titleInput.placeholder = "体重 (如: 55.0)"; contentInput.placeholder = "今日感悟...";
+                        lblTitle.classList.remove('hidden'); lblContent.classList.remove('hidden');
+                        document.getElementById('linkText').placeholder = "ENTROPY"; 
+                        document.getElementById('postImage').placeholder = "VITALITY";
                     } else if (target === 'life') {
                         lblTitle.innerText = "ACTIVITY"; lblContent.innerText = "DETAIL";
-                        titleInput.placeholder = "项目 (如: 健身房)"; contentInput.placeholder = "深蹲 100kg 5x5...";
+                        titleInput.placeholder = "项目 (如: 健身房)"; contentInput.placeholder = "深蹲 100kg...";
+                        document.getElementById('linkText').placeholder = "时长/消耗"; 
                     } else {
+                        titleInput.placeholder = "标题 / 书名";
+                        contentInput.placeholder = "内容...";
                         lblTitle.classList.add('hidden'); lblContent.classList.add('hidden');
-                        titleInput.placeholder = "标题 / 书名"; contentInput.placeholder = "正文内容...";
+                        document.getElementById('linkText').placeholder = "分类 / 标签";
                     }
+                },
+                
+                openQuickEdit() {
+                    this.toggleWatcher(true);
+                    document.getElementById('postTarget').value = 'status';
+                    this.updateInputLabels();
                 },
 
                 openHistory(type) {
                      const modal = document.getElementById('detailModal');
                      const content = document.getElementById('detailContent');
                      modal.style.display = 'flex';
+                     
                      const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
                      let posts = (data.posts || []).filter(p => p.target === type).sort((a,b)=>b.id-a.id);
-                     if (!GardenOS.state.isAuthorized) { posts = posts.filter(p => !p.isPrivate).slice(0, GardenOS.config.visitorLimit); }
+                     if (!GardenOS.state.isAuthorized) {
+                         posts = posts.filter(p => !p.isPrivate).slice(0, GardenOS.config.visitorLimit);
+                     }
                      
-                     let html = `<h2 class="text-4xl font-serif italic text-white mb-10 border-b border-white/10 pb-6 tracking-wide uppercase">${type} History Archive</h2>`;
-                     posts.forEach(p => {
-                         html += `<div class="bg-white/5 p-8 rounded-3xl border border-white/5 mb-6"><div class="flex justify-between items-center mb-4"><h4 class="font-bold text-white text-xl">${p.title}</h4><span class="text-xs text-gray-500 font-mono">${p.timestamp} ${p.isPrivate?'🔒':''}</span></div><p class="text-base text-gray-300 leading-relaxed font-serif">${p.content}</p></div>`;
-                     });
-                     content.innerHTML = html || '<p class="text-gray-500 italic">暂无记录。</p>';
+                     let html = `<h2 class="text-4xl font-serif italic text-white mb-10 border-b border-white/10 pb-6 tracking-wide">${type.toUpperCase()} ARCHIVE</h2>`;
+                     
+                     if (posts.length === 0) {
+                         html += '<p class="text-gray-500 italic text-xl">暂无公开记录。</p>';
+                     } else {
+                         html += '<div class="space-y-8">';
+                         posts.forEach(p => {
+                              const date = p.timestamp || new Date(p.id).toLocaleString();
+                              html += `
+                                 <div class="bg-white/5 p-8 rounded-3xl border border-white/5 hover:border-amber-500/30 transition-all">
+                                     <div class="flex justify-between items-center mb-4">
+                                         <h4 class="font-bold text-white text-xl">${p.title}</h4>
+                                         <span class="text-xs text-gray-500 font-mono">${date} ${p.isPrivate ? '🔒' : ''}</span>
+                                     </div>
+                                     <p class="text-base text-gray-300 leading-relaxed font-serif">${p.content}</p>
+                                     ${p.image ? `<img src="${p.image}" class="mt-6 w-full h-64 object-cover rounded-2xl opacity-90">` : ''}
+                                     ${p.link ? `<a href="${p.link.url}" target="_blank" class="text-sm text-amber-500 mt-4 inline-block hover:underline">🔗 ${p.link.text || 'Link'}</a>` : ''}
+                                 </div>
+                              `;
+                         });
+                         html += '</div>';
+                     }
+                     content.innerHTML = html;
                 },
 
                 openDetail(type, dataStr) {
@@ -591,56 +711,143 @@
                     const content = document.getElementById('detailContent');
                     modal.style.display = 'flex';
                     
+                    let html = '';
                     if (type === 'asset') {
                         const allData = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
                         const catKey = data.title.split(' // ')[1] || data.title;
-                        let history = (allData.posts || []).filter(p => p.target === 'assets' && (p.link && p.link.text && p.link.text.includes(catKey)));
-                        history.sort((a,b)=>b.id-a.id);
-                        content.innerHTML = `<span class="precision-tag text-amber-500 mb-2 block">ASSET_DETAIL</span><h2 class="text-5xl font-mono text-white mb-8">${data.title}</h2><div class="text-7xl font-mono text-white mb-10 tracking-tighter">${data.content}</div><div class="h-px w-full bg-white/10 mb-8"></div><div class="space-y-4">${history.map(h=>`<div class="bg-white/5 p-6 rounded-2xl flex justify-between"><div><div class="text-xs text-gray-500 mb-1 font-mono">${h.timestamp}</div><p class="italic text-gray-300">"${h.content}"</p></div><div class="text-xl font-mono text-white">${h.title}</div></div>`).join('') || '<p class="text-gray-500">尚无发布记录</p>'}</div>`;
-                    } else {
-                        content.innerHTML = `<span class="precision-tag text-amber-500 mb-6 block">${data.target||'LOG'}</span><h2 class="text-4xl font-serif text-white mb-6 leading-tight">${data.title}</h2>${data.image?`<img src="${data.image}" class="w-full h-80 object-cover rounded-3xl mb-8 shadow-2xl">`:''}<p class="text-lg text-gray-300 leading-loose font-serif">${data.content}</p>`;
-                    }
-                },
+                        let history = (allData.posts || []).filter(p => p.target === 'assets' && p.link && p.link.text && p.link.text.includes(catKey));
+                        history.sort((a, b) => b.id - a.id);
+                        
+                        if (!GardenOS.state.isAuthorized) {
+                            history = history.filter(p => !p.isPrivate).slice(0, GardenOS.config.visitorLimit);
+                        }
 
+                        html = `
+                            <span class="precision-tag text-amber-500 mb-2 block tracking-[0.2em]">ASSET_DETAIL</span>
+                            <h2 class="text-5xl font-mono text-white mb-8">${data.title}</h2>
+                            <div class="text-7xl font-mono text-white mb-10 tracking-tighter">${data.content}</div>
+                            <div class="h-px w-full bg-white/10 mb-8"></div>
+                            <h4 class="text-sm font-bold text-gray-400 mb-6 tracking-widest">HISTORY & SENTIMENT</h4>
+                            <div class="space-y-4">
+                                ${history.length ? history.map(h => `
+                                    <div class="bg-white/5 p-6 rounded-2xl border border-white/5 flex justify-between items-center">
+                                        <div>
+                                            <div class="text-xs text-gray-500 mb-1 font-mono">${h.timestamp} ${h.isPrivate ? '🔒' : ''}</div>
+                                            <p class="text-base text-gray-300 font-serif italic">"${h.content}"</p>
+                                        </div>
+                                        <div class="text-xl font-mono text-white">${h.title}</div>
+                                    </div>
+                                `).join('') : '<p class="text-gray-500 italic">No history records found.</p>'}
+                            </div>
+                        `;
+                    } else if (type === 'generic') {
+                        html = `
+                            <span class="precision-tag text-amber-500 mb-6 block tracking-[0.2em]">${data.target ? data.target.toUpperCase() : 'DETAIL'}_LOG</span>
+                            <h2 class="text-4xl font-serif text-white mb-6 leading-tight">${data.title}</h2>
+                            ${data.image ? `<img src="${data.image}" class="w-full h-80 object-cover rounded-3xl mb-8 shadow-2xl">` : ''}
+                            <p class="text-lg text-gray-300 font-serif leading-loose">${data.content}</p>
+                            ${data.link ? `<a href="${data.link.url}" target="_blank" class="mt-8 inline-block text-amber-500 border-b border-amber-500 pb-1 text-lg">Open Link ↗</a>` : ''}
+                        `;
+                    }
+                    content.innerHTML = html;
+                },
+                closeDetail() { document.getElementById('detailModal').style.display = 'none'; },
+                
                 openSensoryCategory(cat) {
                      const modal = document.getElementById('detailModal');
                      const content = document.getElementById('detailContent');
                      modal.style.display = 'flex';
+                     
                      const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
                      let posts = (data.posts || []).filter(p => p.target === 'sensory' && (!p.link || p.link.text.toLowerCase().includes(cat))).sort((a,b)=>b.id-a.id);
-                     content.innerHTML = `<h2 class="text-4xl font-serif italic text-white mb-10 border-b border-white/10 pb-6 uppercase">${cat} Archive</h2><div class="grid grid-cols-1 gap-6">${posts.map(p=>`<div class="bg-white/5 p-6 rounded-2xl flex gap-6" onclick='GardenOS.ui.openDetail("generic", "${encodeURIComponent(JSON.stringify(p))}")'>${p.image?`<img src="${p.image}" class="w-24 h-24 object-cover rounded-xl">`:''}<div><h4 class="font-bold text-lg text-white">${p.title}</h4><p class="text-sm text-gray-400 line-clamp-2 leading-relaxed">${p.content}</p></div></div>`).join('') || '<p class="text-gray-500">暂无记录</p>'}</div>`;
+                     
+                     if (!GardenOS.state.isAuthorized) {
+                         posts = posts.filter(p => !p.isPrivate).slice(0, GardenOS.config.visitorLimit);
+                     }
+                     
+                     content.innerHTML = `
+                        <h2 class="text-4xl font-serif italic text-white mb-10 border-b border-white/10 pb-6">${cat.toUpperCase()} ARCHIVE</h2>
+                        <div class="grid grid-cols-1 gap-6">
+                            ${posts.length ? posts.map(p => `
+                                <div class="bg-white/5 p-6 rounded-2xl cursor-pointer hover:bg-white/10 transition-colors flex gap-6 items-start" onclick='GardenOS.ui.openDetail("generic", "${encodeURIComponent(JSON.stringify(p))}")'>
+                                    ${p.image ? `<img src="${p.image}" class="w-32 h-32 object-cover rounded-xl flex-shrink-0">` : ''}
+                                    <div>
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <h4 class="font-bold text-lg text-white">${p.title}</h4>
+                                            ${p.isPrivate ? '<span class="text-xs text-amber-500">🔒</span>' : ''}
+                                        </div>
+                                        <p class="text-sm text-gray-400 line-clamp-3 leading-relaxed">${p.content}</p>
+                                    </div>
+                                </div>
+                            `).join('') : '<p class="text-gray-500 text-lg">No records yet.</p>'}
+                        </div>
+                     `;
                 },
 
-                closeDetail() { document.getElementById('detailModal').style.display = 'none'; },
-
+                // Proxy
                 drawCharts(t, b) { 
-                    const pieEl = document.querySelector('.pie-chart');
+                     const pieEl = document.querySelector('.pie-chart');
                     if(!pieEl) return;
-                    const p1 = (b.funds/t)*100 || 0, p2 = p1 + (b.stocks/t)*100 || 0, p3 = p2 + (b.crypto/t)*100 || 0;
+                    
+                    const p1 = (b.funds/t)*100 || 0;
+                    const p2 = p1 + (b.stocks/t)*100 || 0;
+                    const p3 = p2 + (b.crypto/t)*100 || 0;
                     setTimeout(() => { pieEl.style.background = `conic-gradient(#e3b341 0% ${p1}%, #10b981 ${p1}% ${p2}%, #3b82f6 ${p2}% ${p3}%, #a8a29e ${p3}% 100%)`; }, 100);
                     document.getElementById('totalAssetVal').innerText = t;
                     
-                    // FIX: 图例数据和比例展示
-                    document.getElementById('legFundsVal').innerText = `${b.funds} (${Math.round(p1)}%)`;
-                    document.getElementById('legStocksVal').innerText = `${b.stocks} (${Math.round(p2-p1)}%)`;
-                    document.getElementById('legCryptoVal').innerText = `${b.crypto} (${Math.round(p3-p2)}%)`;
-                    document.getElementById('legMetalVal').innerText = `${b.metal} (${Math.round(100-p3)}%)`;
-                    
-                    // Trend SVG
+                    // FIX: Ensure ID exists
+                    if(document.getElementById('legFundsVal')) document.getElementById('legFundsVal').innerText = `${b.funds} (${Math.round(p1)}%)`;
+                    if(document.getElementById('legStocksVal')) document.getElementById('legStocksVal').innerText = `${b.stocks} (${Math.round(p2-p1)}%)`;
+                    if(document.getElementById('legCryptoVal')) document.getElementById('legCryptoVal').innerText = `${b.crypto} (${Math.round(p3-p2)}%)`;
+                    if(document.getElementById('legMetalVal')) document.getElementById('legMetalVal').innerText = `${b.metal} (${Math.round(100-p3)}%)`;
+
                     const trendData = [];
                     for(let i=6; i>0; i--) { trendData.push(Math.floor(t * (1 + (Math.random()*0.1-0.05)))); }
                     trendData.push(t);
-                    const min = Math.min(...trendData) * 0.9, max = Math.max(...trendData) * 1.1, range = max - min;
-                    const pts = trendData.map((v, i) => `${i * 50},${150 - ((v - min) / range * 130 + 10)}`).join(' ');
+                    const min = Math.min(...trendData) * 0.95;
+                    const max = Math.max(...trendData) * 1.05;
+                    const range = max - min;
+                    const points = trendData.map((val, idx) => {
+                        const x = idx * 50; 
+                        const y = 150 - ((val - min) / range * 130 + 10); 
+                        return `${x},${y}`;
+                    }).join(' ');
+                    
                     const svg = document.querySelector('.trend-chart');
                     if(svg) {
-                        svg.querySelector('.trend-area').setAttribute('d', `M0,150 L${pts.split(' ').join(' L')} L300,150 Z`);
-                        svg.querySelector('.trend-line').setAttribute('points', pts);
+                        const area = svg.querySelector('.trend-area');
+                        const line = svg.querySelector('.trend-line');
+                        const axisContainer = document.getElementById('xAxisLabels');
+                        
+                        if(area) area.setAttribute('d', `M0,150 L${points.split(' ').join(' L')} L300,150 Z`);
+                        if(line) line.setAttribute('points', points);
                         svg.querySelectorAll('circle').forEach(c => c.remove());
-                        trendData.forEach((v, i) => {
-                             const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                             c.setAttribute("cx", i*50); c.setAttribute("cy", 150 - ((v-min)/range*130+10)); c.setAttribute("class", "trend-point"); c.setAttribute("r", 3);
-                             svg.appendChild(c);
+                        
+                        if(axisContainer) axisContainer.innerHTML = '';
+                        const days = [];
+                        for(let i=6; i>=0; i--) {
+                            const d = new Date(); d.setDate(d.getDate() - i);
+                            days.push(d.toLocaleDateString('en-US', {weekday:'short'}));
+                        }
+
+                        trendData.forEach((val, idx) => {
+                             const x = idx * 50;
+                             const y = 150 - ((val - min) / range * 130 + 10);
+                             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                             circle.setAttribute("cx", x); circle.setAttribute("cy", y); circle.setAttribute("class", "trend-point");
+                             const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+                             title.textContent = `${days[idx]}: ${val}`;
+                             circle.appendChild(title);
+                             svg.appendChild(circle);
+                             
+                             if(axisContainer) {
+                                 const label = document.createElement('div');
+                                 label.className = "text-[9px] text-white/30 font-mono absolute";
+                                 label.style.left = `${(idx/6)*100}%`;
+                                 label.style.transform = "translateX(-50%)";
+                                 label.innerText = days[idx];
+                                 axisContainer.appendChild(label);
+                             }
                         });
                     }
                 }
@@ -657,77 +864,143 @@
                     const img = document.getElementById('postImage').value.trim();
                     const isPrivate = document.getElementById('postPrivate').checked;
 
-                    const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
-                    const posts = data.posts || [];
-
+                    // FIX: Status Update Logic (Double Write)
                     if (target === 'status') {
+                        const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
                         data.status = { weight: title, vitality: img, entropy: lText, quote: content };
-                        posts.unshift({ id: Date.now(), target: 'status', title: 'Status Update', content: `Weight: ${title}, Vitality: ${img}`, timestamp: new Date().toLocaleString(), isPrivate });
-                    } else if (target === 'life') {
-                        posts.unshift({ id: Date.now(), target: 'life', title, content, link: {text:lText}, timestamp: new Date().toLocaleString(), isPrivate });
-                    } else {
-                        posts.unshift({ id: Date.now(), target, title, content, link: {text:lText, url:lUrl}, image: img, isPrivate, timestamp: new Date().toLocaleString() });
+                        
+                        const historyPost = {
+                            id: Date.now(),
+                            target: 'status_log', // Used for history
+                            title: 'Status Update',
+                            content: `Weight: ${title}, Vitality: ${img}, Entropy: ${lText}, Quote: "${content}"`,
+                            timestamp: new Date().toLocaleString(),
+                            isPrivate: isPrivate
+                        };
+                        const posts = data.posts || []; posts.unshift(historyPost); data.posts = posts;
+                        localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(data));
+                        GardenOS.cms.renderAll(); 
+                        return;
                     }
+
+                    if(!title) return;
+
+                    const post = { 
+                        id: Date.now(), 
+                        target, title, content, 
+                        link: {text:lText, url:lUrl}, 
+                        image: img, 
+                        isPrivate: isPrivate, 
+                        timestamp: new Date().toLocaleString() 
+                    };
                     
-                    data.posts = posts;
+                    const data = JSON.parse(localStorage.getItem(GardenOS.config.storageKey) || '{}');
+                    const posts = data.posts || []; posts.unshift(post); data.posts = posts;
                     localStorage.setItem(GardenOS.config.storageKey, JSON.stringify(data));
+                    
                     ['postTitle','postContent','linkText','linkUrl','postImage'].forEach(id => document.getElementById(id).value = '');
                     document.getElementById('postPrivate').checked = false;
+                    
                     GardenOS.cms.renderAll();
                 },
                 renderAll() {
                     const d = JSON.parse(localStorage.getItem(GardenOS.config.storageKey)||'{}');
+                    // FIX: Sort Global Posts Chronologically Descending
                     const posts = (d.posts || []).sort((a,b) => b.id - a.id);
-                    const auth = GardenOS.state.isAuthorized;
                     
+                    // Update Status Display
                     if(d.status) {
                         document.getElementById('valWeight').innerText = d.status.weight || '55.0';
                         document.getElementById('valVitality').innerText = d.status.vitality || '98';
                         document.getElementById('valEntropy').innerText = d.status.entropy || '95.00%';
-                        document.getElementById('valQuote').innerText = d.status.quote || '万物皆有裂痕...';
+                        document.getElementById('valQuote').innerText = d.status.quote || '万物皆有裂痕，那是光进来的地方。';
                     }
 
-                    const visiblePosts = auth ? posts : posts.filter(p => !p.isPrivate);
+                    // Visitor Filter
+                    let visiblePosts = posts;
+                    if (!GardenOS.state.isAuthorized) {
+                        visiblePosts = posts.filter(p => !p.isPrivate).slice(0, GardenOS.config.visitorLimit);
+                    }
+                    
                     const c = { memo: document.getElementById('memoList'), ingest: document.getElementById('ingestList'), assets: document.getElementById('assetList'), life: document.getElementById('lifeLogList'), lifeContainer: document.getElementById('lifeLogContainer') };
                     c.memo.innerHTML=''; c.ingest.innerHTML=''; c.assets.innerHTML = ''; c.life.innerHTML = '';
 
+                    // Life Logs
                     const logs = visiblePosts.filter(p => p.target === 'life').slice(0, 4);
                     if(logs.length) {
                         c.lifeContainer.classList.remove('hidden');
                         logs.forEach(l => c.life.innerHTML += `<div class="flex justify-between text-xs py-2 border-b border-white/5 last:border-0"><span class="text-amber-500 font-bold font-mono">${l.title}</span><span class="text-gray-400 font-serif italic">${l.content}</span></div>`);
                     } else { c.lifeContainer.classList.add('hidden'); }
 
-                    const defs = GardenOS.data.defaultContent.assets;
-                    const map = ['基金', '股票', '加密货币', '贵金属'];
+                    const defAssets = GardenOS.data.defaultContent.assets;
                     const keys = ['FUNDS', 'STOCKS', 'CRYPTO', 'METAL'];
-                    let total = 0, b = { funds: 0, stocks: 0, crypto: 0, metal: 0 };
+                    const map = ['基金', '股票', '加密货币', '贵金属'];
+                    let totalValue = 0;
+                    let breakdown = { funds: 0, stocks: 0, crypto: 0, metal: 0 };
                     
-                    const userAssets = visiblePosts.filter(p => p.target === 'assets');
+                    const assetMix = [];
+                    // FIX: userAssets logic
+                    const userAssets = visiblePosts.filter(p=>p.target==='assets');
 
-                    keys.forEach((key, i) => {
-                        const userRec = userAssets.find(p => (p.link && p.link.text && p.link.text.includes(key)) || (p.link && p.link.text && p.link.text.includes(map[i])));
-                        let valStr = userRec ? userRec.title : defs[i].val.toString();
-                        let v = parseFloat(valStr.replace(/,/g,'').replace(/[^0-9.]/g, '')) || 0;
-                        total += v;
-                        if(i===0) b.funds = v; if(i===1) b.stocks = v; if(i===2) b.crypto = v; if(i===3) b.metal = v;
-                        const dataStr = encodeURIComponent(JSON.stringify({title: `0${i+1} // ${map[i]}`, content: v.toLocaleString()}));
-                        c.assets.innerHTML += `<div onclick="GardenOS.ui.openDetail('asset', '${dataStr}')" class="asset-compact-item"><div class="precision-tag text-amber-500/50">0${i+1} // ${map[i]}</div><div class="text-base font-mono text-white">${v.toLocaleString()}</div></div>`;
+                    keys.forEach((key, idx) => {
+                         // Find latest *authorized* post for this key
+                         const latest = userAssets.find(p => p.link && p.link.text && p.link.text.includes(key));
+                         if(latest) {
+                             assetMix.push(latest);
+                         } else {
+                             assetMix.push(defAssets[idx]);
+                         }
                     });
-                    GardenOS.ui.drawCharts(Math.round(total), b);
+                    
+                    assetMix.forEach((p, idx) => {
+                        let valStr = p.title; 
+                        let displayTitle = p.title;
+                        let displayVal = p.content;
+
+                        if (p.target === 'assets') {
+                             const cat = p.link.text || 'ASSET';
+                             displayTitle = `0${idx+1} // ${cat}`;
+                             displayVal = p.title; 
+                             valStr = p.title;
+                        } else {
+                            // Default Asset Item
+                             displayTitle = p.title;
+                             displayVal = p.content;
+                             valStr = p.val ? p.val.toString() : p.content;
+                        }
+
+                        let v = parseFloat(valStr.toString().replace(/,/g,'').replace(/[^0-9.]/g, ''));
+                        if(isNaN(v)) v = 0;
+                        totalValue += v;
+                        
+                        if(idx === 0) breakdown.funds = v;
+                        if(idx === 1) breakdown.stocks = v;
+                        if(idx === 2) breakdown.crypto = v;
+                        if(idx === 3) breakdown.metal = v;
+
+                        const dataStr = encodeURIComponent(JSON.stringify({title: displayTitle, content: displayVal})); 
+                        c.assets.innerHTML += `<div onclick="GardenOS.ui.openDetail('asset', '${dataStr}')" class="asset-compact-item searchable-item cursor-pointer"><div class="precision-tag text-amber-500/50">${displayTitle}</div><div class="text-base font-mono text-white group-hover:text-amber-500 transition-all">${displayVal}</div></div>`;
+                    });
+                    
+                    GardenOS.ui.drawCharts(Math.round(totalValue), breakdown);
+
+                    const defIngest = GardenOS.data.defaultContent.ingest;
+                    const defIngestObj = { title: defIngest.title, content: defIngest.content, image: defIngest.image, target: 'ingest' };
+                    const defIngestStr = encodeURIComponent(JSON.stringify(defIngestObj));
+                    
+                    // FIX: Default Ingest Pinned
+                    c.ingest.innerHTML = `<div onclick="GardenOS.ui.openDetail('generic', '${defIngestStr}')" class="group flex gap-5 items-start cursor-pointer mb-6 border-b border-white/5 pb-4 last:border-0 searchable-item"><div class="w-14 h-14 bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 border border-white/5"><img src="${defIngest.image}" class="w-full h-full object-cover"></div><div><h4 class="text-sm font-bold group-hover:text-amber-500 transition-colors">${defIngest.title}</h4><p class="text-[10px] text-gray-400 mt-1 line-clamp-2">${defIngest.content}</p></div></div>`;
 
                     visiblePosts.forEach(p => {
                         const dataStr = encodeURIComponent(JSON.stringify(p));
-                        const lock = p.isPrivate ? '🔒 ' : '';
+                        const lockIcon = p.isPrivate ? '<span class="text-[9px] text-amber-500 ml-2">🔒</span>' : '';
+                        
                         if(p.target==='memo') {
-                            c.memo.innerHTML += `<div onclick="GardenOS.ui.openDetail('generic', '${dataStr}')" class="bg-white/5 p-6 rounded-[28px] border border-white/5 mb-4 hover:bg-white/10 cursor-pointer"><div class="flex justify-between items-center mb-3"><h4 class="text-sm font-bold text-white">${lock}${p.title}</h4><span class="text-[9px] text-white/20">${p.timestamp.split(' ')[0]}</span></div><p class="text-xs text-gray-400 line-clamp-2">${p.content}</p></div>`;
+                            c.memo.innerHTML += `<div onclick="GardenOS.ui.openDetail('generic', '${dataStr}')" class="group/item bg-white/5 p-6 rounded-[28px] border border-white/5 mb-4 searchable-item cursor-pointer hover:bg-white/10"><div class="flex justify-between items-center mb-3"><div class="flex items-center"><h4 class="text-sm font-bold">${lockIcon}${p.title}</h4></div><span class="text-[9px] text-white/20">${p.timestamp.split(' ')[0]}</span></div><p class="text-xs text-gray-400 line-clamp-2">${p.content}</p></div>`;
                         } else if(p.target==='ingest') {
-                            c.ingest.innerHTML += `<div onclick="GardenOS.ui.openDetail('generic', '${dataStr}')" class="group flex gap-5 items-start cursor-pointer mb-6 border-b border-white/5 pb-4 last:border-0"><div class="w-14 h-14 bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 border border-white/5"><img src="${p.image||'https://via.placeholder.com/100'}" class="w-full h-full object-cover"></div><div><h4 class="text-sm font-bold group-hover:text-amber-500 text-white">${lock}${p.title}</h4><p class="text-[10px] text-gray-400 mt-1 line-clamp-2">${p.content}</p></div></div>`;
+                            c.ingest.innerHTML += `<div onclick="GardenOS.ui.openDetail('generic', '${dataStr}')" class="group flex gap-5 items-start cursor-pointer mb-6 border-b border-white/5 pb-4 last:border-0 searchable-item"><div class="w-14 h-14 bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 border border-white/5"><img src="${p.image||'https://via.placeholder.com/100'}" class="w-full h-full object-cover"></div><div><div class="flex items-center"><h4 class="text-sm font-bold group-hover:text-amber-500 transition-colors">${lockIcon}${p.title}</h4></div><p class="text-[10px] text-gray-400 mt-1 line-clamp-2">${p.content}</p></div></div>`;
                         }
                     });
-
-                    const defIngest = GardenOS.data.defaultContent.ingest;
-                    const defIngestStr = encodeURIComponent(JSON.stringify({ title: defIngest.title, content: defIngest.content, image: defIngest.image, target: 'ingest' }));
-                    c.ingest.innerHTML += `<div onclick="GardenOS.ui.openDetail('generic', '${defIngestStr}')" class="group flex gap-5 items-start cursor-pointer mb-6 border-b border-white/5 pb-4 last:border-0 searchable-item"><div class="w-14 h-14 bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 border border-white/5"><img src="${defIngest.image}" class="w-full h-full object-cover"></div><div><h4 class="text-sm font-bold group-hover:text-amber-500 text-white">${defIngest.title}</h4><p class="text-[10px] text-gray-400 mt-1 line-clamp-2">${defIngest.content}</p></div></div>`;
                     
                     if(!visiblePosts.some(p => p.target === 'memo')) {
                          c.memo.innerHTML = `<div class="bg-white/5 p-4 rounded-[20px] border border-white/5 opacity-60 text-center"><p class="text-xs text-gray-400 font-serif italic">“岁月不语，唯有文字能在大雪中取暖。”</p></div>`;
